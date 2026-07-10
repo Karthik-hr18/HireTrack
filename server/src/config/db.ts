@@ -15,7 +15,7 @@ export const connectDB = async (): Promise<typeof mongoose> => {
     const conn = await mongoose.connect(mongoUri, {
       dbName: 'hiretrack'
     });
-    console.log(`MongoDB Connected: ${conn.connection.host}, Database: ${conn.connection.db.databaseName}`);
+    console.log(`MongoDB Connected: ${conn.connection.host}, Database: ${conn.connection.db?.databaseName || 'hiretrack'}`);
     return conn;
   } catch (error) {
     console.error(`MongoDB connection error: ${(error as Error).message}`);
