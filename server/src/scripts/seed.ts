@@ -6,7 +6,7 @@ import { User } from '../models/User';
 
 dotenv.config();
 
-const seedAdmin = async () => {
+const seedDatabase = async () => {
   console.log('Starting database seeding...');
   await connectDB();
 
@@ -19,27 +19,63 @@ const seedAdmin = async () => {
   }
 
   try {
+    const salt = await bcrypt.genSalt(12);
+
+    // 1. Seed Admin Account
     const existingAdmin = await User.findOne({ email: adminEmail.toLowerCase() });
     if (existingAdmin) {
       console.log(`Admin account already exists: ${adminEmail}. Updating password...`);
-      const salt = await bcrypt.genSalt(12);
       existingAdmin.passwordHash = await bcrypt.hash(adminPassword, salt);
       existingAdmin.isActive = true;
       await existingAdmin.save();
       console.log('Admin password updated successfully.');
     } else {
-      const salt = await bcrypt.genSalt(12);
-      const passwordHash = await bcrypt.hash(adminPassword, salt);
-
+      const adminHash = await bcrypt.hash(adminPassword, salt);
       await User.create({
         name: 'Administrator',
         email: adminEmail.toLowerCase(),
-        passwordHash,
+        passwordHash: adminHash,
         role: 'admin',
         isActive: true
       });
       console.log(`Admin account seeded successfully with email: ${adminEmail}`);
     }
+
+    // 2. Seed 5 Recruiter Accounts
+    const recruiterPassword = 'Recruiter@123';
+    const recruiterHash = await bcrypt.hash(recruiterPassword, salt);
+    for (let i = 1; i <= 5; i++) {
+      const recEmail = `recruiter${i}@hiretrack.com`;
+      const existingRec = await User.findOne({ email: recEmail });
+      if (!existingRec) {
+        await User.create({
+          name: `Recruiter ${i}`,
+          email: recEmail,
+          passwordHash: recruiterHash,
+          role: 'recruiter',
+          isActive: true
+        });
+        console.log(`Recruiter account seeded: ${recEmail}`);
+      }
+    }
+
+    // 3. Seed 1 Candidate Account
+    const candidateEmail = 'candidate@hiretrack.com';
+    const candidatePassword = 'Candidate@123';
+    const candidateHash = await bcrypt.hash(candidatePassword, salt);
+    const existingCand = await User.findOne({ email: candidateEmail });
+    if (!existingCand) {
+      await User.create({
+        name: 'Candidate Seed',
+        email: candidateEmail,
+        passwordHash: candidateHash,
+        role: 'candidate',
+        isActive: true
+      });
+      console.log(`Candidate account seeded: ${candidateEmail}`);
+    }
+
+    console.log('Seeding script finished successfully.');
   } catch (error) {
     console.error(`Seeding failed: ${(error as Error).message}`);
     process.exit(1);
@@ -49,4 +85,4 @@ const seedAdmin = async () => {
   }
 };
 
-seedAdmin();
+seedDatabase();

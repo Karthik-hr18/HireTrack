@@ -4,8 +4,8 @@ import { Modal } from '../../components/ui/Modal';
 
 export const JobsDashboard: React.FC = () => {
   const [jobs, setJobs] = useState<any[]>([]);
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<any | null>(null);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [user, setUser] = useState<any | null>(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -46,6 +46,8 @@ export const JobsDashboard: React.FC = () => {
       }
 
       const data = await response.json();
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       setToken(data.token);
       setUser(data.user);
       // Save token in memory and fetch jobs
@@ -275,9 +277,14 @@ export const JobsDashboard: React.FC = () => {
           <button className="api-btn" onClick={handleOpenCreateModal}>
             + Add New Job
           </button>
-          <button 
+           <button 
             style={logoutButtonStyle}
-            onClick={() => setToken(null)}
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              setToken(null);
+              setUser(null);
+            }}
           >
             Logout
           </button>
