@@ -36,7 +36,7 @@ export const ApplicationsDashboard: React.FC = () => {
         });
         if (response.ok) {
           const data = await response.json();
-           setJobs(data.jobs || []);
+          setJobs(data.jobs || []);
         }
       } catch (err) {
         console.error('Failed to load filter jobs:', err);

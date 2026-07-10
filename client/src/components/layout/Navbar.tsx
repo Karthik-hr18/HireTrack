@@ -71,6 +71,12 @@ export const Navbar: React.FC = () => {
             </Link>
           )}
 
+          {user && user.role === 'admin' && (
+            <Link to="/admin/interviews" style={linkStyle}>
+              My Interviews
+            </Link>
+          )}
+
           {token ? (
             <div style={authSectionStyle}>
               <span style={userNameStyle}>{user?.name}</span>

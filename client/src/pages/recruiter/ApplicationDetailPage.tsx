@@ -9,6 +9,7 @@ export const ApplicationDetailPage: React.FC = () => {
   // Application Data States
   const [application, setApplication] = useState<any | null>(null);
   const [timeline, setTimeline] = useState<any[]>([]);
+  const [interview, setInterview] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,6 +24,12 @@ export const ApplicationDetailPage: React.FC = () => {
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('skills_mismatch');
   const [rejectionNote, setRejectionNote] = useState('');
+
+  // Scheduler States
+  const [admins, setAdmins] = useState<any[]>([]);
+  const [interviewerId, setInterviewerId] = useState('');
+  const [scheduledAt, setScheduledAt] = useState('');
+  const [submittingInterview, setSubmittingInterview] = useState(false);
 
   const fetchApplicationDetails = async () => {
     if (!token || !id) return;
@@ -45,6 +52,7 @@ export const ApplicationDetailPage: React.FC = () => {
       const data = await response.json();
       setApplication(data.application);
       setTimeline(data.timeline);
+      setInterview(data.interview);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -59,6 +67,30 @@ export const ApplicationDetailPage: React.FC = () => {
     }
     fetchApplicationDetails();
   }, [id, token, navigate]);
+
+  // Fetch Interviewers Dropdown list when in Screening
+  useEffect(() => {
+    const fetchAdminsList = async () => {
+      if (!token || !application || application.stage !== 'resume_screening') return;
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const response = await fetch(`${apiUrl}/api/users/admins`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setAdmins(data);
+          if (data.length > 0) {
+            setInterviewerId(data[0]._id);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch admin list:', err);
+      }
+    };
+
+    fetchAdminsList();
+  }, [application, token]);
 
   const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +113,6 @@ export const ApplicationDetailPage: React.FC = () => {
       }
 
       setNoteText('');
-      // Reload details to sync notes and logs timeline
       await fetchApplicationDetails();
     } catch (err) {
       alert((err as Error).message);
@@ -113,6 +144,40 @@ export const ApplicationDetailPage: React.FC = () => {
       alert((err as Error).message);
     } finally {
       setSubmittingAction(false);
+    }
+  };
+
+  const handleScheduleInterview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !id || !interviewerId || !scheduledAt) return;
+
+    try {
+      setSubmittingInterview(true);
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/interviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          applicationId: id,
+          interviewerId,
+          scheduledAt: new Date(scheduledAt).toISOString()
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to schedule interview');
+      }
+
+      setScheduledAt('');
+      await fetchApplicationDetails();
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setSubmittingInterview(false);
     }
   };
 
@@ -409,6 +474,29 @@ export const ApplicationDetailPage: React.FC = () => {
               </div>
             )}
 
+            {/* Active Interview Details */}
+            {interview && (
+              <div style={scheduledSummaryCard}>
+                <h4 style={{ color: 'var(--accent-hover)', margin: '0 0 0.5rem 0' }}>📅 Scheduled Interview</h4>
+                <div>
+                  <span style={rejectionLabel}>Interviewer:</span>
+                  <span style={{ color: 'var(--gray-text-primary)' }}>{interview.interviewer?.name}</span>
+                </div>
+                <div style={{ marginTop: '0.25rem' }}>
+                  <span style={rejectionLabel}>Scheduled At:</span>
+                  <span style={{ color: 'var(--gray-text-primary)' }}>
+                    {new Date(interview.scheduledAt).toLocaleString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {!isTerminalStage && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
                 <button 
@@ -429,6 +517,47 @@ export const ApplicationDetailPage: React.FC = () => {
               </div>
             )}
           </section>
+
+          {/* Schedule Interview Form Panel (Only in resume_screening) */}
+          {application.stage === 'resume_screening' && (
+            <section className="card" style={{ ...sectionCardStyle, border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+              <h3 style={sectionTitleStyle}>📅 Schedule Panel</h3>
+              <form onSubmit={handleScheduleInterview} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={labelStyle}>Assigned Interviewer *</label>
+                  <select 
+                    value={interviewerId} 
+                    onChange={(e) => setInterviewerId(e.target.value)} 
+                    style={selectStyle}
+                    required
+                  >
+                    {admins.map((adm: any) => (
+                      <option key={adm._id} value={adm._id}>{adm.name} ({adm.email})</option>
+                    ))}
+                    {admins.length === 0 && <option value="">No Active Admins Found</option>}
+                  </select>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={labelStyle}>Date & Time *</label>
+                  <input 
+                    type="datetime-local" 
+                    value={scheduledAt} 
+                    onChange={(e) => setScheduledAt(e.target.value)} 
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  className="api-btn" 
+                  style={{ width: '100%', marginTop: '0.5rem' }}
+                  disabled={submittingInterview || admins.length === 0 || !scheduledAt}
+                >
+                  {submittingInterview ? 'Scheduling Panel...' : 'Confirm Interview Panel'}
+                </button>
+              </form>
+            </section>
+          )}
 
           {/* Timeline Audit Trail */}
           <section className="card" style={sectionCardStyle}>
@@ -717,6 +846,15 @@ const rejectionSummaryCard: React.CSSProperties = {
   fontSize: '14px'
 };
 
+const scheduledSummaryCard: React.CSSProperties = {
+  backgroundColor: 'rgba(99, 102, 241, 0.08)',
+  border: '1px solid rgba(99, 102, 241, 0.2)',
+  padding: '14px',
+  borderRadius: 'var(--radius-default)',
+  fontSize: '14px',
+  marginBottom: '1rem'
+};
+
 const rejectionLabel: React.CSSProperties = {
   fontWeight: 700,
   color: 'var(--gray-text-muted)',
@@ -859,4 +997,28 @@ const cancelBtnStyle: React.CSSProperties = {
   borderRadius: '6px',
   fontWeight: 600,
   fontSize: '14px'
+};
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  backgroundColor: 'var(--gray-surface)',
+  border: '1px solid var(--gray-border)',
+  color: 'var(--gray-text-primary)',
+  fontSize: '14px',
+  height: '38px',
+  borderRadius: '6px',
+  padding: '0 12px',
+  boxSizing: 'border-box'
+};
+
+const selectStyle: React.CSSProperties = {
+  width: '100%',
+  backgroundColor: 'var(--gray-surface)',
+  border: '1px solid var(--gray-border)',
+  color: 'var(--gray-text-primary)',
+  fontSize: '14px',
+  height: '38px',
+  borderRadius: '6px',
+  padding: '0 12px',
+  boxSizing: 'border-box'
 };

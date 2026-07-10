@@ -3,6 +3,7 @@ import { Application } from '../models/Application';
 import { Job } from '../models/Job';
 import { User } from '../models/User';
 import { ActivityLog } from '../models/ActivityLog';
+import { Interview } from '../models/Interview';
 import { uploadToCloudinary } from '../config/cloudinary';
 import { ApplySchema, RejectApplicationSchema, PipelineStage } from '@hiretrack/shared';
 import mongoose from 'mongoose';
@@ -214,9 +215,16 @@ export const getApplicationById = async (req: Request, res: Response, next: Next
       .sort({ createdAt: -1 })
       .populate('actor', 'name email role');
 
+    // Fetch active interview details if scheduled
+    const interview = await Interview.findOne({ 
+      application: new mongoose.Types.ObjectId(id),
+      status: 'scheduled'
+    }).populate('interviewer', 'name email role');
+
     return res.status(200).json({
       application,
-      timeline
+      timeline,
+      interview
     });
   } catch (error) {
     return next(error);
