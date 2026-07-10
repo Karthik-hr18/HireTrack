@@ -68,6 +68,40 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+export const optionalAuthenticate = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      return next();
+    }
+
+    const decoded = jwt.verify(token, jwtSecret) as {
+      id: string;
+      email: string;
+      role: UserRoleType;
+    };
+
+    const user = await User.findById(decoded.id);
+    if (user && user.isActive) {
+      req.user = {
+        id: decoded.id,
+        email: decoded.email,
+        role: decoded.role
+      };
+    }
+    return next();
+  } catch (error) {
+    // Treat invalid or expired tokens as anonymous public requests
+    return next();
+  }
+};
+
 export const authorize = (...roles: UserRoleType[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {

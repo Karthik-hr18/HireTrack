@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import { connectDB } from './config/db';
 import authRoutes from './routes/authRoutes';
+import jobRoutes from './routes/jobRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 // Load environment variables
@@ -54,6 +55,7 @@ app.get('/health', (req, res) => {
 
 // Routes
 app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/jobs', jobRoutes);
 
 // 404 Route handler
 app.use((req, res, next) => {
