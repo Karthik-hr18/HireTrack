@@ -34,10 +34,10 @@ export const submitScorecard = async (req: Request, res: Response, next: NextFun
       return res.status(404).json({ message: 'Interview panel not found', code: 'NOT_FOUND' });
     }
 
-    // Verify current user is the assigned Admin interviewer
-    if (interview.interviewer.toString() !== req.user.id) {
+    // Verify current user is an Admin
+    if (req.user.role !== 'admin') {
       return res.status(403).json({
-        message: 'You are not authorized to submit a scorecard for this interview.',
+        message: 'Only admins are authorized to submit a scorecard for this interview.',
         code: 'FORBIDDEN'
       });
     }

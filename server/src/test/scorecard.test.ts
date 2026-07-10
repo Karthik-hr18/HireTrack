@@ -310,4 +310,34 @@ describe('Scorecard Submission & Collapsed Hiring Decision Tests', () => {
     expect(updatedApp!.stage).toBe('rejected');
     expect(updatedApp!.rejectionReason).toBe('skills_mismatch');
   });
+
+  it('4. Submit Scorecard (Recruiter) - Should block with 403 Forbidden', async () => {
+    const req = {
+      user: { id: recruiterId, email: 'recruiter@test-scorecard.com', role: 'recruiter' },
+      params: { id: interview1Id },
+      body: {
+        recommendation: 'pass',
+        comments: 'Recruiter should be blocked.'
+      }
+    } as any;
+
+    let responseStatus = 0;
+    let responseData: any = null;
+
+    const res = {
+      status: (status: number) => {
+        responseStatus = status;
+        return {
+          json: (data: any) => {
+            responseData = data;
+          }
+        };
+      }
+    } as any;
+
+    await submitScorecard(req, res, () => {});
+
+    expect(responseStatus).toBe(403);
+    expect(responseData.code).toBe('FORBIDDEN');
+  });
 });

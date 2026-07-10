@@ -117,7 +117,7 @@ export const ApplicationDetailPage: React.FC = () => {
     }
   }, [activeInterview]);
 
-  const canSubmitScorecard = isAdmin && activeInterview && activeInterview.interviewer?._id === user?.id;
+  const canSubmitScorecard = isAdmin && activeInterview;
 
   // Fetch interviewer Admins list when scheduling is active
   useEffect(() => {
