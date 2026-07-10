@@ -7,6 +7,7 @@ export const CareersPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.title = "HireTrack | Browse Jobs";
     const fetchJobs = async () => {
       try {
         setLoading(true);

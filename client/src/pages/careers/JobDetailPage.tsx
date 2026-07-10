@@ -55,6 +55,7 @@ export const JobDetailPage: React.FC = () => {
         }
         const data = await response.json();
         setJob(data);
+        document.title = `HireTrack | ${data.title}`;
       } catch (err) {
         setError((err as Error).message);
       } finally {
