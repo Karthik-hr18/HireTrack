@@ -59,6 +59,12 @@ export const Navbar: React.FC = () => {
             Browse Jobs
           </Link>
 
+          {token && (
+            <Link to="/dashboard" style={linkStyle}>
+              Dashboard
+            </Link>
+          )}
+
           {user && user.role === 'candidate' && (
             <Link to="/candidate/applications" style={linkStyle}>
               My Applications

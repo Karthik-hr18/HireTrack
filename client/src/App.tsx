@@ -10,6 +10,7 @@ import { ManageRecruiters } from './pages/admin/ManageRecruiters';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { ApplicationsTracker } from './pages/candidate/ApplicationsTracker';
+import { Dashboard } from './pages/dashboard/Dashboard';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/candidate/applications" element={<ApplicationsTracker />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );
