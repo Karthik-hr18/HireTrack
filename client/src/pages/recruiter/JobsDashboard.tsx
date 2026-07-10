@@ -287,6 +287,25 @@ export const JobsDashboard: React.FC = () => {
           <p style={subtitleStyle}>Create, edit, and track job opening pipelines</p>
         </div>
         <div style={actionGroupStyle}>
+          <Link 
+            to="/recruiter/applications" 
+            className="api-btn" 
+            style={{ 
+              textDecoration: 'none', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              backgroundColor: 'var(--gray-surface)', 
+              border: '1px solid var(--gray-border)', 
+              color: 'var(--gray-text-primary)',
+              marginRight: '0.5rem',
+              padding: '0 1.25rem',
+              boxSizing: 'border-box',
+              minHeight: '40px'
+            }}
+          >
+            👥 Candidate Pipeline
+          </Link>
           <button className="api-btn" onClick={handleOpenCreateModal}>
             + Add New Job
           </button>

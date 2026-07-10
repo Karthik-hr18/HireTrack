@@ -6,16 +6,21 @@ import { User } from '../models/User';
 import { Job } from '../models/Job';
 import { Application } from '../models/Application';
 import { ActivityLog } from '../models/ActivityLog';
-import { applyToJob, getCandidateApplications } from '../controllers/applicationController';
+import {
+  applyToJob,
+  getManageApplications,
+  getApplicationById,
+  advanceApplication,
+  rejectApplication,
+  addApplicationNote
+} from '../controllers/applicationController';
 
 dotenv.config();
 
 describe('Candidate Application Submission & Duplicate Prevention Tests', () => {
   let candidateToken: string;
-  let unverifiedCandidateToken: string;
   let recruiterToken: string;
   let candidateId: string;
-  let unverifiedCandidateId: string;
   let recruiterId: string;
   let jobId: string;
   let createdAppId: string;
@@ -44,18 +49,6 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
     });
     candidateId = candidate._id.toString();
     candidateToken = jwt.sign({ id: candidateId, email: candidate.email, role: candidate.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
-
-    // Create Unverified Candidate
-    const unverified = await User.create({
-      name: 'Unverified Candidate',
-      email: 'unverified@test-app.com',
-      passwordHash: 'dummy',
-      role: 'candidate',
-      isActive: true,
-      isEmailVerified: false
-    });
-    unverifiedCandidateId = unverified._id.toString();
-    unverifiedCandidateToken = jwt.sign({ id: unverifiedCandidateId, email: unverified.email, role: unverified.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Create Recruiter
     const recruiter = await User.create({
@@ -219,5 +212,155 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
 
     expect(responseStatus).toBe(400);
     expect(responseData.code).toBe('ACTIVE_APPLICATION_EXISTS');
+  });
+
+  it('4. Recruiter Get All Applications - Should return list of applications', async () => {
+    const req = {
+      query: { jobId }
+    } as any;
+
+    let responseStatus = 0;
+    let responseData: any = null;
+
+    const res = {
+      status: (status: number) => {
+        responseStatus = status;
+        return {
+          json: (data: any) => {
+            responseData = data;
+          }
+        };
+      }
+    } as any;
+
+    await getManageApplications(req, res, () => {});
+
+    expect(responseStatus).toBe(200);
+    expect(responseData.applications.length).toBeGreaterThan(0);
+    expect(responseData.total).toBe(1);
+  });
+
+  it('5. Recruiter Get Single Application - Should return detail profile & logs', async () => {
+    const req = {
+      params: { id: createdAppId }
+    } as any;
+
+    let responseStatus = 0;
+    let responseData: any = null;
+
+    const res = {
+      status: (status: number) => {
+        responseStatus = status;
+        return {
+          json: (data: any) => {
+            responseData = data;
+          }
+        };
+      }
+    } as any;
+
+    await getApplicationById(req, res, () => {});
+
+    expect(responseStatus).toBe(200);
+    expect(responseData.application._id.toString()).toBe(createdAppId);
+    expect(responseData.timeline.length).toBeGreaterThan(0);
+  });
+
+  it('6. Recruiter Add Note - Should append note item', async () => {
+    const req = {
+      user: { id: recruiterId, email: 'recruiter@test-app.com', role: 'recruiter' },
+      params: { id: createdAppId },
+      body: { text: 'Candidate has decent communication skills.' }
+    } as any;
+
+    let responseStatus = 0;
+    let responseData: any = null;
+
+    const res = {
+      status: (status: number) => {
+        responseStatus = status;
+        return {
+          json: (data: any) => {
+            responseData = data;
+          }
+        };
+      }
+    } as any;
+
+    await addApplicationNote(req, res, () => {});
+
+    expect(responseStatus).toBe(200);
+    expect(responseData.notes.length).toBe(1);
+    expect(responseData.notes[0].text).toBe('Candidate has decent communication skills.');
+
+    // Check log
+    const log = await ActivityLog.findOne({ entityId: createdAppId, action: 'note_added' });
+    expect(log).not.toBeNull();
+  });
+
+  it('7. Recruiter Advance Candidate Stage - Should transition stage forward', async () => {
+    const req = {
+      user: { id: recruiterId, email: 'recruiter@test-app.com', role: 'recruiter' },
+      params: { id: createdAppId }
+    } as any;
+
+    let responseStatus = 0;
+    let responseData: any = null;
+
+    const res = {
+      status: (status: number) => {
+        responseStatus = status;
+        return {
+          json: (data: any) => {
+            responseData = data;
+          }
+        };
+      }
+    } as any;
+
+    await advanceApplication(req, res, () => {});
+
+    expect(responseStatus).toBe(200);
+    expect(responseData.stage).toBe('resume_screening');
+
+    // Check log
+    const log = await ActivityLog.findOne({ entityId: createdAppId, action: 'stage_changed' }).sort({ createdAt: -1 });
+    expect(log!.metadata.to).toBe('resume_screening');
+  });
+
+  it('8. Recruiter Reject Candidate - Should transition stage to rejected with reason', async () => {
+    const req = {
+      user: { id: recruiterId, email: 'recruiter@test-app.com', role: 'recruiter' },
+      params: { id: createdAppId },
+      body: {
+        rejectionReason: 'skills_mismatch',
+        rejectionNote: 'Lacks React Server Components experience.'
+      }
+    } as any;
+
+    let responseStatus = 0;
+    let responseData: any = null;
+
+    const res = {
+      status: (status: number) => {
+        responseStatus = status;
+        return {
+          json: (data: any) => {
+            responseData = data;
+          }
+        };
+      }
+    } as any;
+
+    await rejectApplication(req, res, () => {});
+
+    expect(responseStatus).toBe(200);
+    expect(responseData.stage).toBe('rejected');
+    expect(responseData.rejectionReason).toBe('skills_mismatch');
+
+    // Check log
+    const log = await ActivityLog.findOne({ entityId: createdAppId, action: 'stage_changed' }).sort({ createdAt: -1 });
+    expect(log!.metadata.to).toBe('rejected');
+    expect(log!.metadata.reason).toBe('skills_mismatch');
   });
 });
