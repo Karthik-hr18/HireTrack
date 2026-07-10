@@ -5,6 +5,7 @@ import { Modal } from '../../components/ui/Modal';
 export const JobsDashboard: React.FC = () => {
   const [jobs, setJobs] = useState<any[]>([]);
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -46,6 +47,7 @@ export const JobsDashboard: React.FC = () => {
 
       const data = await response.json();
       setToken(data.token);
+      setUser(data.user);
       // Save token in memory and fetch jobs
     } catch (err) {
       setLoginError((err as Error).message);
@@ -263,7 +265,10 @@ export const JobsDashboard: React.FC = () => {
     <div style={containerStyle}>
       <header style={dashboardHeaderStyle}>
         <div>
-          <h1 style={titleStyle}>Recruiter <span className="gradient-text">Dashboard</span></h1>
+          <h1 style={titleStyle}>
+            {user?.role === 'admin' ? 'Admin' : 'Recruiter'}{' '}
+            <span className="gradient-text">Dashboard</span>
+          </h1>
           <p style={subtitleStyle}>Create, edit, and track job opening pipelines</p>
         </div>
         <div style={actionGroupStyle}>
