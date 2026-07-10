@@ -42,13 +42,6 @@ export const Navbar: React.FC = () => {
 
   return (
     <div style={navWrapperStyle}>
-      {/* Verification Gating Warning Banner */}
-      {user && !user.isEmailVerified && user.role !== 'admin' && (
-        <div style={verificationBannerStyle}>
-          ⚠️ <strong>Email Unverified</strong>: Please verify your account. Copy the mock verification link from your server console logs to enable write access.
-        </div>
-      )}
-
       <nav style={navStyle}>
         <div style={logoContainerStyle}>
           <Link to="/" style={logoStyle}>
@@ -106,21 +99,6 @@ const navWrapperStyle: React.CSSProperties = {
   width: '100%',
   marginBottom: 'var(--space-4)'
 };
-
-const verificationBannerStyle: React.CSSProperties = {
-  width: '100%',
-  backgroundColor: 'rgba(245, 158, 11, 0.15)',
-  border: '1px solid rgba(245, 158, 11, 0.3)',
-  color: '#fbbf24',
-  padding: 'var(--space-2) var(--space-4)',
-  borderRadius: 'var(--radius-default)',
-  fontSize: '13px',
-  textAlign: 'center',
-  marginBottom: 'var(--space-3)',
-  fontWeight: 500,
-  lineHeight: 1.4
-};
-
 const navStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',

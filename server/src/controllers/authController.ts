@@ -31,25 +31,15 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(validatedData.password, salt);
 
-    // Generate verification token for Option A mock flow
-    const verificationToken = crypto.randomBytes(20).toString('hex');
-
     const newUser = await User.create({
       name: validatedData.name,
       email: validatedData.email.toLowerCase(),
       passwordHash,
       role: 'candidate', // Only candidates can self-register
       isActive: true,
-      isEmailVerified: false,
-      emailVerificationToken: verificationToken
+      isEmailVerified: true,
+      emailVerificationToken: null
     });
-
-    // Log verification link to the server console simulating an email dispatch
-    const verifyUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/verify?token=${verificationToken}`;
-    console.log(`\n======================================================`);
-    console.log(`✉️ MOCK EMAIL DISPATCH FOR: ${newUser.email}`);
-    console.log(`Verification URL: ${verifyUrl}`);
-    console.log(`======================================================\n`);
 
     const token = generateToken(newUser._id.toString(), newUser.email, newUser.role);
 
@@ -142,50 +132,6 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
         isEmailVerified: user.isEmailVerified
       }
     });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { token } = req.query;
-
-    if (!token || typeof token !== 'string') {
-      return res.status(400).send(`
-        <div style="font-family: sans-serif; text-align: center; padding: 4rem;">
-          <h1 style="color: #ef4444;">Verification Failed</h1>
-          <p style="color: #64748b;">Missing or invalid email verification token.</p>
-        </div>
-      `);
-    }
-
-    const user = await User.findOne({ emailVerificationToken: token });
-    if (!user) {
-      return res.status(400).send(`
-        <div style="font-family: sans-serif; text-align: center; padding: 4rem;">
-          <h1 style="color: #ef4444;">Link Expired or Invalid</h1>
-          <p style="color: #64748b;">This verification link is no longer valid or has already been used.</p>
-        </div>
-      `);
-    }
-
-    user.isEmailVerified = true;
-    user.emailVerificationToken = null;
-    await user.save();
-
-    return res.status(200).send(`
-      <div style="font-family: sans-serif; text-align: center; padding: 4rem; background-color: #0b0f19; color: #f8fafc; min-height: 100vh;">
-        <h1 style="color: #10b981; font-size: 2.5rem; margin-bottom: 1rem;">Email Verified Successfully!</h1>
-        <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 2rem;">Your account is now verified. You may return to the HireTrack application and sign in.</p>
-        <div style="margin-top: 2rem;">
-          <a href="${process.env.CORS_ORIGIN || 'https://hire-track-client.vercel.app'}/login" 
-             style="display: inline-block; background-color: #6366f1; color: white; padding: 0.8rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
-            Proceed to Login
-          </a>
-        </div>
-      </div>
-    `);
   } catch (error) {
     return next(error);
   }

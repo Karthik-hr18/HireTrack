@@ -122,32 +122,3 @@ export const authorize = (...roles: UserRoleType[]) => {
   };
 };
 
-export const requireEmailVerification = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required', code: 'UNAUTHORIZED' });
-    }
-
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User profile not found', code: 'NOT_FOUND' });
-    }
-
-    // Bypass verification check for Admin
-    if (user.role === 'admin') {
-      return next();
-    }
-
-    if (!user.isEmailVerified) {
-      return res.status(403).json({
-        message: 'Your email address is not verified. Please verify your email to perform this action.',
-        code: 'EMAIL_UNVERIFIED'
-      });
-    }
-
-    return next();
-  } catch (error) {
-    return next(error);
-  }
-};
-
