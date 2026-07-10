@@ -54,12 +54,16 @@ const ApplicationSchema: Schema = new Schema(
       enum: [
         'applied',
         'resume_screening',
-        'interview_scheduled',
-        'interview_completed',
-        'final_review',
+        'technical_interview_scheduled',
+        'technical_interview_completed',
+        'hr_interview_scheduled',
+        'hr_interview_completed',
         'offer',
         'hired',
-        'rejected'
+        'rejected',
+        'interview_scheduled',
+        'interview_completed',
+        'final_review'
       ],
       default: 'applied'
     },

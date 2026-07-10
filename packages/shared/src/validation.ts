@@ -19,12 +19,16 @@ export type ApplicationSourceType = z.infer<typeof ApplicationSource>;
 export const PipelineStage = z.enum([
   'applied',
   'resume_screening',
-  'interview_scheduled',
-  'interview_completed',
-  'final_review',
+  'technical_interview_scheduled',
+  'technical_interview_completed',
+  'hr_interview_scheduled',
+  'hr_interview_completed',
   'offer',
   'hired',
-  'rejected'
+  'rejected',
+  'interview_scheduled',
+  'interview_completed',
+  'final_review'
 ]);
 export type PipelineStageType = z.infer<typeof PipelineStage>;
 
@@ -120,7 +124,8 @@ export type RejectApplicationInput = z.infer<typeof RejectApplicationSchema>;
 export const ScheduleInterviewSchema = z.object({
   applicationId: z.string().min(1, 'Application ID is required'),
   interviewerId: z.string().min(1, 'Interviewer ID is required'),
-  scheduledAt: z.string().datetime({ message: 'Invalid datetime format (ISO 8601)' })
+  scheduledAt: z.string().datetime({ message: 'Invalid datetime format (ISO 8601)' }),
+  type: z.enum(['technical', 'hr']).default('technical')
 });
 export type ScheduleInterviewInput = z.infer<typeof ScheduleInterviewSchema>;
 
@@ -128,6 +133,10 @@ export type ScheduleInterviewInput = z.infer<typeof ScheduleInterviewSchema>;
 export const SubmitScorecardSchema = z.object({
   recommendation: z.string().trim().min(1, 'Recommendation is required'),
   comments: z.string().trim().min(1, 'Comments are required'),
-  ratings: z.record(z.string(), z.number()).optional().nullable()
+  ratings: z.record(z.string(), z.number()).optional().nullable(),
+  communication: z.number().min(1).max(5).optional(),
+  cultureFit: z.number().min(1).max(5).optional(),
+  salaryExpectation: z.number().nonnegative().optional(),
+  salaryOffered: z.number().nonnegative().optional()
 });
 export type SubmitScorecardInput = z.infer<typeof SubmitScorecardSchema>;

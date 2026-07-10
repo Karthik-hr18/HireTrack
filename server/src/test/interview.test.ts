@@ -112,13 +112,14 @@ describe('Interview Scheduler Integration Tests', () => {
     await mongoose.connection.close();
   });
 
-  it('1. Schedule Interview (Valid Admin Interviewer) - Should succeed & auto-advance stage', async () => {
+  it('1. Schedule Technical Interview (Valid Admin Interviewer) - Should succeed & auto-advance stage', async () => {
     const req = {
       user: { id: recruiterId, email: 'recruiter@test-int.com', role: 'recruiter' },
       body: {
         applicationId,
         interviewerId: adminId,
-        scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
+        scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        type: 'technical'
       }
     } as any;
 
@@ -141,16 +142,17 @@ describe('Interview Scheduler Integration Tests', () => {
     expect(responseStatus).toBe(201);
     expect(responseData).toHaveProperty('_id');
     expect(responseData.status).toBe('scheduled');
+    expect(responseData.type).toBe('technical');
     expect(responseData.interviewer._id.toString()).toBe(adminId);
     interviewId = responseData._id.toString();
 
-    // Verify application stage auto-advanced to interview_scheduled
+    // Verify application stage auto-advanced to technical_interview_scheduled
     const updatedApp = await Application.findById(applicationId);
-    expect(updatedApp!.stage).toBe('interview_scheduled');
+    expect(updatedApp!.stage).toBe('technical_interview_scheduled');
 
     // Verify timeline activity log
     const log = await ActivityLog.findOne({ entityId: applicationId, action: 'stage_changed' }).sort({ createdAt: -1 });
-    expect(log!.metadata.to).toBe('interview_scheduled');
+    expect(log!.metadata.to).toBe('technical_interview_scheduled');
   });
 
   it('2. Schedule Interview (Invalid Interviewer Role) - Should fail with 400', async () => {
@@ -159,7 +161,8 @@ describe('Interview Scheduler Integration Tests', () => {
       body: {
         applicationId,
         interviewerId: candidateId, // Candidate is not allowed to conduct interviews
-        scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        type: 'technical'
       }
     } as any;
 
@@ -176,6 +179,9 @@ describe('Interview Scheduler Integration Tests', () => {
         };
       }
     } as any;
+
+    // Reset candidate stage to screening so it passes first gate checks
+    await Application.findByIdAndUpdate(applicationId, { stage: 'resume_screening' });
 
     await scheduleInterview(req, res, () => {});
 

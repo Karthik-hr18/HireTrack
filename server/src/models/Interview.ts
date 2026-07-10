@@ -5,6 +5,7 @@ export interface IInterview extends Document {
   interviewer: mongoose.Types.ObjectId; // User with role: admin
   scheduledAt: Date;
   status: 'scheduled' | 'completed';
+  type: 'technical' | 'hr';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,7 +15,8 @@ const InterviewSchema: Schema = new Schema(
     application: { type: Schema.Types.ObjectId, ref: 'Application', required: true },
     interviewer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     scheduledAt: { type: Date, required: true },
-    status: { type: String, required: true, enum: ['scheduled', 'completed'], default: 'scheduled' }
+    status: { type: String, required: true, enum: ['scheduled', 'completed'], default: 'scheduled' },
+    type: { type: String, required: true, enum: ['technical', 'hr'], default: 'technical' }
   },
   {
     timestamps: true

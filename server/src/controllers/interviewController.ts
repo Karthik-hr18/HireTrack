@@ -13,13 +13,40 @@ export const scheduleInterview = async (req: Request, res: Response, next: NextF
     }
 
     const validatedData = ScheduleInterviewSchema.parse(req.body);
-    const { applicationId, interviewerId, scheduledAt } = validatedData;
+    const { applicationId, interviewerId, scheduledAt, type } = validatedData;
 
-    // Check if Application exists
-    const application = await Application.findById(applicationId);
+    // Check if Application exists and populate Candidate details
+    const application = await Application.findById(applicationId).populate('candidate');
     if (!application) {
       return res.status(404).json({ message: 'Application profile not found', code: 'NOT_FOUND' });
     }
+
+    // Role-based restrictions on scheduling
+    if (type === 'technical') {
+      // Recruiter or Admin can schedule Technical. Candidate must be in resume_screening.
+      if (application.stage !== 'resume_screening') {
+        return res.status(400).json({
+          message: 'Technical interviews can only be scheduled for candidates in the resume screening stage.',
+          code: 'BAD_REQUEST'
+        });
+      }
+    } else if (type === 'hr') {
+      // ONLY Admin can schedule HR. Recruiter CANNOT. Candidate must be in technical_interview_completed.
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({
+          message: 'Only admins are authorized to schedule HR interviews.',
+          code: 'FORBIDDEN'
+        });
+      }
+      if (application.stage !== 'technical_interview_completed') {
+        return res.status(400).json({
+          message: 'HR interviews can only be scheduled once the technical interview is completed.',
+          code: 'BAD_REQUEST'
+        });
+      }
+    }
+
+    const candidateUser = application.candidate as any;
 
     // Check if Interviewer exists and is an Admin
     const interviewer = await User.findById(interviewerId);
@@ -39,13 +66,15 @@ export const scheduleInterview = async (req: Request, res: Response, next: NextF
       application: new mongoose.Types.ObjectId(applicationId),
       interviewer: new mongoose.Types.ObjectId(interviewerId),
       scheduledAt: new Date(scheduledAt),
+      type,
       status: 'scheduled'
     });
 
     const currentStage = application.stage;
+    const nextStage = type === 'technical' ? 'technical_interview_scheduled' : 'hr_interview_scheduled';
 
-    // Update Application stage to interview_scheduled
-    application.stage = 'interview_scheduled';
+    // Update Application stage
+    application.stage = nextStage;
     await application.save();
 
     // Log the stage change
@@ -56,11 +85,20 @@ export const scheduleInterview = async (req: Request, res: Response, next: NextF
       actor: new mongoose.Types.ObjectId(req.user.id),
       metadata: { 
         from: currentStage, 
-        to: 'interview_scheduled',
+        to: nextStage,
         interviewer: interviewer.name,
-        scheduledAt: new Date(scheduledAt)
+        scheduledAt: new Date(scheduledAt),
+        interviewType: type
       }
     });
+
+    // Mock candidate email dispatch
+    console.log(`\n======================================================`);
+    console.log(`✉️ MOCK EMAIL DISPATCH FOR: ${candidateUser?.email || 'unknown@candidate.com'}`);
+    console.log(`Subject: ${type === 'technical' ? 'Technical' : 'HR'} Interview Scheduled - HireTrack`);
+    console.log(`Interviewer: ${interviewer.name} (${interviewer.email})`);
+    console.log(`Date/Time: ${new Date(scheduledAt).toLocaleString()}`);
+    console.log(`======================================================\n`);
 
     const populatedInterview = await Interview.findById(interview._id)
       .populate('interviewer', 'name email role')

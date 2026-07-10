@@ -4,6 +4,7 @@ import { Job } from '../models/Job';
 import { User } from '../models/User';
 import { ActivityLog } from '../models/ActivityLog';
 import { Interview } from '../models/Interview';
+import { Scorecard } from '../models/Scorecard';
 import { uploadToCloudinary } from '../config/cloudinary';
 import { ApplySchema, RejectApplicationSchema, PipelineStage } from '@hiretrack/shared';
 import mongoose from 'mongoose';
@@ -215,16 +216,21 @@ export const getApplicationById = async (req: Request, res: Response, next: Next
       .sort({ createdAt: -1 })
       .populate('actor', 'name email role');
 
-    // Fetch active interview details if scheduled
-    const interview = await Interview.findOne({ 
-      application: new mongoose.Types.ObjectId(id),
-      status: 'scheduled'
+    // Fetch all related interviews (Technical and/or HR)
+    const interviews = await Interview.find({ 
+      application: new mongoose.Types.ObjectId(id)
     }).populate('interviewer', 'name email role');
+
+    const interviewIds = interviews.map(i => i._id);
+    const scorecards = await Scorecard.find({
+      interview: { $in: interviewIds }
+    }).populate('submittedBy', 'name email role');
 
     return res.status(200).json({
       application,
       timeline,
-      interview
+      interviews,
+      scorecards
     });
   } catch (error) {
     return next(error);
@@ -248,26 +254,68 @@ export const advanceApplication = async (req: Request, res: Response, next: Next
     }
 
     const currentStage = application.stage;
+
+    // Recruiter-only Gating Checks:
+    // Once a recruiter schedules the Technical Interview, the recruiter can no longer advance that application.
+    const isRecruiter = req.user.role === 'recruiter';
+    const recruiterRestrictedStages = [
+      'technical_interview_scheduled',
+      'technical_interview_completed',
+      'hr_interview_scheduled',
+      'hr_interview_completed',
+      'offer',
+      'hired',
+      'rejected',
+      // Include old stages for compatibility
+      'interview_scheduled',
+      'interview_completed',
+      'final_review'
+    ];
+
+    if (isRecruiter && recruiterRestrictedStages.includes(currentStage)) {
+      return res.status(403).json({
+        message: 'Recruiters are not authorized to advance candidates past the Technical Interview scheduling phase.',
+        code: 'FORBIDDEN'
+      });
+    }
+
     let nextStage: string;
 
-    // Fixed pipeline stage progression
+    // Strict Pipeline Stage Progression Rules
     switch (currentStage) {
       case 'applied':
         nextStage = 'resume_screening';
         break;
       case 'resume_screening':
-        nextStage = 'interview_scheduled';
-        break;
-      case 'interview_scheduled':
-        nextStage = 'interview_completed';
-        break;
-      case 'interview_completed':
-        nextStage = 'final_review';
-        break;
-      case 'final_review':
+        return res.status(400).json({
+          message: 'Please schedule a Technical Interview to advance from Resume Screening.',
+          code: 'BAD_REQUEST'
+        });
+      case 'technical_interview_scheduled':
+        return res.status(400).json({
+          message: 'An Admin must submit a Technical Scorecard to advance this candidate.',
+          code: 'BAD_REQUEST'
+        });
+      case 'technical_interview_completed':
+        return res.status(400).json({
+          message: 'An Admin must schedule an HR Interview to advance this candidate.',
+          code: 'BAD_REQUEST'
+        });
+      case 'hr_interview_scheduled':
+        return res.status(400).json({
+          message: 'An Admin must submit an HR Scorecard to advance this candidate.',
+          code: 'BAD_REQUEST'
+        });
+      case 'hr_interview_completed':
         nextStage = 'offer';
         break;
       case 'offer':
+        if (req.user.role !== 'admin') {
+          return res.status(403).json({
+            message: 'Only admins are authorized to finalize offers and mark applications as hired.',
+            code: 'FORBIDDEN'
+          });
+        }
         nextStage = 'hired';
         break;
       case 'hired':
@@ -322,6 +370,29 @@ export const rejectApplication = async (req: Request, res: Response, next: NextF
     }
 
     const currentStage = application.stage;
+
+    // Recruiter Gating on Rejections
+    const isRecruiter = req.user.role === 'recruiter';
+    const recruiterRestrictedStages = [
+      'technical_interview_scheduled',
+      'technical_interview_completed',
+      'hr_interview_scheduled',
+      'hr_interview_completed',
+      'offer',
+      'hired',
+      'rejected',
+      'interview_scheduled',
+      'interview_completed',
+      'final_review'
+    ];
+
+    if (isRecruiter && recruiterRestrictedStages.includes(currentStage)) {
+      return res.status(403).json({
+        message: 'Recruiters are not authorized to change application status past the Technical Interview scheduling phase.',
+        code: 'FORBIDDEN'
+      });
+    }
+
     if (currentStage === 'hired' || currentStage === 'rejected') {
       return res.status(400).json({
         message: 'Cannot reject an application that is already closed or hired.',

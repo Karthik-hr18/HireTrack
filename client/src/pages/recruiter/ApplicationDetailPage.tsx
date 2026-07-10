@@ -5,11 +5,14 @@ export const ApplicationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const userJson = localStorage.getItem('user');
+  const user = userJson ? JSON.parse(userJson) : null;
 
   // Application Data States
   const [application, setApplication] = useState<any | null>(null);
   const [timeline, setTimeline] = useState<any[]>([]);
-  const [interview, setInterview] = useState<any | null>(null);
+  const [interviews, setInterviews] = useState<any[]>([]);
+  const [scorecards, setScorecards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +33,15 @@ export const ApplicationDetailPage: React.FC = () => {
   const [interviewerId, setInterviewerId] = useState('');
   const [scheduledAt, setScheduledAt] = useState('');
   const [submittingInterview, setSubmittingInterview] = useState(false);
+
+  // Scorecard Submit States
+  const [recommendation, setRecommendation] = useState('pass');
+  const [comments, setComments] = useState('');
+  const [communication, setCommunication] = useState(5);
+  const [cultureFit, setCultureFit] = useState(5);
+  const [salaryExpectation, setSalaryExpectation] = useState('');
+  const [salaryOffered, setSalaryOffered] = useState('');
+  const [submittingScorecard, setSubmittingScorecard] = useState(false);
 
   const fetchApplicationDetails = async () => {
     if (!token || !id) return;
@@ -52,7 +64,8 @@ export const ApplicationDetailPage: React.FC = () => {
       const data = await response.json();
       setApplication(data.application);
       setTimeline(data.timeline);
-      setInterview(data.interview);
+      setInterviews(data.interviews || []);
+      setScorecards(data.scorecards || []);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -68,10 +81,48 @@ export const ApplicationDetailPage: React.FC = () => {
     fetchApplicationDetails();
   }, [id, token, navigate]);
 
-  // Fetch Interviewers Dropdown list when in Screening
+  // Determine active phase states
+  const isRecruiter = user?.role === 'recruiter';
+  const isAdmin = user?.role === 'admin';
+  const isTerminalStage = application?.stage === 'hired' || application?.stage === 'rejected';
+
+  // Recruiter restricted stages for progression edits
+  const recruiterRestrictedStages = [
+    'technical_interview_scheduled',
+    'technical_interview_completed',
+    'hr_interview_scheduled',
+    'hr_interview_completed',
+    'offer',
+    'hired',
+    'rejected'
+  ];
+
+  // Enable scheduling for recruiters (Technical Interview only) or admins (Technical or HR)
+  const canSchedulePanel = application && (
+    (application.stage === 'resume_screening') || 
+    (application.stage === 'technical_interview_completed' && isAdmin)
+  );
+
+  // Active scheduled interview mapping
+  const activeInterview = interviews.find(i => i.status === 'scheduled');
+  
+  // Set default scorecard recommendation when active interview changes
+  useEffect(() => {
+    if (activeInterview) {
+      if (activeInterview.type === 'technical') {
+        setRecommendation('pass');
+      } else {
+        setRecommendation('hire');
+      }
+    }
+  }, [activeInterview]);
+
+  const canSubmitScorecard = isAdmin && activeInterview && activeInterview.interviewer?._id === user?.id;
+
+  // Fetch interviewer Admins list when scheduling is active
   useEffect(() => {
     const fetchAdminsList = async () => {
-      if (!token || !application || application.stage !== 'resume_screening') return;
+      if (!token || !canSchedulePanel) return;
       try {
         const apiUrl = import.meta.env.VITE_API_URL || '';
         const response = await fetch(`${apiUrl}/api/users/admins`, {
@@ -90,7 +141,7 @@ export const ApplicationDetailPage: React.FC = () => {
     };
 
     fetchAdminsList();
-  }, [application, token]);
+  }, [canSchedulePanel, token]);
 
   const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,7 +200,9 @@ export const ApplicationDetailPage: React.FC = () => {
 
   const handleScheduleInterview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !id || !interviewerId || !scheduledAt) return;
+    if (!token || !id || !interviewerId || !scheduledAt || !application) return;
+
+    const interviewType = application.stage === 'resume_screening' ? 'technical' : 'hr';
 
     try {
       setSubmittingInterview(true);
@@ -163,7 +216,8 @@ export const ApplicationDetailPage: React.FC = () => {
         body: JSON.stringify({
           applicationId: id,
           interviewerId,
-          scheduledAt: new Date(scheduledAt).toISOString()
+          scheduledAt: new Date(scheduledAt).toISOString(),
+          type: interviewType
         })
       });
 
@@ -178,6 +232,50 @@ export const ApplicationDetailPage: React.FC = () => {
       alert((err as Error).message);
     } finally {
       setSubmittingInterview(false);
+    }
+  };
+
+  const handleSubmitScorecard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !activeInterview || !recommendation || !comments.trim()) return;
+
+    const bodyData: any = {
+      recommendation,
+      comments: comments.trim()
+    };
+
+    if (activeInterview.type === 'hr') {
+      bodyData.communication = Number(communication);
+      bodyData.cultureFit = Number(cultureFit);
+      if (salaryExpectation) bodyData.salaryExpectation = Number(salaryExpectation);
+      if (salaryOffered) bodyData.salaryOffered = Number(salaryOffered);
+    }
+
+    try {
+      setSubmittingScorecard(true);
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/interviews/${activeInterview._id}/scorecard`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(bodyData)
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to submit scorecard');
+      }
+
+      setComments('');
+      setSalaryExpectation('');
+      setSalaryOffered('');
+      await fetchApplicationDetails();
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setSubmittingScorecard(false);
     }
   };
 
@@ -219,17 +317,11 @@ export const ApplicationDetailPage: React.FC = () => {
   const getNextStageLabel = (current: string) => {
     switch (current) {
       case 'applied':
-        return 'Advance to Resume Screening';
-      case 'resume_screening':
-        return 'Advance to Scheduling Interview';
-      case 'interview_scheduled':
-        return 'Complete Interview Evaluations';
-      case 'interview_completed':
-        return 'Advance to Final Review';
-      case 'final_review':
-        return 'Extend Offer';
+        return 'Screen Resume';
+      case 'hr_interview_completed':
+        return 'Proceed to Offer';
       case 'offer':
-        return 'Mark Candidate Hired';
+        return 'Confirm Candidate Acceptance (Hired)';
       default:
         return '';
     }
@@ -241,10 +333,11 @@ export const ApplicationDetailPage: React.FC = () => {
         return 'badge-applied';
       case 'resume_screening':
         return 'badge-screening';
-      case 'interview_scheduled':
-      case 'interview_completed':
+      case 'technical_interview_scheduled':
+      case 'technical_interview_completed':
         return 'badge-interview';
-      case 'final_review':
+      case 'hr_interview_scheduled':
+      case 'hr_interview_completed':
         return 'badge-review';
       case 'offer':
         return 'badge-offer';
@@ -282,7 +375,11 @@ export const ApplicationDetailPage: React.FC = () => {
     );
   }
 
-  const isTerminalStage = application.stage === 'hired' || application.stage === 'rejected';
+  // Determine if manual progression via /advance button is allowed at the current stage
+  const canAdvanceManually = !isTerminalStage && 
+    (application.stage === 'applied' || (application.stage === 'hr_interview_completed' && isAdmin) || (application.stage === 'offer' && isAdmin));
+
+  const canRejectManually = !isTerminalStage && !(isRecruiter && recruiterRestrictedStages.includes(application.stage));
 
   return (
     <div style={containerStyle}>
@@ -391,7 +488,50 @@ export const ApplicationDetailPage: React.FC = () => {
             )}
           </section>
 
-          {/* Notes Workspace */}
+          {/* Conducted Scorecards list (If any) */}
+          {scorecards.length > 0 && (
+            <section className="card" style={sectionCardStyle}>
+              <h3 style={sectionTitleStyle}>📋 Submitted Scorecard Evaluations</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {scorecards.map((card) => {
+                  const correlatedInterview = interviews.find(i => i._id === card.interview || i._id === card.interview?._id);
+                  const isHr = correlatedInterview?.type === 'hr';
+                  return (
+                    <div key={card._id} style={{ padding: '14px', backgroundColor: 'var(--gray-surface)', border: '1px solid var(--gray-border)', borderRadius: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--gray-border)', paddingBottom: '6px', marginBottom: '8px' }}>
+                        <span style={{ fontWeight: 700, color: 'var(--accent-hover)', textTransform: 'capitalize' }}>
+                          {correlatedInterview?.type} Interview Scorecard
+                        </span>
+                        <span style={{ 
+                          fontWeight: 800, 
+                          color: ['hire', 'pass'].includes(card.recommendation) ? '#10b981' : '#ef4444'
+                        }}>
+                          {card.recommendation.toUpperCase()}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '4px', color: 'var(--gray-text-primary)' }}>
+                        <div><strong style={{ color: 'var(--gray-text-muted)' }}>Evaluator:</strong> {card.submittedBy?.name}</div>
+                        {isHr && (
+                          <>
+                            <div><strong style={{ color: 'var(--gray-text-muted)' }}>Culture Fit Score:</strong> {card.cultureFit} / 5</div>
+                            <div><strong style={{ color: 'var(--gray-text-muted)' }}>Communication Score:</strong> {card.communication} / 5</div>
+                            {card.salaryExpectation && <div><strong style={{ color: 'var(--gray-text-muted)' }}>Salary Expectation:</strong> ${card.salaryExpectation.toLocaleString()}</div>}
+                            {card.salaryOffered && <div><strong style={{ color: 'var(--gray-text-muted)' }}>Salary Offered:</strong> ${card.salaryOffered.toLocaleString()}</div>}
+                          </>
+                        )}
+                        <div style={{ marginTop: '6px' }}>
+                          <strong style={{ color: 'var(--gray-text-muted)', display: 'block', marginBottom: '2px' }}>Evaluation Notes:</strong>
+                          <p style={{ margin: 0, fontStyle: 'italic', lineHeight: 1.4, color: 'var(--gray-text-muted)' }}>"{card.comments}"</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Notes Remarks workspace */}
           <section className="card" style={sectionCardStyle}>
             <h3 style={sectionTitleStyle}>📝 Screening Remarks</h3>
             
@@ -474,18 +614,20 @@ export const ApplicationDetailPage: React.FC = () => {
               </div>
             )}
 
-            {/* Active Interview Details */}
-            {interview && (
+            {/* Active scheduled panel card details */}
+            {activeInterview && (
               <div style={scheduledSummaryCard}>
-                <h4 style={{ color: 'var(--accent-hover)', margin: '0 0 0.5rem 0' }}>📅 Scheduled Interview</h4>
+                <h4 style={{ color: 'var(--accent-hover)', margin: '0 0 0.5rem 0', textTransform: 'capitalize' }}>
+                  📅 Scheduled {activeInterview.type} Panel
+                </h4>
                 <div>
                   <span style={rejectionLabel}>Interviewer:</span>
-                  <span style={{ color: 'var(--gray-text-primary)' }}>{interview.interviewer?.name}</span>
+                  <span style={{ color: 'var(--gray-text-primary)' }}>{activeInterview.interviewer?.name}</span>
                 </div>
                 <div style={{ marginTop: '0.25rem' }}>
-                  <span style={rejectionLabel}>Scheduled At:</span>
+                  <span style={rejectionLabel}>Date/Time:</span>
                   <span style={{ color: 'var(--gray-text-primary)' }}>
-                    {new Date(interview.scheduledAt).toLocaleString(undefined, {
+                    {new Date(activeInterview.scheduledAt).toLocaleString(undefined, {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
@@ -497,31 +639,158 @@ export const ApplicationDetailPage: React.FC = () => {
               </div>
             )}
 
+            {/* Pipeline instruction details card */}
+            {!isTerminalStage && !canAdvanceManually && (
+              <div style={{ color: 'var(--gray-text-muted)', fontSize: '13px', padding: '10px', backgroundColor: 'var(--gray-surface)', borderRadius: '6px', border: '1px solid var(--gray-border)', marginBottom: '1rem' }}>
+                {application.stage === 'resume_screening' && "Waiting for Technical Interview to be scheduled."}
+                {application.stage === 'technical_interview_scheduled' && `Waiting for ${activeInterview?.interviewer?.name || 'Admin'} to submit Technical Scorecard.`}
+                {application.stage === 'technical_interview_completed' && "Technical evaluation passed! Waiting for Admin to schedule HR Interview."}
+                {application.stage === 'hr_interview_scheduled' && `Waiting for ${activeInterview?.interviewer?.name || 'Admin'} to submit HR Scorecard.`}
+                {isRecruiter && recruiterRestrictedStages.includes(application.stage) && "Admin authorization required for stage progression updates."}
+              </div>
+            )}
+
+            {/* Stage advancement actions */}
             {!isTerminalStage && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
-                <button 
-                  onClick={handleAdvance} 
-                  className="api-btn"
-                  style={{ width: '100%', padding: '12px' }}
-                  disabled={submittingAction}
-                >
-                  {submittingAction ? 'Advancing stage...' : getNextStageLabel(application.stage)} &rarr;
-                </button>
-                <button 
-                  onClick={() => setIsRejectModalOpen(true)}
-                  style={rejectActionBtn}
-                  disabled={submittingAction}
-                >
-                  Reject Application
-                </button>
+                {canAdvanceManually && (
+                  <button 
+                    onClick={handleAdvance} 
+                    className="api-btn"
+                    style={{ width: '100%', padding: '12px' }}
+                    disabled={submittingAction}
+                  >
+                    {submittingAction ? 'Advancing stage...' : getNextStageLabel(application.stage)} &rarr;
+                  </button>
+                )}
+                {canRejectManually && (
+                  <button 
+                    onClick={() => setIsRejectModalOpen(true)}
+                    style={rejectActionBtn}
+                    disabled={submittingAction}
+                  >
+                    Reject Application
+                  </button>
+                )}
               </div>
             )}
           </section>
 
-          {/* Schedule Interview Form Panel (Only in resume_screening) */}
-          {application.stage === 'resume_screening' && (
+          {/* Admin Scorecard Form */}
+          {canSubmitScorecard && (
+            <section className="card" style={{ ...sectionCardStyle, border: '1px solid rgba(16, 185, 129, 0.2)', marginTop: '0.5rem' }}>
+              <h3 style={sectionTitleStyle}>📝 {activeInterview.type === 'technical' ? 'Technical' : 'HR'} Scorecard</h3>
+              <form onSubmit={handleSubmitScorecard} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                
+                {/* Recommendation */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={labelStyle}>Recommendation *</label>
+                  {activeInterview.type === 'technical' ? (
+                    <select 
+                      value={recommendation}
+                      onChange={(e) => setRecommendation(e.target.value)}
+                      style={selectStyle}
+                      required
+                    >
+                      <option value="pass">Pass (Advance to HR)</option>
+                      <option value="reject">Reject Candidate</option>
+                    </select>
+                  ) : (
+                    <select 
+                      value={recommendation}
+                      onChange={(e) => setRecommendation(e.target.value)}
+                      style={selectStyle}
+                      required
+                    >
+                      <option value="hire">Accept & Hire</option>
+                      <option value="reject">Reject Candidate</option>
+                    </select>
+                  )}
+                </div>
+
+                {/* Additional HR scorecard rating parameters */}
+                {activeInterview.type === 'hr' && (
+                  <>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                        <label style={labelStyle}>Culture Fit (1-5) *</label>
+                        <select 
+                          value={cultureFit} 
+                          onChange={(e) => setCultureFit(Number(e.target.value))} 
+                          style={selectStyle}
+                        >
+                          {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
+                        </select>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                        <label style={labelStyle}>Communication (1-5) *</label>
+                        <select 
+                          value={communication} 
+                          onChange={(e) => setCommunication(Number(e.target.value))} 
+                          style={selectStyle}
+                        >
+                          {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                        <label style={labelStyle}>Salary Expectation ($) *</label>
+                        <input 
+                          type="number" 
+                          value={salaryExpectation} 
+                          onChange={(e) => setSalaryExpectation(e.target.value)} 
+                          style={inputStyle}
+                          placeholder="e.g. 95000"
+                          required
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                        <label style={labelStyle}>Salary Offered ($) *</label>
+                        <input 
+                          type="number" 
+                          value={salaryOffered} 
+                          onChange={(e) => setSalaryOffered(e.target.value)} 
+                          style={inputStyle}
+                          placeholder="e.g. 100000"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Scorecard Notes Comments */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={labelStyle}>Rationale Comments *</label>
+                  <textarea 
+                    value={comments}
+                    onChange={(e) => setComments(e.target.value)}
+                    placeholder="Provide details about performance and decision rationale..."
+                    style={noteInputStyle}
+                    required
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="api-btn" 
+                  style={{ width: '100%', marginTop: '0.5rem', backgroundColor: '#10b981' }}
+                  disabled={submittingScorecard || !comments.trim()}
+                >
+                  {submittingScorecard ? 'Submitting Evaluation...' : 'Submit Evaluation Scorecard'}
+                </button>
+              </form>
+            </section>
+          )}
+
+          {/* Schedule Interview Form Panel (Technical for Recruiters/Admins, HR for Admins only) */}
+          {canSchedulePanel && (
             <section className="card" style={{ ...sectionCardStyle, border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-              <h3 style={sectionTitleStyle}>📅 Schedule Panel</h3>
+              <h3 style={sectionTitleStyle}>
+                📅 Schedule {application.stage === 'resume_screening' ? 'Technical' : 'HR'} Panel
+              </h3>
               <form onSubmit={handleScheduleInterview} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={labelStyle}>Assigned Interviewer *</label>
@@ -575,6 +844,9 @@ export const ApplicationDetailPage: React.FC = () => {
                         )}
                         {log.action === 'note_added' && (
                           <span>Posted a remark: <em>"{log.metadata?.text?.substring(0, 40)}..."</em></span>
+                        )}
+                        {log.action === 'scorecard_submitted' && (
+                          <span>Submitted {log.metadata?.interviewType} evaluation: <strong>{log.metadata?.recommendation?.toUpperCase()}</strong></span>
                         )}
                       </span>
                       <span style={timelineDateStyle}>
