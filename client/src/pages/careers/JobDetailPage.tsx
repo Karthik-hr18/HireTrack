@@ -10,8 +10,21 @@ export const JobDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Application Form States
+  const [phone, setPhone] = useState('');
+  const [country, setCountry] = useState('');
+  const [address, setAddress] = useState('');
+  const [experience, setExperience] = useState<number | ''>('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [portfolioUrl, setPortfolioUrl] = useState('');
+  const [currentCompany, setCurrentCompany] = useState('');
+  const [currentTitle, setCurrentTitle] = useState('');
+  const [coverLetter, setCoverLetter] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [source, setSource] = useState('linkedin');
   const [resume, setResume] = useState<File | null>(null);
+
+  // Validation States
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -72,6 +85,21 @@ export const JobDetailPage: React.FC = () => {
     }
   };
 
+  // Real-time experience requirement checking
+  const getExperienceValidationMessage = () => {
+    if (experience === '') return null;
+    if (job && job.minExperience > 0 && experience < job.minExperience) {
+      if (experience === 0) {
+        return `Freshers are not eligible for this position. This role requires at least ${job.minExperience} years of experience.`;
+      }
+      return `You do not meet the experience requirements. This role requires a minimum of ${job.minExperience} years of experience.`;
+    }
+    return null;
+  };
+
+  const experienceError = getExperienceValidationMessage();
+  const isEligible = !experienceError;
+
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
@@ -84,6 +112,16 @@ export const JobDetailPage: React.FC = () => {
       return;
     }
 
+    if (!termsAccepted) {
+      setSubmitError('You must review and accept the terms and conditions.');
+      return;
+    }
+
+    if (!isEligible) {
+      setSubmitError('Cannot submit: You do not meet the eligibility requirements for this position.');
+      return;
+    }
+
     try {
       setSubmitting(true);
       setSubmitError(null);
@@ -92,6 +130,17 @@ export const JobDetailPage: React.FC = () => {
       formData.append('jobId', id || '');
       formData.append('source', source);
       formData.append('resume', resume);
+      formData.append('phone', phone);
+      formData.append('country', country);
+      formData.append('address', address);
+      formData.append('experience', String(experience));
+      formData.append('linkedinUrl', linkedinUrl);
+      formData.append('githubUrl', githubUrl);
+      formData.append('portfolioUrl', portfolioUrl);
+      formData.append('currentCompany', currentCompany);
+      formData.append('currentTitle', currentTitle);
+      formData.append('coverLetter', coverLetter);
+      formData.append('termsAccepted', String(termsAccepted));
 
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const response = await fetch(`${apiUrl}/api/applications`, {
@@ -155,6 +204,9 @@ export const JobDetailPage: React.FC = () => {
             <h1 style={jobTitleStyle}>{job.title}</h1>
             <div style={metaContainerStyle}>
               {job.location && <span style={metaItemStyle}>📍 {job.location}</span>}
+              <span>
+                • 💼 {job.minExperience === 0 ? 'Freshers Eligible' : `${job.minExperience} - ${job.maxExperience || '5+'} Yrs Exp`}
+              </span>
               <span className="badge badge-success">Open</span>
             </div>
           </header>
@@ -178,7 +230,7 @@ export const JobDetailPage: React.FC = () => {
             <div className="card" style={{ ...applyCardStyle, border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
               <h3 style={{ color: 'var(--success)', marginBottom: '1rem' }}>Application Submitted!</h3>
               <p style={{ color: 'var(--gray-text-muted)', fontSize: '14px', marginBottom: '2rem' }}>
-                Thank you for applying. We have received your resume and source tracking metrics.
+                Thank you for applying. We have received your profile details and resume portfolio.
               </p>
               <Link to="/candidate/applications" className="api-btn" style={{ textDecoration: 'none', display: 'inline-block', width: '100%' }}>
                 Go to Tracker
@@ -188,7 +240,7 @@ export const JobDetailPage: React.FC = () => {
             <div className="card" style={applyCardStyle}>
               <h3 style={{ marginBottom: '1rem' }}>Interested in this role?</h3>
               <p style={{ color: 'var(--gray-text-muted)', fontSize: '14px', marginBottom: '2.5rem' }}>
-                Sign in to your candidate profile to upload your PDF resume and track your application status.
+                Sign in to your candidate profile to upload your PDF resume, specify details, and track your application status.
               </p>
               <Link to="/login" className="api-btn" style={{ textDecoration: 'none', display: 'inline-block', width: '100%', textAlign: 'center' }}>
                 Sign In to Apply
@@ -203,7 +255,7 @@ export const JobDetailPage: React.FC = () => {
             </div>
           ) : (
             <div className="card" style={applyCardStyle}>
-              <h3 style={{ marginBottom: '1.5rem' }}>Apply Now</h3>
+              <h3 style={{ marginBottom: '1.5rem' }}>Apply for Position</h3>
               
               {submitError && (
                 <div style={errorContainerStyle}>
@@ -211,13 +263,127 @@ export const JobDetailPage: React.FC = () => {
                 </div>
               )}
 
-              <form onSubmit={handleApplySubmit}>
+              {experienceError && (
+                <div style={warningContainerStyle}>
+                  {experienceError}
+                </div>
+              )}
+
+              <form onSubmit={handleApplySubmit} style={formLayout}>
+                <div style={rowStyle}>
+                  <div style={{ flex: 1 }}>
+                    <label>Full Name</label>
+                    <input type="text" value={user.name} disabled style={disabledInputStyle} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label>Email Address</label>
+                    <input type="email" value={user.email} disabled style={disabledInputStyle} />
+                  </div>
+                </div>
+
+                <div style={rowStyle}>
+                  <div style={{ flex: 1 }}>
+                    <label>Phone Number *</label>
+                    <input 
+                      type="tel" 
+                      value={phone} 
+                      onChange={(e) => setPhone(e.target.value)} 
+                      placeholder="e.g. 9876543210"
+                      required 
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label>Years of Experience *</label>
+                    <input 
+                      type="number" 
+                      min="0"
+                      value={experience} 
+                      onChange={(e) => setExperience(e.target.value === '' ? '' : Number(e.target.value))} 
+                      placeholder="0 for Freshers"
+                      required 
+                    />
+                  </div>
+                </div>
+
+                <div style={rowStyle}>
+                  <div style={{ flex: 1 }}>
+                    <label>Country *</label>
+                    <input 
+                      type="text" 
+                      value={country} 
+                      onChange={(e) => setCountry(e.target.value)} 
+                      placeholder="e.g. India"
+                      required 
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label>LinkedIn Profile URL *</label>
+                    <input 
+                      type="url" 
+                      value={linkedinUrl} 
+                      onChange={(e) => setLinkedinUrl(e.target.value)} 
+                      placeholder="https://linkedin.com/in/..."
+                      required 
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label>Residential Address *</label>
+                  <textarea 
+                    value={address} 
+                    onChange={(e) => setAddress(e.target.value)} 
+                    placeholder="Street, City, State, ZIP"
+                    style={{ height: '70px', resize: 'vertical' }}
+                    required 
+                  />
+                </div>
+
+                <div style={rowStyle}>
+                  <div style={{ flex: 1 }}>
+                    <label>GitHub Profile (Optional)</label>
+                    <input 
+                      type="url" 
+                      value={githubUrl} 
+                      onChange={(e) => setGithubUrl(e.target.value)} 
+                      placeholder="https://github.com/..."
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label>Portfolio / Personal Website</label>
+                    <input 
+                      type="url" 
+                      value={portfolioUrl} 
+                      onChange={(e) => setPortfolioUrl(e.target.value)} 
+                      placeholder="https://mywebsite.com"
+                    />
+                  </div>
+                </div>
+
+                <div style={rowStyle}>
+                  <div style={{ flex: 1 }}>
+                    <label>Current Employer (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={currentCompany} 
+                      onChange={(e) => setCurrentCompany(e.target.value)} 
+                      placeholder="e.g. Acme Corp"
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label>Current Job Title</label>
+                    <input 
+                      type="text" 
+                      value={currentTitle} 
+                      onChange={(e) => setCurrentTitle(e.target.value)} 
+                      placeholder="e.g. Software Engineer"
+                    />
+                  </div>
+                </div>
+
                 <div style={{ marginBottom: '1.25rem' }}>
                   <label>Sourcing Channel</label>
-                  <select 
-                    value={source} 
-                    onChange={(e) => setSource(e.target.value)}
-                  >
+                  <select value={source} onChange={(e) => setSource(e.target.value)}>
                     <option value="linkedin">LinkedIn</option>
                     <option value="indeed">Indeed</option>
                     <option value="careers_page">Company Careers Page</option>
@@ -226,8 +392,18 @@ export const JobDetailPage: React.FC = () => {
                   </select>
                 </div>
 
-                <div style={{ marginBottom: '2rem' }}>
-                  <label>Resume (PDF only, max 5MB)</label>
+                <div>
+                  <label>Cover Letter / Additional Notes (Optional)</label>
+                  <textarea 
+                    value={coverLetter} 
+                    onChange={(e) => setCoverLetter(e.target.value)} 
+                    placeholder="Introduce yourself to the hiring team..."
+                    style={{ height: '90px', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div style={{ margin: '1.25rem 0' }}>
+                  <label>Upload Resume PDF *</label>
                   <input 
                     type="file" 
                     accept="application/pdf" 
@@ -237,11 +413,25 @@ export const JobDetailPage: React.FC = () => {
                   />
                 </div>
 
+                <div style={termsContainerStyle}>
+                  <input 
+                    type="checkbox" 
+                    id="terms"
+                    checked={termsAccepted} 
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    required
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="terms" style={termsLabelStyle}>
+                    I confirm that the details provided are accurate. I accept the Terms of Service and Consent to share my profile details for evaluation.
+                  </label>
+                </div>
+
                 <button 
                   type="submit" 
                   className="api-btn" 
-                  style={{ width: '100%' }}
-                  disabled={submitting}
+                  style={{ width: '100%', marginTop: '0.5rem' }}
+                  disabled={submitting || !isEligible}
                 >
                   {submitting ? 'Submitting Application...' : 'Submit Application'}
                 </button>
@@ -287,18 +477,17 @@ const twoColumnLayout: React.CSSProperties = {
 };
 
 const detailCardStyle: React.CSSProperties = {
-  flex: '2 1 600px',
+  flex: '1.2 1 500px',
   padding: 'var(--space-6)'
 };
 
 const asideColumnStyle: React.CSSProperties = {
-  flex: '1 1 340px'
+  flex: '1 1 500px',
+  maxWidth: '620px'
 };
 
 const applyCardStyle: React.CSSProperties = {
-  padding: 'var(--space-5)',
-  position: 'sticky',
-  top: '20px'
+  padding: 'var(--space-5)'
 };
 
 const headerStyle: React.CSSProperties = {
@@ -317,7 +506,8 @@ const jobTitleStyle: React.CSSProperties = {
 const metaContainerStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--space-4)'
+  gap: 'var(--space-4)',
+  flexWrap: 'wrap'
 };
 
 const metaItemStyle: React.CSSProperties = {
@@ -353,4 +543,53 @@ const errorContainerStyle: React.CSSProperties = {
   marginBottom: 'var(--space-4)',
   border: '1px solid rgba(239, 68, 68, 0.2)',
   textAlign: 'center'
+};
+
+const warningContainerStyle: React.CSSProperties = {
+  color: '#e11d48',
+  backgroundColor: 'rgba(225, 29, 72, 0.08)',
+  padding: 'var(--space-3)',
+  borderRadius: 'var(--radius-default)',
+  fontSize: '14px',
+  marginBottom: 'var(--space-4)',
+  border: '1px solid rgba(225, 29, 72, 0.2)',
+  textAlign: 'center',
+  fontWeight: 600
+};
+
+const formLayout: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '1rem'
+};
+
+const rowStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '1rem',
+  flexWrap: 'wrap'
+};
+
+const disabledInputStyle: React.CSSProperties = {
+  backgroundColor: 'var(--gray-surface)',
+  border: '1px solid var(--gray-border)',
+  color: 'var(--gray-text-muted)',
+  cursor: 'not-allowed'
+};
+
+const termsContainerStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '0.75rem',
+  alignItems: 'flex-start',
+  marginTop: '0.5rem',
+  marginBottom: '0.5rem'
+};
+
+const termsLabelStyle: React.CSSProperties = {
+  fontSize: '13px',
+  color: 'var(--gray-text-muted)',
+  cursor: 'pointer',
+  userSelect: 'none',
+  fontWeight: 500,
+  lineHeight: 1.4,
+  margin: 0
 };

@@ -27,6 +27,7 @@ const seedDatabase = async () => {
       console.log(`Admin account already exists: ${adminEmail}. Updating password...`);
       existingAdmin.passwordHash = await bcrypt.hash(adminPassword, salt);
       existingAdmin.isActive = true;
+      existingAdmin.isEmailVerified = true; // Auto-verify seeded Admin
       await existingAdmin.save();
       console.log('Admin password updated successfully.');
     } else {
@@ -36,7 +37,8 @@ const seedDatabase = async () => {
         email: adminEmail.toLowerCase(),
         passwordHash: adminHash,
         role: 'admin',
-        isActive: true
+        isActive: true,
+        isEmailVerified: true
       });
       console.log(`Admin account seeded successfully with email: ${adminEmail}`);
     }
@@ -53,9 +55,14 @@ const seedDatabase = async () => {
           email: recEmail,
           passwordHash: recruiterHash,
           role: 'recruiter',
-          isActive: true
+          isActive: true,
+          isEmailVerified: true // Auto-verify seeded Recruiters
         });
         console.log(`Recruiter account seeded: ${recEmail}`);
+      } else {
+        // Ensure verified flag is set on existing ones too
+        existingRec.isEmailVerified = true;
+        await existingRec.save();
       }
     }
 
@@ -70,9 +77,13 @@ const seedDatabase = async () => {
         email: candidateEmail,
         passwordHash: candidateHash,
         role: 'candidate',
-        isActive: true
+        isActive: true,
+        isEmailVerified: true // Auto-verify seeded Candidate
       });
       console.log(`Candidate account seeded: ${candidateEmail}`);
+    } else {
+      existingCand.isEmailVerified = true;
+      await existingCand.save();
     }
 
     console.log('Seeding script finished successfully.');

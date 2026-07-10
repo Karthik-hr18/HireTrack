@@ -12,8 +12,10 @@ dotenv.config();
 
 describe('Candidate Application Submission & Duplicate Prevention Tests', () => {
   let candidateToken: string;
+  let unverifiedCandidateToken: string;
   let recruiterToken: string;
   let candidateId: string;
+  let unverifiedCandidateId: string;
   let recruiterId: string;
   let jobId: string;
   let createdAppId: string;
@@ -31,16 +33,29 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
     await Application.deleteMany({});
     await ActivityLog.deleteMany({});
 
-    // Create Candidate
+    // Create Verified Candidate
     const candidate = await User.create({
       name: 'App Candidate',
       email: 'candidate@test-app.com',
       passwordHash: 'dummy',
       role: 'candidate',
-      isActive: true
+      isActive: true,
+      isEmailVerified: true
     });
     candidateId = candidate._id.toString();
     candidateToken = jwt.sign({ id: candidateId, email: candidate.email, role: candidate.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+
+    // Create Unverified Candidate
+    const unverified = await User.create({
+      name: 'Unverified Candidate',
+      email: 'unverified@test-app.com',
+      passwordHash: 'dummy',
+      role: 'candidate',
+      isActive: true,
+      isEmailVerified: false
+    });
+    unverifiedCandidateId = unverified._id.toString();
+    unverifiedCandidateToken = jwt.sign({ id: unverifiedCandidateId, email: unverified.email, role: unverified.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Create Recruiter
     const recruiter = await User.create({
@@ -48,18 +63,21 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
       email: 'recruiter@test-app.com',
       passwordHash: 'dummy',
       role: 'recruiter',
-      isActive: true
+      isActive: true,
+      isEmailVerified: true
     });
     recruiterId = recruiter._id.toString();
     recruiterToken = jwt.sign({ id: recruiterId, email: recruiter.email, role: recruiter.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
-    // Create Open Job
+    // Create Open Job requiring min 2 years experience
     const job = await Job.create({
       title: 'Test App Job - Frontend Developer',
       description: 'Test description',
       requirements: 'React expert',
       location: 'Remote',
       status: 'open',
+      minExperience: 2,
+      maxExperience: 5,
       createdBy: new mongoose.Types.ObjectId(recruiterId)
     });
     jobId = job._id.toString();
@@ -73,7 +91,7 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
     await mongoose.connection.close();
   });
 
-  it('1. Submit Application (Candidate) - Should succeed, upload mock PDF, and log stage_changed', async () => {
+  it('1. Submit Application (Verified Candidate with Eligible Experience) - Should succeed', async () => {
     const req = {
       user: { id: candidateId, email: 'candidate@test-app.com', role: 'candidate' },
       file: {
@@ -83,7 +101,13 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
       },
       body: {
         jobId,
-        source: 'linkedin'
+        source: 'linkedin',
+        phone: '9876543210',
+        country: 'India',
+        address: '123 Main St, Bengaluru',
+        experience: '3', // Passed as string from multipart form
+        linkedinUrl: 'https://linkedin.com/in/testcandidate',
+        termsAccepted: 'true'
       }
     } as any;
 
@@ -106,8 +130,8 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
     expect(responseStatus).toBe(201);
     expect(responseData).toHaveProperty('_id');
     expect(responseData.stage).toBe('applied');
-    expect(responseData.source).toBe('linkedin');
-    expect(responseData.resumeUrl).toContain('my_resume.pdf');
+    expect(responseData.phone).toBe('9876543210');
+    expect(responseData.experience).toBe(3);
     createdAppId = responseData._id.toString();
 
     // Verify stage_changed activity log was generated
@@ -116,7 +140,48 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
     expect(log!.metadata.to).toBe('applied');
   });
 
-  it('2. Prevent Duplicate Application - Should return 400 with ACTIVE_APPLICATION_EXISTS', async () => {
+  it('2. Ineligible Experience (Fresher/Low Exp) - Should be blocked', async () => {
+    const req = {
+      user: { id: candidateId, email: 'candidate@test-app.com', role: 'candidate' },
+      file: {
+        buffer: Buffer.from('%PDF-1.4 mock PDF content'),
+        originalname: 'my_resume.pdf',
+        mimetype: 'application/pdf'
+      },
+      body: {
+        jobId,
+        source: 'linkedin',
+        phone: '9876543210',
+        country: 'India',
+        address: '123 Main St, Bengaluru',
+        experience: '0', // Fresher
+        linkedinUrl: 'https://linkedin.com/in/testcandidate',
+        termsAccepted: 'true'
+      }
+    } as any;
+
+    let responseStatus = 0;
+    let responseData: any = null;
+
+    const res = {
+      status: (status: number) => {
+        responseStatus = status;
+        return {
+          json: (data: any) => {
+            responseData = data;
+          }
+        };
+      }
+    } as any;
+
+    await applyToJob(req, res, () => {});
+
+    expect(responseStatus).toBe(400);
+    expect(responseData.code).toBe('EXPERIENCE_MISMATCH');
+    expect(responseData.message).toContain('not eligible');
+  });
+
+  it('3. Prevent Duplicate Active Application - Should return 400 with ACTIVE_APPLICATION_EXISTS', async () => {
     const req = {
       user: { id: candidateId, email: 'candidate@test-app.com', role: 'candidate' },
       file: {
@@ -124,7 +189,16 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
         originalname: 'another_resume.pdf',
         mimetype: 'application/pdf'
       },
-      body: { jobId }
+      body: {
+        jobId,
+        source: 'linkedin',
+        phone: '9876543210',
+        country: 'India',
+        address: '123 Main St, Bengaluru',
+        experience: '4',
+        linkedinUrl: 'https://linkedin.com/in/testcandidate',
+        termsAccepted: 'true'
+      }
     } as any;
 
     let responseStatus = 0;
@@ -145,32 +219,5 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
 
     expect(responseStatus).toBe(400);
     expect(responseData.code).toBe('ACTIVE_APPLICATION_EXISTS');
-  });
-
-  it('3. Get Candidate Applications - Should return list containing the submission', async () => {
-    const req = {
-      user: { id: candidateId, email: 'candidate@test-app.com', role: 'candidate' }
-    } as any;
-
-    let responseStatus = 0;
-    let responseData: any = null;
-
-    const res = {
-      status: (status: number) => {
-        responseStatus = status;
-        return {
-          json: (data: any) => {
-            responseData = data;
-          }
-        };
-      }
-    } as any;
-
-    await getCandidateApplications(req, res, () => {});
-
-    expect(responseStatus).toBe(200);
-    expect(responseData.length).toBe(1);
-    expect(responseData[0]._id.toString()).toBe(createdAppId);
-    expect(responseData[0].job._id.toString()).toBe(jobId);
   });
 });

@@ -14,6 +14,17 @@ export interface IApplication extends Document {
   stage: PipelineStageType;
   resumeUrl: string;
   resumeSnapshotAt: Date;
+  phone: string;
+  country: string;
+  address: string;
+  experience: number;
+  linkedinUrl: string;
+  githubUrl?: string;
+  portfolioUrl?: string;
+  coverLetter?: string;
+  currentCompany?: string;
+  currentTitle?: string;
+  termsAccepted: boolean;
   rejectionReason?: RejectionReasonType | null;
   rejectionNote?: string | null;
   notes: IApplicationNote[];
@@ -54,6 +65,17 @@ const ApplicationSchema: Schema = new Schema(
     },
     resumeUrl: { type: String, required: true },
     resumeSnapshotAt: { type: Date, required: true, default: Date.now },
+    phone: { type: String, required: true },
+    country: { type: String, required: true },
+    address: { type: String, required: true },
+    experience: { type: Number, required: true, default: 0 },
+    linkedinUrl: { type: String, required: true },
+    githubUrl: { type: String, default: '' },
+    portfolioUrl: { type: String, default: '' },
+    coverLetter: { type: String, default: '' },
+    currentCompany: { type: String, default: '' },
+    currentTitle: { type: String, default: '' },
+    termsAccepted: { type: Boolean, required: true },
     rejectionReason: {
       type: String,
       enum: ['skills_mismatch', 'experience_mismatch', 'withdrew', 'salary_expectations', 'other'],

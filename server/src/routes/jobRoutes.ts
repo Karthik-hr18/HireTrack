@@ -7,7 +7,7 @@ import {
   updateJob,
   deleteJob
 } from '../controllers/jobController';
-import { authenticate, authorize, optionalAuthenticate } from '../middleware/auth';
+import { authenticate, authorize, optionalAuthenticate, requireEmailVerification } from '../middleware/auth';
 
 const router = Router();
 
@@ -18,9 +18,9 @@ router.get('/manage', authenticate, authorize('recruiter', 'admin'), getManageJo
 // 2. Dynamic parameter routes
 router.get('/:id', optionalAuthenticate, getJobById);
 
-// 3. Protected mutations (Recruiters & Admins only)
-router.post('/', authenticate, authorize('recruiter', 'admin'), createJob);
-router.patch('/:id', authenticate, authorize('recruiter', 'admin'), updateJob);
-router.delete('/:id', authenticate, authorize('recruiter', 'admin'), deleteJob);
+// 3. Protected mutations (Recruiters & Admins only, gated by email verification)
+router.post('/', authenticate, authorize('recruiter', 'admin'), requireEmailVerification, createJob);
+router.patch('/:id', authenticate, authorize('recruiter', 'admin'), requireEmailVerification, updateJob);
+router.delete('/:id', authenticate, authorize('recruiter', 'admin'), requireEmailVerification, deleteJob);
 
 export default router;

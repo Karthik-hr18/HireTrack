@@ -3,6 +3,7 @@ import { Application } from '../models/Application';
 import { Job } from '../models/Job';
 import { ActivityLog } from '../models/ActivityLog';
 import { uploadToCloudinary } from '../config/cloudinary';
+import { ApplySchema } from '@hiretrack/shared';
 import mongoose from 'mongoose';
 
 export const applyToJob = async (req: Request, res: Response, next: NextFunction) => {
@@ -15,14 +16,17 @@ export const applyToJob = async (req: Request, res: Response, next: NextFunction
       return res.status(400).json({ message: 'Resume PDF file is required', code: 'BAD_REQUEST' });
     }
 
-    const { jobId, source } = req.body;
-    if (!jobId) {
-      return res.status(400).json({ message: 'Job ID is required', code: 'BAD_REQUEST' });
-    }
+    // Convert text values inside req.body if necessary (experience is sent as string in multipart form-data)
+    const rawExperience = req.body.experience;
+    const bodyData = {
+      ...req.body,
+      experience: rawExperience !== undefined ? Number(rawExperience) : undefined,
+      termsAccepted: req.body.termsAccepted === 'true' || req.body.termsAccepted === true
+    };
 
-    if (!mongoose.Types.ObjectId.isValid(jobId)) {
-      return res.status(400).json({ message: 'Invalid Job ID format', code: 'BAD_REQUEST' });
-    }
+    // Validate request body using expanded ApplySchema
+    const validatedData = ApplySchema.parse(bodyData);
+    const { jobId, source, experience } = validatedData;
 
     // Check if Job exists and is open
     const job = await Job.findOne({ _id: jobId, deletedAt: null });
@@ -32,6 +36,18 @@ export const applyToJob = async (req: Request, res: Response, next: NextFunction
 
     if (job.status !== 'open') {
       return res.status(400).json({ message: 'This job posting is closed', code: 'BAD_REQUEST' });
+    }
+
+    // Gating check for experience requirements
+    if (job.minExperience > 0 && experience < job.minExperience) {
+      const eligibilityMsg = experience === 0 
+        ? `You are not eligible for this position. This role requires a minimum of ${job.minExperience} years of experience (Freshers are not eligible).`
+        : `You are not eligible for this position. This role requires a minimum of ${job.minExperience} years of experience.`;
+
+      return res.status(400).json({
+        message: eligibilityMsg,
+        code: 'EXPERIENCE_MISMATCH'
+      });
     }
 
     // Check for existing active application (non-terminal stage)
@@ -59,6 +75,17 @@ export const applyToJob = async (req: Request, res: Response, next: NextFunction
       stage: 'applied',
       resumeUrl,
       resumeSnapshotAt: new Date(),
+      phone: validatedData.phone,
+      country: validatedData.country,
+      address: validatedData.address,
+      experience: validatedData.experience,
+      linkedinUrl: validatedData.linkedinUrl,
+      githubUrl: validatedData.githubUrl || '',
+      portfolioUrl: validatedData.portfolioUrl || '',
+      coverLetter: validatedData.coverLetter || '',
+      currentCompany: validatedData.currentCompany || '',
+      currentTitle: validatedData.currentTitle || '',
+      termsAccepted: validatedData.termsAccepted,
       notes: []
     });
 
@@ -92,7 +119,7 @@ export const getCandidateApplications = async (req: Request, res: Response, next
       candidate: new mongoose.Types.ObjectId(req.user.id)
     })
       .sort({ createdAt: -1 })
-      .populate('job', 'title location status');
+      .populate('job', 'title location status minExperience maxExperience');
 
     return res.status(200).json(applications);
   } catch (error) {

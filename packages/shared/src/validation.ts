@@ -81,7 +81,9 @@ export const CreateJobSchema = z.object({
   title: z.string().trim().min(2, 'Title must be at least 2 characters'),
   description: z.string().trim().min(10, 'Description must be at least 10 characters'),
   requirements: z.string().trim().optional(),
-  location: z.string().trim().optional()
+  location: z.string().trim().optional(),
+  minExperience: z.number().nonnegative('Minimum experience cannot be negative').default(0),
+  maxExperience: z.number().nonnegative('Maximum experience cannot be negative').default(0)
 });
 export type CreateJobInput = z.infer<typeof CreateJobSchema>;
 
@@ -90,10 +92,21 @@ export const UpdateJobSchema = CreateJobSchema.partial().extend({
 });
 export type UpdateJobInput = z.infer<typeof UpdateJobSchema>;
 
-// Application Validation
+// Application Validation (Expanded for professional candidates)
 export const ApplySchema = z.object({
   jobId: z.string().min(1, 'Job ID is required'),
-  source: ApplicationSource.default('careers_page')
+  source: ApplicationSource.default('careers_page'),
+  phone: z.string().trim().min(10, 'Phone number must be at least 10 digits'),
+  country: z.string().trim().min(2, 'Country must be at least 2 characters'),
+  address: z.string().trim().min(5, 'Address must be at least 5 characters'),
+  experience: z.number().nonnegative('Years of experience cannot be negative'),
+  linkedinUrl: z.string().trim().url('Invalid LinkedIn Profile URL'),
+  githubUrl: z.string().trim().url('Invalid GitHub URL').optional().or(z.literal('')),
+  portfolioUrl: z.string().trim().url('Invalid Portfolio URL').optional().or(z.literal('')),
+  coverLetter: z.string().trim().optional(),
+  currentCompany: z.string().trim().optional(),
+  currentTitle: z.string().trim().optional(),
+  termsAccepted: z.boolean().refine(val => val === true, 'You must accept the terms and conditions')
 });
 export type ApplyInput = z.infer<typeof ApplySchema>;
 

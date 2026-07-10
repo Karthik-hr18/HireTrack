@@ -1,77 +1,131 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
-  const user = userJson ? JSON.parse(userJson) : null;
+  const [user, setUser] = useState<any | null>(userJson ? JSON.parse(userJson) : null);
+
+  useEffect(() => {
+    const fetchLatestUser = async () => {
+      if (!token) {
+        setUser(null);
+        return;
+      }
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const response = await fetch(`${apiUrl}/api/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('user', JSON.stringify(data.user));
+          setUser(data.user);
+        }
+      } catch (e) {
+        console.error('Failed to sync user profile:', e);
+      }
+    };
+    
+    fetchLatestUser();
+  }, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setUser(null);
     navigate('/');
   };
 
   return (
-    <nav style={navStyle}>
-      <div style={logoContainerStyle}>
-        <Link to="/" style={logoStyle}>
-          Hire<span className="gradient-text">Track</span>
-        </Link>
-        {user && (
-          <span style={roleBadgeStyle}>
-            {user.role.toUpperCase()}
-          </span>
-        )}
-      </div>
+    <div style={navWrapperStyle}>
+      {/* Verification Gating Warning Banner */}
+      {user && !user.isEmailVerified && user.role !== 'admin' && (
+        <div style={verificationBannerStyle}>
+          ⚠️ <strong>Email Unverified</strong>: Please verify your account. Copy the mock verification link from your server console logs to enable write access.
+        </div>
+      )}
 
-      <div style={linksContainerStyle}>
-        <Link to="/" style={linkStyle}>
-          Browse Jobs
-        </Link>
-
-        {user && user.role === 'candidate' && (
-          <Link to="/candidate/applications" style={linkStyle}>
-            My Applications
+      <nav style={navStyle}>
+        <div style={logoContainerStyle}>
+          <Link to="/" style={logoStyle}>
+            Hire<span className="gradient-text">Track</span>
           </Link>
-        )}
+          {user && (
+            <span style={roleBadgeStyle}>
+              {user.role.toUpperCase()}
+            </span>
+          )}
+        </div>
 
-        {user && (user.role === 'recruiter' || user.role === 'admin') && (
-          <Link to="/recruiter/jobs" style={linkStyle}>
-            Manage Jobs
+        <div style={linksContainerStyle}>
+          <Link to="/" style={linkStyle}>
+            Browse Jobs
           </Link>
-        )}
 
-        {token ? (
-          <div style={authSectionStyle}>
-            <span style={userNameStyle}>{user?.name}</span>
-            <button onClick={handleLogout} style={logoutBtnStyle}>
-              Sign Out
-            </button>
-          </div>
-        ) : (
-          <div style={authSectionStyle}>
-            <Link to="/login" style={loginLinkStyle}>
-              Sign In
+          {user && user.role === 'candidate' && (
+            <Link to="/candidate/applications" style={linkStyle}>
+              My Applications
             </Link>
-            <Link to="/register" className="api-btn" style={signUpBtnStyle}>
-              Sign Up
+          )}
+
+          {user && (user.role === 'recruiter' || user.role === 'admin') && (
+            <Link to="/recruiter/jobs" style={linkStyle}>
+              Manage Jobs
             </Link>
-          </div>
-        )}
-      </div>
-    </nav>
+          )}
+
+          {token ? (
+            <div style={authSectionStyle}>
+              <span style={userNameStyle}>{user?.name}</span>
+              <button onClick={handleLogout} style={logoutBtnStyle}>
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <div style={authSectionStyle}>
+              <Link to="/login" style={loginLinkStyle}>
+                Sign In
+              </Link>
+              <Link to="/register" className="api-btn" style={signUpBtnStyle}>
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
+      </nav>
+    </div>
   );
 };
 
 // Styles
+const navWrapperStyle: React.CSSProperties = {
+  width: '100%',
+  marginBottom: 'var(--space-4)'
+};
+
+const verificationBannerStyle: React.CSSProperties = {
+  width: '100%',
+  backgroundColor: 'rgba(245, 158, 11, 0.15)',
+  border: '1px solid rgba(245, 158, 11, 0.3)',
+  color: '#fbbf24',
+  padding: 'var(--space-2) var(--space-4)',
+  borderRadius: 'var(--radius-default)',
+  fontSize: '13px',
+  textAlign: 'center',
+  marginBottom: 'var(--space-3)',
+  fontWeight: 500,
+  lineHeight: 1.4
+};
+
 const navStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  padding: 'var(--space-4) 0',
-  marginBottom: 'var(--space-6)',
+  padding: 'var(--space-3) 0',
   borderBottom: '1px solid var(--gray-border)'
 };
 

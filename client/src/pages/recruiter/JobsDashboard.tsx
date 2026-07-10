@@ -25,6 +25,8 @@ export const JobsDashboard: React.FC = () => {
   const [description, setDescription] = useState('');
   const [requirements, setRequirements] = useState('');
   const [location, setLocation] = useState('');
+  const [minExperience, setMinExperience] = useState<number>(0);
+  const [maxExperience, setMaxExperience] = useState<number>(0);
   const [status, setStatus] = useState<'open' | 'closed'>('open');
 
   // Trigger login on mount for fast activation if they click Demo Login
@@ -96,6 +98,8 @@ export const JobsDashboard: React.FC = () => {
     setDescription('');
     setRequirements('');
     setLocation('');
+    setMinExperience(0);
+    setMaxExperience(0);
     setStatus('open');
     setIsModalOpen(true);
   };
@@ -107,6 +111,8 @@ export const JobsDashboard: React.FC = () => {
     setDescription(job.description);
     setRequirements(job.requirements || '');
     setLocation(job.location || '');
+    setMinExperience(job.minExperience || 0);
+    setMaxExperience(job.maxExperience || 0);
     setStatus(job.status);
     setIsModalOpen(true);
   };
@@ -123,7 +129,14 @@ export const JobsDashboard: React.FC = () => {
         : `${apiUrl}/api/jobs`;
       
       const method = editingJobId ? 'PATCH' : 'POST';
-      const body: any = { title, description, requirements, location };
+      const body: any = { 
+        title, 
+        description, 
+        requirements, 
+        location,
+        minExperience: Number(minExperience),
+        maxExperience: Number(maxExperience)
+      };
       if (editingJobId) {
         body.status = status;
       }
@@ -399,6 +412,30 @@ export const JobsDashboard: React.FC = () => {
               style={inputStyle}
               placeholder="e.g. Bengaluru, Remote"
             />
+          </div>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ ...formGroupStyle, flex: 1 }}>
+              <label style={labelStyle}>Min Experience (Yrs)</label>
+              <input 
+                type="number" 
+                min="0"
+                value={minExperience} 
+                onChange={(e) => setMinExperience(Number(e.target.value))} 
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div style={{ ...formGroupStyle, flex: 1 }}>
+              <label style={labelStyle}>Max Experience (Yrs)</label>
+              <input 
+                type="number" 
+                min="0"
+                value={maxExperience} 
+                onChange={(e) => setMaxExperience(Number(e.target.value))} 
+                style={inputStyle}
+                required
+              />
+            </div>
           </div>
           <div style={formGroupStyle}>
             <label style={labelStyle}>Job Description *</label>

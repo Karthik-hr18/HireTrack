@@ -82,7 +82,12 @@ export const CareersPage: React.FC = () => {
                 <span className="badge badge-success" style={{ margin: 0 }}>Open</span>
               </div>
               <p style={jobMetaStyle}>
-                {job.location && <span>📍 {job.location}</span>}
+                {job.location && <span>📍 {job.location} </span>}
+                {job.minExperience !== undefined && (
+                  <span>
+                    • 💼 {job.minExperience === 0 ? 'Freshers Eligible' : `${job.minExperience}+ Yrs Exp`}
+                  </span>
+                )}
               </p>
               <p style={jobDescStyle}>
                 {job.description.length > 140 
