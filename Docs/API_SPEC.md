@@ -28,7 +28,7 @@ GET.
 
 | Method | Path | Auth | Body | Notes |
 |---|---|---|---|---|
-| POST | `/jobs` | Recruiter, Admin | `{ title, description, requirements, location }` | `status` defaults `open` |
+| POST | `/jobs` | Recruiter, Admin | `{ title, description, requirements, location, minExperience, maxExperience }` | `status` defaults `open` |
 | GET | `/jobs` | public | query: `page, limit` | `status: open, deletedAt: null` only — careers page |
 | GET | `/jobs/manage` | Recruiter, Admin | query: `status, page, limit` | includes closed jobs, excludes soft-deleted |
 | GET | `/jobs/:id` | public | — | 404 if closed/deleted for public callers |
@@ -39,7 +39,7 @@ GET.
 
 | Method | Path | Auth | Body | Notes |
 |---|---|---|---|---|
-| POST | `/applications` | Candidate | `multipart/form-data`: job id, resume file | server validates PDF + size before Cloudinary upload; rejects if an active application already exists for that job |
+| POST | `/applications` | Candidate | `multipart/form-data`: `jobId`, `source`, `phone`, `country`, `address`, `experience`, `linkedinUrl`, `githubUrl?`, `portfolioUrl?`, `coverLetter?`, `currentCompany?`, `currentTitle?`, `termsAccepted`, `resume` file | validates PDF + size before Cloudinary upload; checks experience matches job requirements; rejects if an active application already exists for that job |
 | GET | `/applications/me` | Candidate | query: `page, limit` | own applications only |
 | GET | `/applications` | Recruiter, Admin | query: `search, stage, source, jobId, page, limit` | debounced server-side search |
 | GET | `/applications/:id` | Recruiter, Admin | — | full profile: resume, notes, interviews, scorecard, timeline |

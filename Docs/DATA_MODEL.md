@@ -15,6 +15,8 @@ were a deliberate System Design call, not a default.
 | `passwordHash` | String | bcrypt, cost ≥ 12 |
 | `role` | Enum: `candidate \| recruiter \| admin` | required |
 | `isActive` | Boolean | default `true`; Admin deactivates Recruiters via this, not deletion |
+| `isEmailVerified` | Boolean | default `true` (email verification deferred per specs) |
+| `emailVerificationToken` | String, nullable | token used for verification (if enabled) |
 | `resetTokenHash` | String, nullable | SHA-256 hash of reset token, never the raw token |
 | `resetTokenExpiresAt` | Date, nullable | 15–30 min TTL from issuance |
 | `createdAt` / `updatedAt` | Date | |
@@ -32,6 +34,8 @@ were a deliberate System Design call, not a default.
 | `description` | String | required |
 | `requirements` | String | |
 | `location` | String | |
+| `minExperience` | Number | required, default `0` (used for candidate eligibility gates) |
+| `maxExperience` | Number | required, default `0` |
 | `status` | Enum: `open \| closed` | required |
 | `createdBy` | ObjectId → User | Recruiter/Admin who created it |
 | `deletedAt` | Date, nullable | **soft delete only** — Applications and ActivityLog reference Jobs and must not be orphaned |
@@ -52,6 +56,17 @@ were a deliberate System Design call, not a default.
 | `stage` | Enum: `applied \| resume_screening \| interview_scheduled \| interview_completed \| final_review \| offer \| hired \| rejected` | required, default `applied` — enforced forward-only by the state machine (see SYSTEM_DESIGN.md) |
 | `resumeUrl` | String | Cloudinary URL |
 | `resumeSnapshotAt` | Date | resume as submitted at *this* application's time |
+| `phone` | String | required (candidate phone contact) |
+| `country` | String | required |
+| `address` | String | required |
+| `experience` | Number | required, candidate's declared experience in years |
+| `linkedinUrl` | String | required candidate LinkedIn profile |
+| `githubUrl` | String | optional professional portfolio link |
+| `portfolioUrl` | String | optional website link |
+| `coverLetter` | String | optional statement text |
+| `currentCompany` | String | optional current employer |
+| `currentTitle` | String | optional current title |
+| `termsAccepted` | Boolean | required user agreement consent |
 | `rejectionReason` | Enum, nullable: `skills_mismatch \| experience_mismatch \| withdrew \| salary_expectations \| other` | required if `stage === rejected` |
 | `rejectionNote` | String, nullable | optional free text |
 | `notes` | Array of `{ author: ObjectId → User, text: String, createdAt: Date }` | **embedded**, not a separate collection — small, bounded per-candidate volume |
