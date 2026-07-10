@@ -1,0 +1,49 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build Shared Validation Package
+      run: npm run build:shared
+
+    - name: Typecheck and Compile code
+      run: npm run build
+
+    # Note: Unit tests require a MongoDB connection. 
+    # GitHub Actions provides a services container to run MongoDB locally in CI.
+    - name: Start MongoDB Service
+      uses: supercharge/mongodb-github-action@1.10.0
+      with:
+        mongodb-version: '6.0'
+
+    - name: Run Backend Integration Tests
+      run: npm run test
+      env:
+        MONGO_URI: mongodb://127.0.0.1:27017/hiretrack_test
+        JWT_SECRET: ci_test_jwt_secret_token_key_hash_value_here
+        ADMIN_EMAIL: admin@test-hiretrack.com
+        ADMIN_PASSWORD: adminpassword123

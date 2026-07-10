@@ -1,0 +1,24 @@
+{
+  "name": "hiretrack-root",
+  "version": "1.0.0",
+  "description": "HireTrack - Single Company Applicant Tracking System",
+  "private": true,
+  "workspaces": [
+    "packages/shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w server",
+    "dev:client": "npm run dev -w client",
+    "build:shared": "npm run build -w packages/shared",
+    "build:server": "npm run build -w server",
+    "build:client": "npm run build -w client",
+    "build": "npm run build:shared && npm run build:server && npm run build:client",
+    "db:seed": "npm run db:seed -w server",
+    "test": "npm run test -w server"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
