@@ -5,6 +5,7 @@ import { JobDetailPage } from './pages/careers/JobDetailPage';
 import { JobsDashboard } from './pages/recruiter/JobsDashboard';
 import { ApplicationsDashboard } from './pages/recruiter/ApplicationsDashboard';
 import { ApplicationDetailPage } from './pages/recruiter/ApplicationDetailPage';
+import { CandidateWorkspacePage } from './pages/recruiter/workspace/CandidateWorkspacePage';
 import { AssignedInterviews } from './pages/admin/AssignedInterviews';
 import { ManageRecruiters } from './pages/admin/ManageRecruiters';
 import { LoginPage } from './pages/auth/LoginPage';
@@ -21,6 +22,8 @@ function App() {
         <Route path="/" element={<CareersPage />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
         <Route path="/recruiter/jobs" element={<JobsDashboard />} />
+        <Route path="/recruiter/candidates" element={<CandidateWorkspacePage />} />
+        {/* Legacy routes — kept until Phase 6 cleanup */}
         <Route path="/recruiter/applications" element={<ApplicationsDashboard />} />
         <Route path="/recruiter/applications/:id" element={<ApplicationDetailPage />} />
         <Route path="/admin/interviews" element={<AssignedInterviews />} />
