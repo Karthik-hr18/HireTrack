@@ -214,3 +214,256 @@ input:focus, select:focus, textarea:focus {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+
+/* ─────────────────────────────────────────────
+   STAGE BADGE SYSTEM
+   Used by StageBadge.tsx across the workspace.
+   ───────────────────────────────────────────── */
+.badge-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.badge-stage--sm {
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
+.badge-stage-applied {
+  background-color: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+.badge-stage-screening {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.30);
+}
+.badge-stage-tech-scheduled {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.30);
+}
+.badge-stage-tech-completed {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.30);
+}
+.badge-stage-hr-scheduled {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.30);
+}
+.badge-stage-hr-completed {
+  background-color: rgba(20, 184, 166, 0.15);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.30);
+}
+.badge-stage-offer {
+  background-color: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.30);
+}
+.badge-stage-hired {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.30);
+}
+.badge-stage-rejected {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.30);
+}
+.badge-stage-default {
+  background-color: rgba(148, 163, 184, 0.10);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.20);
+}
+
+/* ─────────────────────────────────────────────
+   SKELETON LOADER
+   Used by SkeletonLoader.tsx
+   ───────────────────────────────────────────── */
+.skeleton-pulse {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-input);
+}
+
+.skeleton-bar {
+  display: block;
+  border-radius: var(--radius-input);
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gray-border);
+}
+
+.skeleton-list-row__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-panel-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--gray-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-panel-block {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--gray-border);
+}
+
+/* ─────────────────────────────────────────────
+   EMPTY STATE
+   Used by EmptyState.tsx
+   ───────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  gap: 12px;
+}
+
+.empty-state__icon {
+  font-size: 36px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.empty-state__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-text-primary);
+  margin: 0;
+}
+
+.empty-state__desc {
+  font-size: 14px;
+  color: var(--gray-text-muted);
+  max-width: 280px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.empty-state__btn {
+  margin-top: 8px;
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+/* ─────────────────────────────────────────────
+   WORKSPACE LAYOUT PRIMITIVES
+   Used by CandidateWorkspacePage (Phase 2+)
+   ───────────────────────────────────────────── */
+.workspace-root {
+  /* Override the #root padding and max-width for full-bleed workspace */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--gray-bg);
+  overflow: hidden;
+}
+
+.workspace-topbar {
+  height: 48px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--gray-border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background-color: var(--gray-surface);
+  gap: 0;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.workspace-contextbar {
+  height: 40px;
+  min-height: 40px;
+  border-bottom: 1px solid var(--gray-border);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background-color: var(--gray-bg);
+  flex-shrink: 0;
+  z-index: 90;
+  overflow-x: auto;
+}
+
+.workspace-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  min-height: 0; /* important — allows flex children to scroll */
+  overflow: hidden;
+}
+
+.workspace-left-panel {
+  border-right: 1px solid var(--gray-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--gray-bg);
+}
+
+.workspace-right-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--gray-bg);
+}
+
+/* Responsive: collapse to single column on mobile */
+@media (max-width: 767px) {
+  .workspace-body {
+    grid-template-columns: 1fr;
+  }
+  .workspace-right-panel {
+    display: none; /* shown via JS when candidate selected */
+  }
+  .workspace-right-panel.is-open {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background-color: var(--gray-bg);
+  }
+}
+
