@@ -71,9 +71,27 @@ export const Navbar: React.FC = () => {
             </Link>
           )}
 
-          {user && (user.role === 'recruiter' || user.role === 'admin') && (
+          {user && user.role === 'recruiter' && (
+            <Link to="/recruiter/jobs" style={linkStyle}>
+              Jobs
+            </Link>
+          )}
+
+          {user && user.role === 'recruiter' && (
+            <Link to="/recruiter/candidates" style={{ ...linkStyle, color: 'var(--accent-hover)', fontWeight: 600 }}>
+              ✦ Candidates
+            </Link>
+          )}
+
+          {user && user.role === 'admin' && (
             <Link to="/recruiter/jobs" style={linkStyle}>
               Manage Jobs
+            </Link>
+          )}
+
+          {user && user.role === 'admin' && (
+            <Link to="/recruiter/candidates" style={{ ...linkStyle, color: 'var(--accent-hover)', fontWeight: 600 }}>
+              ✦ Candidates
             </Link>
           )}
 
@@ -88,6 +106,7 @@ export const Navbar: React.FC = () => {
               Manage Recruiters
             </Link>
           )}
+
 
           {token ? (
             <div style={authSectionStyle}>
