@@ -1648,6 +1648,7 @@ input:focus, select:focus, textarea:focus {
   margin: 0;
 }
 
+
 /* Star Rating */
 .star-rating {
   display: inline-flex;
@@ -1661,4 +1662,457 @@ input:focus, select:focus, textarea:focus {
   color: var(--gray-border);
   font-size: 14px;
 }
+
+/* ─────────────────────────────────────────────
+   PIPELINE PROGRESS BAR
+   ───────────────────────────────────────────── */
+.pipeline-progress {
+  padding: 16px;
+  background-color: var(--gray-surface);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-card);
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.pipeline-progress__track {
+  position: absolute;
+  top: 36px;
+  left: 36px;
+  right: 36px;
+  height: 3px;
+  background-color: var(--gray-border);
+  z-index: 1;
+}
+
+.pipeline-progress__fill {
+  height: 100%;
+  background-color: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.pipeline-progress__steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+}
+
+.pipeline-progress__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 70px;
+}
+
+.pipeline-progress__circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--gray-bg);
+  border: 2px solid var(--gray-border);
+  color: var(--gray-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.pipeline-progress__circle--completed {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.pipeline-progress__circle--active {
+  background-color: var(--gray-bg);
+  border-color: var(--accent-hover);
+  color: var(--accent-hover);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+.pipeline-progress__circle--rejected {
+  border-color: var(--error);
+  color: var(--error);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+}
+
+.pipeline-progress__label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gray-text-muted);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.pipeline-progress__step:hover .pipeline-progress__label {
+  color: var(--gray-text-primary);
+}
+
+/* ─────────────────────────────────────────────
+   ACTION CARD
+   ───────────────────────────────────────────── */
+.action-card {
+  background-color: var(--gray-surface);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.action-card--rejected {
+  border-color: rgba(239, 68, 68, 0.3);
+  background-color: rgba(239, 68, 68, 0.03);
+}
+
+.action-card--hired {
+  border-color: rgba(16, 185, 129, 0.3);
+  background-color: rgba(16, 185, 129, 0.03);
+}
+
+.action-card__title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+.action-card__title--rejected { color: var(--error); }
+.action-card__title--hired { color: var(--success); }
+
+.action-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.action-card__stage-prefix {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-text-muted);
+}
+
+.action-card__desc {
+  font-size: 13px;
+  color: var(--gray-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.action-card__scheduled {
+  background-color: var(--gray-bg);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-default);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-card__scheduled-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-hover);
+  margin: 0;
+  border-bottom: 1px solid var(--gray-border);
+  padding-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.action-card__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.action-card__label {
+  color: var(--gray-text-muted);
+  font-weight: 600;
+}
+
+.action-card__value {
+  color: var(--gray-text-primary);
+  font-weight: 600;
+}
+.action-card__value--capitalize {
+  text-transform: capitalize;
+}
+
+.action-card__note-text {
+  font-size: 12px;
+  color: var(--gray-text-muted);
+  font-style: italic;
+  margin: 4px 0 0;
+  line-height: 1.4;
+  flex: 1;
+  text-align: right;
+}
+
+.action-card__instruction {
+  font-size: 13px;
+  color: var(--gray-text-muted);
+  margin: 0;
+  line-height: 1.5;
+  background-color: var(--gray-bg);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-default);
+  padding: 10px;
+}
+
+.action-card__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-card__btn-schedule {
+  width: 100%;
+}
+
+.action-card__btn-reject {
+  background: none;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: var(--error);
+  padding: 8px 16px;
+  border-radius: var(--radius-default);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  width: 100%;
+  transition: all var(--transition-speed);
+}
+.action-card__btn-reject:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: var(--error);
+}
+
+/* ─────────────────────────────────────────────
+   REJECTION & SCHEDULING CARD INLINE FORMS
+   ───────────────────────────────────────────── */
+.rejection-card,
+.scheduling-card {
+  background-color: var(--gray-surface);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.rejection-card {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.scheduling-card {
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.rejection-card__title,
+.scheduling-card__title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 12px;
+}
+
+.rejection-card__title { color: var(--error); }
+.scheduling-card__title { color: var(--accent-hover); }
+
+.rejection-card__form,
+.scheduling-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rejection-card__field,
+.scheduling-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rejection-card__field label,
+.scheduling-card__field label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-text-muted);
+  margin: 0;
+}
+
+.rejection-card__field select,
+.rejection-card__field textarea,
+.scheduling-card__field select,
+.scheduling-card__field input {
+  font-size: 13px;
+  min-height: 36px;
+  height: 36px;
+  padding: 0 10px;
+  background-color: var(--gray-bg);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-input);
+  color: var(--gray-text-primary);
+  font-family: var(--font-sans);
+}
+
+.rejection-card__field textarea {
+  height: auto;
+  min-height: 60px;
+  padding: 8px 10px;
+}
+
+.rejection-card__error,
+.scheduling-card__error {
+  font-size: 12px;
+  color: var(--error);
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: var(--radius-input);
+  padding: 8px 12px;
+}
+
+.rejection-card__actions,
+.scheduling-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.rejection-card__cancel,
+.scheduling-card__cancel {
+  background: none;
+  border: 1px solid var(--gray-border);
+  color: var(--gray-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  padding: 0 16px;
+  height: 36px;
+  border-radius: var(--radius-default);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+.rejection-card__cancel:hover,
+.scheduling-card__cancel:hover {
+  border-color: var(--gray-text-muted);
+  color: var(--gray-text-primary);
+}
+
+.rejection-card__submit {
+  background-color: var(--error);
+  height: 36px;
+  min-height: unset;
+  padding: 0 16px;
+}
+.rejection-card__submit:hover {
+  background-color: #dc2626;
+}
+
+.scheduling-card__submit {
+  height: 36px;
+  min-height: unset;
+  padding: 0 16px;
+}
+
+.scheduling-card__loading-text {
+  font-size: 12px;
+  color: var(--gray-text-muted);
+  margin: 0;
+  font-style: italic;
+}
+
+/* ─────────────────────────────────────────────
+   SCORECARD SUBMISSION FORM
+   ───────────────────────────────────────────── */
+.scorecard-form {
+  background-color: var(--gray-surface);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scorecard-form__title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--success);
+  margin: 0 0 4px;
+}
+
+.scorecard-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scorecard-form__field label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-text-muted);
+  margin: 0;
+}
+
+.scorecard-form__row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.scorecard-form__field select,
+.scorecard-form__field input,
+.scorecard-form__field textarea {
+  font-size: 13px;
+  min-height: 36px;
+  height: 36px;
+  padding: 0 10px;
+  background-color: var(--gray-bg);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-input);
+  color: var(--gray-text-primary);
+  font-family: var(--font-sans);
+}
+
+.scorecard-form__field textarea {
+  height: auto;
+  min-height: 80px;
+  padding: 8px 10px;
+}
+
+.scorecard-form__submit {
+  background-color: var(--success);
+  height: 38px;
+  min-height: unset;
+  font-size: 13px;
+}
+.scorecard-form__submit:hover {
+  background-color: #059669;
+}
+
+.scorecard-form__error {
+  font-size: 12px;
+  color: var(--error);
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: var(--radius-input);
+  padding: 8px 12px;
+}
+
 

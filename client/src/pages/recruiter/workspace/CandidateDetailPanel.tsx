@@ -2,6 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { StageBadge } from '../../../components/ui/StageBadge';
 import { SkeletonLoader } from '../../../components/ui/SkeletonLoader';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { PipelineProgressBar } from './PipelineProgressBar';
+import { ActionCard } from './ActionCard';
+import { SchedulingCard } from './SchedulingCard';
+import { RejectionCard } from './RejectionCard';
 
 // ─── Tab configuration ────────────────────────────────────────────────────────
 export type DetailTab =
@@ -37,6 +41,8 @@ export interface DetailApplication {
   coverLetter?: string;
   currentCompany?: string;
   currentTitle?: string;
+  rejectionReason?: string;
+  rejectionNote?: string;
   createdAt: string;
   updatedAt: string;
   candidate: { _id: string; name: string; email: string } | null;
@@ -52,7 +58,7 @@ export interface DetailApplication {
 export interface TimelineEvent {
   _id: string;
   action: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
   createdAt: string;
   actor: { _id: string; name: string; role: string } | null;
 }
@@ -102,6 +108,12 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
   const token  = localStorage.getItem('token');
   const apiUrl = import.meta.env.VITE_API_URL || '';
 
+  // ── User Identity ────────────────────────────────────────────────────────
+  const userJson = localStorage.getItem('user');
+  const user = userJson ? JSON.parse(userJson) : null;
+  const isRecruiter = user?.role === 'recruiter';
+  const isAdmin = user?.role === 'admin';
+
   // ── State ────────────────────────────────────────────────────────────────
   const [detail,  setDetail]  = useState<ApplicationDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +121,10 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
   const [activeTab, setActiveTab] = useState<DetailTab>('overview');
   /** Controls fade-out before loading new candidate */
   const [fading,  setFading]  = useState(false);
+
+  // Form toggles
+  const [actionState, setActionState] = useState<'none' | 'scheduling' | 'rejecting'>('none');
+  const [submittingAction, setSubmittingAction] = useState(false);
 
   // ── Fetch ────────────────────────────────────────────────────────────────
   const fetchDetail = useCallback(async (id: string) => {
@@ -135,11 +151,36 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
     setLoading(true);
     setDetail(null);
     setActiveTab('overview'); // always reset to Overview on new selection
+    setActionState('none');
 
     // Small delay to let fade-out render before loading new content
     const t = setTimeout(() => fetchDetail(applicationId), 80);
     return () => clearTimeout(t);
   }, [applicationId, fetchDetail]);
+
+  // ── Advance Stage Logic ──────────────────────────────────────────────────
+  const handleAdvance = async () => {
+    if (!token || !applicationId) return;
+    try {
+      setSubmittingAction(true);
+      const res = await fetch(`${apiUrl}/api/applications/${applicationId}/advance`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || 'Failed to advance stage');
+      }
+      await fetchDetail(applicationId);
+      onRefreshList?.();
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setSubmittingAction(false);
+    }
+  };
 
   // ── Derived ──────────────────────────────────────────────────────────────
   const app       = detail?.application;
@@ -264,6 +305,12 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
         <TabContent
           tab={activeTab}
           detail={detail}
+          isAdmin={isAdmin}
+          isRecruiter={isRecruiter}
+          actionState={actionState}
+          setActionState={setActionState}
+          submittingAction={submittingAction}
+          onAdvance={handleAdvance}
           onRefresh={() => {
             fetchDetail(applicationId);
             onRefreshList?.();
@@ -278,27 +325,77 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
 interface TabContentProps {
   tab: DetailTab;
   detail: ApplicationDetail;
+  isAdmin: boolean;
+  isRecruiter: boolean;
+  actionState: 'none' | 'scheduling' | 'rejecting';
+  setActionState: (state: 'none' | 'scheduling' | 'rejecting') => void;
+  submittingAction: boolean;
+  onAdvance: () => Promise<void>;
   onRefresh: () => void;
 }
 
-const TabContent: React.FC<TabContentProps> = ({ tab, detail }) => {
+const TabContent: React.FC<TabContentProps> = ({
+  tab,
+  detail,
+  isAdmin,
+  isRecruiter,
+  actionState,
+  setActionState,
+  submittingAction,
+  onAdvance,
+  onRefresh,
+}) => {
   const { application: app, timeline, interviews, scorecards } = detail;
+
+  // Derive active scheduled interview
+  const activeInterview = interviews.find((i) => i.status === 'scheduled') ?? null;
+  const canSubmitScorecard = isAdmin && activeInterview;
 
   switch (tab) {
     // ── Overview ─────────────────────────────────────────────────────────
     case 'overview':
       return (
         <div className="tab-content tab-content--overview">
-          {/* Action Card — Phase 4 will replace this placeholder */}
-          <div className="action-card-placeholder">
-            <div className="acp__label">PIPELINE ACTION</div>
-            <div className="acp__stage">
-              Current stage: <strong>{app.stage.replace(/_/g, ' ')}</strong>
-            </div>
-            <p className="acp__note">
-              Full action cards (scheduling, rejection, advancement) are built in Phase 5.
-            </p>
-          </div>
+          {/* Progress Tracker */}
+          <PipelineProgressBar currentStage={app.stage} />
+
+          {/* Action form overrides */}
+          {actionState === 'scheduling' && (
+            <SchedulingCard
+              applicationId={app._id}
+              interviewType={app.stage === 'resume_screening' ? 'technical' : 'hr'}
+              onCancel={() => setActionState('none')}
+              onSuccess={() => {
+                setActionState('none');
+                onRefresh();
+              }}
+            />
+          )}
+
+          {actionState === 'rejecting' && (
+            <RejectionCard
+              applicationId={app._id}
+              onCancel={() => setActionState('none')}
+              onSuccess={() => {
+                setActionState('none');
+                onRefresh();
+              }}
+            />
+          )}
+
+          {/* Standard CTA actions card */}
+          {actionState === 'none' && (
+            <ActionCard
+              application={app}
+              activeInterview={activeInterview}
+              isAdmin={isAdmin}
+              isRecruiter={isRecruiter}
+              onAdvanceClick={onAdvance}
+              onRejectClick={() => setActionState('rejecting')}
+              onScheduleClick={() => setActionState('scheduling')}
+              submittingAction={submittingAction}
+            />
+          )}
 
           {/* Candidate Snapshot */}
           <section className="detail-section">
@@ -415,7 +512,7 @@ const TabContent: React.FC<TabContentProps> = ({ tab, detail }) => {
                   <div className="timeline-event__dot" />
                   <div className="timeline-event__body">
                     <div className="timeline-event__action">
-                      {formatTimelineAction(event.action)}
+                      {formatTimelineEventText(event, app.stage)}
                     </div>
                     <div className="timeline-event__meta">
                       {event.actor?.name ?? 'System'}
@@ -486,12 +583,21 @@ const TabContent: React.FC<TabContentProps> = ({ tab, detail }) => {
     case 'scorecards':
       return (
         <div className="tab-content tab-content--scorecards">
+          {/* Submit Scorecard form section for Admin */}
+          {canSubmitScorecard && activeInterview && (
+            <ScorecardFormContent
+              interviewId={activeInterview._id}
+              interviewType={activeInterview.type}
+              onSubmitSuccess={onRefresh}
+            />
+          )}
+
+          {/* List of submitted scorecards */}
           {scorecards.length === 0 ? (
             <EmptyState
               icon="🏆"
               title="No scorecards yet"
-              description="Schedule a Technical Interview from the Overview tab to begin evaluation."
-              action={{ label: 'Go to Overview', onClick: () => {} }}
+              description="Scorecards will appear here once submitted by an evaluator."
             />
           ) : (
             <div className="scorecards-list">
@@ -559,6 +665,156 @@ const TabContent: React.FC<TabContentProps> = ({ tab, detail }) => {
     default:
       return null;
   }
+};
+
+// ─── Scorecard Form sub-component ───────────────────────────────────────────
+interface ScorecardFormContentProps {
+  interviewId: string;
+  interviewType: 'technical' | 'hr';
+  onSubmitSuccess: () => void;
+}
+
+const ScorecardFormContent: React.FC<ScorecardFormContentProps> = ({
+  interviewId,
+  interviewType,
+  onSubmitSuccess,
+}) => {
+  const token = localStorage.getItem('token');
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+
+  const [recommendation, setRecommendation] = useState(interviewType === 'technical' ? 'pass' : 'hire');
+  const [comments, setComments] = useState('');
+  const [communication, setCommunication] = useState(3);
+  const [cultureFit, setCultureFit] = useState(3);
+  const [salaryExpectation, setSalaryExpectation] = useState('');
+  const [salaryOffered, setSalaryOffered] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !comments.trim()) return;
+
+    const bodyData: any = {
+      recommendation,
+      comments: comments.trim()
+    };
+
+    if (interviewType === 'hr') {
+      bodyData.communication = communication;
+      bodyData.cultureFit = cultureFit;
+      if (salaryExpectation) bodyData.salaryExpectation = Number(salaryExpectation);
+      if (salaryOffered) bodyData.salaryOffered = Number(salaryOffered);
+    }
+
+    try {
+      setSubmitting(true);
+      setError(null);
+      const res = await fetch(`${apiUrl}/api/interviews/${interviewId}/scorecard`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(bodyData)
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || 'Failed to submit scorecard');
+      }
+
+      onSubmitSuccess();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="scorecard-form">
+      <h5 className="scorecard-form__title">
+        Submit {interviewType === 'technical' ? 'Technical' : 'HR'} Evaluation
+      </h5>
+
+      <div className="scorecard-form__field">
+        <label htmlFor="sf-rec">Recommendation *</label>
+        {interviewType === 'technical' ? (
+          <select id="sf-rec" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} required>
+            <option value="pass">Pass (Advance to HR)</option>
+            <option value="reject">Reject Candidate</option>
+          </select>
+        ) : (
+          <select id="sf-rec" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} required>
+            <option value="hire">Accept & Hire</option>
+            <option value="reject">Reject Candidate</option>
+          </select>
+        )}
+      </div>
+
+      {interviewType === 'hr' && (
+        <>
+          <div className="scorecard-form__row-2">
+            <div className="scorecard-form__field">
+              <label htmlFor="sf-culture">Culture Fit (1-5)</label>
+              <select id="sf-culture" value={cultureFit} onChange={(e) => setCultureFit(Number(e.target.value))}>
+                {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <div className="scorecard-form__field">
+              <label htmlFor="sf-comm">Communication (1-5)</label>
+              <select id="sf-comm" value={communication} onChange={(e) => setCommunication(Number(e.target.value))}>
+                {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="scorecard-form__row-2">
+            <div className="scorecard-form__field">
+              <label htmlFor="sf-sal-exp">Salary Expectation ($)</label>
+              <input
+                id="sf-sal-exp"
+                type="number"
+                placeholder="e.g. 95000"
+                value={salaryExpectation}
+                onChange={(e) => setSalaryExpectation(e.target.value)}
+                required
+              />
+            </div>
+            <div className="scorecard-form__field">
+              <label htmlFor="sf-sal-off">Salary Offered ($)</label>
+              <input
+                id="sf-sal-off"
+                type="number"
+                placeholder="e.g. 100000"
+                value={salaryOffered}
+                onChange={(e) => setSalaryOffered(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="scorecard-form__field">
+        <label htmlFor="sf-comments">Comments / Rationale *</label>
+        <textarea
+          id="sf-comments"
+          placeholder="Provide details about performance and decision rationale..."
+          value={comments}
+          onChange={(e) => setComments(e.target.value)}
+          required
+        />
+      </div>
+
+      {error && <div className="scorecard-form__error">⚠️ {error}</div>}
+
+      <button type="submit" className="api-btn scorecard-form__submit" disabled={submitting || !comments.trim()}>
+        {submitting ? 'Submitting...' : 'Submit Evaluation Scorecard'}
+      </button>
+    </form>
+  );
 };
 
 // ─── Notes sub-component (has its own form state) ─────────────────────────────
@@ -677,15 +933,43 @@ function formatRelativeDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-function formatTimelineAction(action: string): string {
-  const map: Record<string, string> = {
-    stage_changed:          '🔄 Stage changed',
-    note_added:             '📝 Note added',
-    interview_scheduled:    '🗓 Interview scheduled',
-    scorecard_submitted:    '📋 Scorecard submitted',
-    application_submitted:  '📄 Application submitted',
-    rejected:               '✗ Application rejected',
-    hired:                  '✅ Candidate hired',
-  };
-  return map[action] ?? action.replace(/_/g, ' ');
+function formatTimelineEventText(event: TimelineEvent, currentStage: string): React.ReactNode {
+  const label = event.metadata?.to
+    ? event.metadata.to.replace(/_/g, ' ').toUpperCase()
+    : currentStage.replace(/_/g, ' ').toUpperCase();
+
+  switch (event.action) {
+    case 'stage_changed':
+      return (
+        <span>
+          🔄 Stage updated to <strong>{label}</strong>
+        </span>
+      );
+    case 'note_added':
+      return (
+        <span>
+          📝 Posted remark: <em>"{event.metadata?.text?.substring(0, 50)}..."</em>
+        </span>
+      );
+    case 'interview_scheduled':
+      return (
+        <span>
+          🗓 Interview Scheduled: <strong>{event.metadata?.interviewType?.toUpperCase()}</strong>
+        </span>
+      );
+    case 'scorecard_submitted':
+      return (
+        <span>
+          📋 Submitted evaluation: <strong>{event.metadata?.recommendation?.toUpperCase()}</strong>
+        </span>
+      );
+    case 'application_submitted':
+      return <span>📄 Application submitted</span>;
+    case 'rejected':
+      return <span>✗ Application rejected</span>;
+    case 'hired':
+      return <span>✅ Candidate hired</span>;
+    default:
+      return <span>{event.action.replace(/_/g, ' ')}</span>;
+  }
 }
