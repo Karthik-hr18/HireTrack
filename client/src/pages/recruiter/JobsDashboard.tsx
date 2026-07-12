@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Modal } from '../../components/ui/Modal';
 
 export const JobsDashboard: React.FC = () => {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -336,105 +335,126 @@ export const JobsDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Modal form container */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalTitle}>
-        <form onSubmit={handleSaveJob} style={formStyle}>
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Job Title *</label>
-            <input 
-              type="text" 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)} 
-              style={inputStyle}
-              placeholder="e.g. Senior Frontend Engineer"
-              required
-            />
-          </div>
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Location</label>
-            <input 
-              type="text" 
-              value={location} 
-              onChange={(e) => setLocation(e.target.value)} 
-              style={inputStyle}
-              placeholder="e.g. Bengaluru, Remote"
-            />
-          </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ ...formGroupStyle, flex: 1 }}>
-              <label style={labelStyle}>Min Experience (Yrs)</label>
-              <input 
-                type="number" 
-                min="0"
-                value={minExperience} 
-                onChange={(e) => setMinExperience(Number(e.target.value))} 
-                style={inputStyle}
-                required
-              />
-            </div>
-            <div style={{ ...formGroupStyle, flex: 1 }}>
-              <label style={labelStyle}>Max Experience (Yrs)</label>
-              <input 
-                type="number" 
-                min="0"
-                value={maxExperience} 
-                onChange={(e) => setMaxExperience(Number(e.target.value))} 
-                style={inputStyle}
-                required
-              />
-            </div>
-          </div>
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Job Description *</label>
-            <textarea 
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)} 
-              style={{ ...inputStyle, height: '100px', resize: 'vertical' }}
-              placeholder="Roles and responsibilities..."
-              required
-            />
-          </div>
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Job Requirements</label>
-            <textarea 
-              value={requirements} 
-              onChange={(e) => setRequirements(e.target.value)} 
-              style={{ ...inputStyle, height: '100px', resize: 'vertical' }}
-              placeholder="Desired skills, experience..."
-            />
-          </div>
-          {editingJobId && (
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Publishing Status</label>
-              <select 
-                value={status} 
-                onChange={(e) => setStatus(e.target.value as 'open' | 'closed')}
-                style={inputStyle}
-              >
-                <option value="open">Open (Public)</option>
-                <option value="closed">Closed (Internal)</option>
-              </select>
-            </div>
-          )}
-
-          <div style={formButtonsStyle}>
+      {/* Sliding Right-Side Drawer Panel */}
+      <div 
+        className={`drawer-backdrop ${isModalOpen ? 'drawer-backdrop--open' : ''}`}
+        onClick={() => setIsModalOpen(false)}
+      >
+        <div 
+          className="drawer-panel"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="drawer-panel__header">
+            <h3 className="drawer-panel__title">{modalTitle}</h3>
             <button 
               type="button" 
-              style={cancelButtonStyle} 
+              className="drawer-panel__close"
               onClick={() => setIsModalOpen(false)}
+              aria-label="Close drawer"
             >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              className="api-btn"
-              disabled={loading}
-            >
-              {loading ? 'Saving...' : 'Save Job Posting'}
+              ✕
             </button>
           </div>
-        </form>
-      </Modal>
+          <div className="drawer-panel__content">
+            <form onSubmit={handleSaveJob} style={formStyle}>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Job Title *</label>
+                <input 
+                  type="text" 
+                  value={title} 
+                  onChange={(e) => setTitle(e.target.value)} 
+                  style={inputStyle}
+                  placeholder="e.g. Senior Frontend Engineer"
+                  required
+                />
+              </div>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Location</label>
+                <input 
+                  type="text" 
+                  value={location} 
+                  onChange={(e) => setLocation(e.target.value)} 
+                  style={inputStyle}
+                  placeholder="e.g. Bengaluru, Remote"
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <div style={{ ...formGroupStyle, flex: 1 }}>
+                  <label style={labelStyle}>Min Experience (Yrs)</label>
+                  <input 
+                    type="number" 
+                    min="0"
+                    value={minExperience} 
+                    onChange={(e) => setMinExperience(Number(e.target.value))} 
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+                <div style={{ ...formGroupStyle, flex: 1 }}>
+                  <label style={labelStyle}>Max Experience (Yrs)</label>
+                  <input 
+                    type="number" 
+                    min="0"
+                    value={maxExperience} 
+                    onChange={(e) => setMaxExperience(Number(e.target.value))} 
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+              </div>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Job Description *</label>
+                <textarea 
+                  value={description} 
+                  onChange={(e) => setDescription(e.target.value)} 
+                  style={{ ...inputStyle, height: '120px', resize: 'vertical' }}
+                  placeholder="Roles and responsibilities..."
+                  required
+                />
+              </div>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Job Requirements</label>
+                <textarea 
+                  value={requirements} 
+                  onChange={(e) => setRequirements(e.target.value)} 
+                  style={{ ...inputStyle, height: '120px', resize: 'vertical' }}
+                  placeholder="Desired skills, experience..."
+                />
+              </div>
+              {editingJobId && (
+                <div style={formGroupStyle}>
+                  <label style={labelStyle}>Publishing Status</label>
+                  <select 
+                    value={status} 
+                    onChange={(e) => setStatus(e.target.value as 'open' | 'closed')}
+                    style={inputStyle}
+                  >
+                    <option value="open">Open (Public)</option>
+                    <option value="closed">Closed (Internal)</option>
+                  </select>
+                </div>
+              )}
+
+              <div style={formButtonsStyle}>
+                <button 
+                  type="button" 
+                  style={cancelButtonStyle} 
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="api-btn"
+                  disabled={loading}
+                >
+                  {loading ? 'Saving...' : 'Save Job Posting'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
 
       <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
         <Link to="/" style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.9rem' }}>
