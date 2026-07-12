@@ -60,12 +60,14 @@ export const CandidateList: React.FC<CandidateListProps> = ({
   const [filters, setFilters] = useState<FilterState>({ source: '', jobId: '' });
   const [filterOpen, setFilterOpen] = useState(false);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // ── Debounce search ─────────────────────────────────────────
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchRaw.trim()), DEBOUNCE_MS);
     return () => clearTimeout(t);
   }, [searchRaw]);
+
 
   // ── Fetch ALL applications (high limit for client-side counts) ──
   const fetchApplications = useCallback(async () => {
@@ -137,6 +139,40 @@ export const CandidateList: React.FC<CandidateListProps> = ({
     return list;
   }, [allApplications, activeStage, search]);
 
+  // Keyboard Navigation: Up/Down arrow to change candidate selection
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in notes/rationale inputs
+      const tag = document.activeElement?.tagName.toLowerCase();
+      if (tag === 'textarea' || (tag === 'input' && document.activeElement !== searchInputRef.current)) {
+        return;
+      }
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (visible.length === 0) return;
+        const currentIdx = visible.findIndex((app) => app._id === selectedId);
+        const nextIdx = currentIdx + 1;
+        if (nextIdx < visible.length) {
+          onSelect(visible[nextIdx]._id);
+        } else if (currentIdx === -1) {
+          onSelect(visible[0]._id);
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (visible.length === 0) return;
+        const currentIdx = visible.findIndex((app) => app._id === selectedId);
+        const prevIdx = currentIdx - 1;
+        if (prevIdx >= 0) {
+          onSelect(visible[prevIdx]._id);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [visible, selectedId, onSelect]);
+
   // ── Active filter chip count ────────────────────────────────
   const activeFilterCount = [filters.source, filters.jobId].filter(Boolean).length;
 
@@ -154,6 +190,7 @@ export const CandidateList: React.FC<CandidateListProps> = ({
         <div className="search-bar">
           <span className="search-bar__icon">🔍</span>
           <input
+            ref={searchInputRef}
             type="text"
             className="search-bar__input"
             placeholder="Search candidates…"

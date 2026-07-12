@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
 import { CandidateDetailPanel } from './CandidateDetailPanel';
@@ -7,33 +7,69 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 
 export const CandidateWorkspacePage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const token    = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
   const user     = userJson ? JSON.parse(userJson) : null;
 
-  // Redirect unauthenticated users
-  if (!token) {
-    navigate('/login');
-    return null;
-  }
-
   // ── Workspace state ───────────────────────────────────────────
-  const [activeStage, setActiveStage]   = useState('');
-  const [selectedId,  setSelectedId]    = useState<string | null>(null);
+  const [activeStage, setActiveStage]   = useState(searchParams.get('stage') || '');
+  const [selectedId,  setSelectedId]    = useState<string | null>(searchParams.get('candidate'));
   const [stageCounts, setStageCounts]   = useState<Record<string, number>>({});
-  const [panelOpen,   setPanelOpen]     = useState(false);
+  const [panelOpen,   setPanelOpen]     = useState(!!searchParams.get('candidate'));
   // Ref to trigger list refresh from inside the detail panel
   const listRefreshRef = useRef<(() => void) | null>(null);
 
+  // Redirect unauthenticated users
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token, navigate]);
+
+  // Sync state changes with URL Search Params
   const handleSelect = (id: string) => {
     setSelectedId(id);
     setPanelOpen(true);
+    setSearchParams((prev) => {
+      prev.set('candidate', id);
+      return prev;
+    });
   };
 
   const handleDeselect = () => {
     setSelectedId(null);
     setPanelOpen(false);
+    setSearchParams((prev) => {
+      prev.delete('candidate');
+      return prev;
+    });
   };
+
+  const handleStageChange = (s: string) => {
+    setActiveStage(s);
+    setSelectedId(null);
+    setPanelOpen(false);
+    setSearchParams((prev) => {
+      if (s) {
+        prev.set('stage', s);
+      } else {
+        prev.delete('stage');
+      }
+      prev.delete('candidate');
+      return prev;
+    });
+  };
+
+  // Listen for external URL changes (back/forward navigation)
+  useEffect(() => {
+    const stageParam = searchParams.get('stage') || '';
+    const candParam = searchParams.get('candidate');
+    
+    setActiveStage(stageParam);
+    setSelectedId(candParam);
+    setPanelOpen(!!candParam);
+  }, [searchParams]);
 
   const handleCountsChange = useCallback((counts: Record<string, number>) => {
     setStageCounts(counts);
@@ -41,6 +77,21 @@ export const CandidateWorkspacePage: React.FC = () => {
 
   const handleListRefresh = useCallback(() => {
     listRefreshRef.current?.();
+  }, []);
+
+  // Listen for Escape key to deselect active candidate
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        const tag = document.activeElement?.tagName.toLowerCase();
+        if (tag === 'textarea' || tag === 'input') {
+          return;
+        }
+        handleDeselect();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleLogout = () => {
@@ -88,16 +139,11 @@ export const CandidateWorkspacePage: React.FC = () => {
         </div>
       </header>
 
-      {/* ── CONTEXT BAR (stage tabs) ──────────────────────────── */}
       <div className="workspace-contextbar">
         <StageTabBar
           activeStage={activeStage}
           counts={stageCounts}
-          onStageChange={(s) => {
-            setActiveStage(s);
-            setSelectedId(null);
-            setPanelOpen(false);
-          }}
+          onStageChange={handleStageChange}
         />
       </div>
 
