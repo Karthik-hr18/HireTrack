@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
 import { CandidateDetailPanel } from './CandidateDetailPanel';
+import { KanbanBoard } from './KanbanBoard';
 import { EmptyState } from '../../../components/ui/EmptyState';
 
 export const CandidateWorkspacePage: React.FC = () => {
@@ -17,6 +18,15 @@ export const CandidateWorkspacePage: React.FC = () => {
   const [selectedId,  setSelectedId]    = useState<string | null>(searchParams.get('candidate'));
   const [stageCounts, setStageCounts]   = useState<Record<string, number>>({});
   const [panelOpen,   setPanelOpen]     = useState(!!searchParams.get('candidate'));
+  
+  // view mode: 'list' (default) or 'kanban'
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>(
+    (searchParams.get('view') as 'list' | 'kanban') || 'list'
+  );
+  
+  // Stores raw loaded applications from list component (for kanban rendering)
+  const [allApplications, setAllApplications] = useState<any[]>([]);
+
   // Ref to trigger list refresh from inside the detail panel
   const listRefreshRef = useRef<(() => void) | null>(null);
 
@@ -61,14 +71,28 @@ export const CandidateWorkspacePage: React.FC = () => {
     });
   };
 
+  const handleViewModeChange = (mode: 'list' | 'kanban') => {
+    setViewMode(mode);
+    setSearchParams((prev) => {
+      if (mode === 'kanban') {
+        prev.set('view', 'kanban');
+      } else {
+        prev.delete('view');
+      }
+      return prev;
+    });
+  };
+
   // Listen for external URL changes (back/forward navigation)
   useEffect(() => {
     const stageParam = searchParams.get('stage') || '';
     const candParam = searchParams.get('candidate');
+    const viewParam = searchParams.get('view') || 'list';
     
     setActiveStage(stageParam);
     setSelectedId(candParam);
     setPanelOpen(!!candParam);
+    setViewMode(viewParam as 'list' | 'kanban');
   }, [searchParams]);
 
   const handleCountsChange = useCallback((counts: Record<string, number>) => {
@@ -98,6 +122,12 @@ export const CandidateWorkspacePage: React.FC = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/');
+  };
+
+  const isStaleApplication = (app: any): boolean => {
+    if (app.stage !== 'resume_screening') return false;
+    const daysSinceUpdate = (Date.now() - new Date(app.updatedAt).getTime()) / (1000 * 60 * 60 * 24);
+    return daysSinceUpdate > 7;
   };
 
   return (
@@ -139,50 +169,118 @@ export const CandidateWorkspacePage: React.FC = () => {
         </div>
       </header>
 
+      {/* ── CONTEXT BAR (stage tabs & view toggle) ──────────────── */}
       <div className="workspace-contextbar">
         <StageTabBar
           activeStage={activeStage}
           counts={stageCounts}
           onStageChange={handleStageChange}
         />
+        
+        {/* View Mode Toggle Controls */}
+        <div className="view-mode-toggle" role="group" aria-label="View mode selector">
+          <button 
+            type="button"
+            className={`view-mode-toggle__btn ${viewMode === 'list' ? 'view-mode-toggle__btn--active' : ''}`}
+            onClick={() => handleViewModeChange('list')}
+            title="List View"
+          >
+            ☰ List
+          </button>
+          <button 
+            type="button"
+            className={`view-mode-toggle__btn ${viewMode === 'kanban' ? 'view-mode-toggle__btn--active' : ''}`}
+            onClick={() => handleViewModeChange('kanban')}
+            title="Kanban Board View"
+          >
+            ⊞ Board
+          </button>
+        </div>
       </div>
 
-      {/* ── TWO-PANEL BODY ───────────────────────────────────── */}
-      <div className="workspace-body">
-        {/* LEFT — Candidate List */}
-        <aside className="workspace-left-panel">
-          <CandidateList
-            activeStage={activeStage}
-            onCountsChange={handleCountsChange}
+      {/* ── WORKSPACE BODY CONTENT ───────────────────────────── */}
+      {viewMode === 'list' ? (
+        <div className="workspace-body">
+          {/* LEFT — Candidate List */}
+          <aside className="workspace-left-panel">
+            <CandidateList
+              activeStage={activeStage}
+              onCountsChange={handleCountsChange}
+              selectedId={selectedId}
+              onSelect={handleSelect}
+              onRefreshReady={(fn) => { listRefreshRef.current = fn; }}
+              onApplicationsLoad={setAllApplications}
+            />
+          </aside>
+
+          {/* RIGHT — Candidate Detail Panel */}
+          <main
+            className={`workspace-right-panel ${panelOpen ? 'is-open' : ''}`}
+            aria-label="Candidate detail"
+          >
+            {selectedId ? (
+              <CandidateDetailPanel
+                key={selectedId}
+                applicationId={selectedId}
+                onDeselect={handleDeselect}
+                onRefreshList={handleListRefresh}
+              />
+            ) : (
+              <div className="workspace-right-panel__empty">
+                <EmptyState
+                  icon="👈"
+                  title="Select a candidate"
+                  description="Click any candidate on the left to view their profile, resume, timeline, notes, and interview history."
+                />
+              </div>
+            )}
+          </main>
+        </div>
+      ) : (
+        <div className="workspace-kanban-container" style={{ position: 'relative', overflow: 'hidden' }}>
+          {/* Hidden list loader to sync count statistics and candidates */}
+          <div style={{ display: 'none' }}>
+            <CandidateList
+              activeStage={activeStage}
+              onCountsChange={handleCountsChange}
+              selectedId={selectedId}
+              onSelect={handleSelect}
+              onRefreshReady={(fn) => { listRefreshRef.current = fn; }}
+              onApplicationsLoad={setAllApplications}
+            />
+          </div>
+
+          <KanbanBoard
+            applications={allApplications}
             selectedId={selectedId}
             onSelect={handleSelect}
-            onRefreshReady={(fn) => { listRefreshRef.current = fn; }}
+            isStaleCheck={isStaleApplication}
           />
-        </aside>
 
-        {/* RIGHT — Candidate Detail Panel */}
-        <main
-          className={`workspace-right-panel ${panelOpen ? 'is-open' : ''}`}
-          aria-label="Candidate detail"
-        >
-          {selectedId ? (
-            <CandidateDetailPanel
-              key={selectedId}
-              applicationId={selectedId}
-              onDeselect={handleDeselect}
-              onRefreshList={handleListRefresh}
-            />
-          ) : (
-            <div className="workspace-right-panel__empty">
-              <EmptyState
-                icon="👈"
-                title="Select a candidate"
-                description="Click any candidate on the left to view their profile, resume, timeline, notes, and interview history."
+          {/* Slide-out detail drawer overlay over the Kanban board */}
+          <main
+            className={`workspace-right-panel kanban-drawer ${panelOpen ? 'is-open' : ''}`}
+            aria-label="Candidate detail drawer"
+          >
+            {selectedId ? (
+              <CandidateDetailPanel
+                key={selectedId}
+                applicationId={selectedId}
+                onDeselect={handleDeselect}
+                onRefreshList={handleListRefresh}
               />
-            </div>
-          )}
-        </main>
-      </div>
+            ) : (
+              <div className="workspace-right-panel__empty">
+                <EmptyState
+                  icon="👉"
+                  title="Select a candidate card"
+                  description="Click any candidate card on the Kanban columns to open their detail drawer overlay."
+                />
+              </div>
+            )}
+          </main>
+        </div>
+      )}
     </div>
   );
 };

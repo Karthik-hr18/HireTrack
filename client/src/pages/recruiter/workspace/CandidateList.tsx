@@ -36,6 +36,8 @@ interface CandidateListProps {
   onSelect: (id: string) => void;
   /** Passes the refresh function up so parent can trigger a reload */
   onRefreshReady?: (refreshFn: () => void) => void;
+  /** Callback fired when applications are successfully fetched */
+  onApplicationsLoad?: (apps: Application[]) => void;
 }
 
 export const CandidateList: React.FC<CandidateListProps> = ({
@@ -44,6 +46,7 @@ export const CandidateList: React.FC<CandidateListProps> = ({
   selectedId,
   onSelect,
   onRefreshReady,
+  onApplicationsLoad,
 }) => {
   const token = localStorage.getItem('token');
   const apiUrl = import.meta.env.VITE_API_URL || '';
@@ -84,7 +87,9 @@ export const CandidateList: React.FC<CandidateListProps> = ({
       });
       if (!res.ok) throw new Error('Failed to load candidates');
       const data = await res.json();
-      setAllApplications(data.applications ?? []);
+      const apps = data.applications ?? [];
+      setAllApplications(apps);
+      onApplicationsLoad?.(apps);
     } catch (e) {
       setError((e as Error).message);
     } finally {

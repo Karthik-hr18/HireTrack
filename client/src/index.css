@@ -2188,5 +2188,227 @@ input:focus, select:focus, textarea:focus {
   padding: 20px;
 }
 
+/* ─────────────────────────────────────────────
+   KANBAN BOARD VIEW
+   ───────────────────────────────────────────── */
+.kanban-board {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  overflow-x: auto;
+  height: calc(100vh - 120px);
+  align-items: flex-start;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-border) transparent;
+}
+.kanban-board::-webkit-scrollbar {
+  height: 6px;
+}
+.kanban-board::-webkit-scrollbar-thumb {
+  background-color: var(--gray-border);
+  border-radius: 3px;
+}
+
+.kanban-column {
+  width: 280px;
+  min-width: 280px;
+  background-color: var(--gray-surface);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-card);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.kanban-column__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--gray-border);
+  flex-shrink: 0;
+}
+
+.kanban-column__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kanban-column__count {
+  font-size: 11px;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--gray-text-muted);
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+}
+
+.kanban-column__cards {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 100px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-border) transparent;
+}
+.kanban-column__cards::-webkit-scrollbar {
+  width: 4px;
+}
+.kanban-column__cards::-webkit-scrollbar-thumb {
+  background-color: var(--gray-border);
+  border-radius: 2px;
+}
+
+.kanban-column__empty {
+  padding: 24px 10px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray-text-muted);
+  border: 1px dashed var(--gray-border);
+  border-radius: var(--radius-default);
+  background-color: rgba(0,0,0,0.05);
+}
+
+/* Kanban Cards */
+.kanban-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 12px;
+  background-color: var(--gray-bg);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-default);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: all var(--transition-speed);
+  border-left: 3px solid transparent;
+}
+.kanban-card:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.kanban-card--selected {
+  background-color: rgba(99, 102, 241, 0.05);
+  border-left-color: var(--accent);
+}
+.kanban-card--stale {
+  border-left-color: #f59e0b;
+}
+.kanban-card--selected.kanban-card--stale {
+  border-left-color: var(--accent);
+}
+
+.kanban-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.kanban-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanban-card__stale-warning {
+  font-size: 11px;
+}
+
+.kanban-card__subtitle {
+  font-size: 11px;
+  color: var(--gray-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanban-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.kanban-card__avatar {
+  flex-shrink: 0;
+}
+
+.kanban-card__time {
+  font-size: 10px;
+  color: var(--gray-text-muted);
+}
+
+/* Kanban detail sidebar drawer override */
+.workspace-right-panel.kanban-drawer {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  width: 100%;
+  max-width: 650px;
+  height: calc(100vh - 60px);
+  z-index: 500;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+  border-left: 1px solid var(--gray-border);
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.workspace-right-panel.kanban-drawer.is-open {
+  transform: translateX(0);
+}
+
+/* View Mode Toggle Button Group */
+.view-mode-toggle {
+  display: inline-flex;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-default);
+  padding: 2px;
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+
+.view-mode-toggle__btn {
+  background: none;
+  border: none;
+  color: var(--gray-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: calc(var(--radius-default) - 2px);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.view-mode-toggle__btn:hover {
+  color: var(--gray-text-primary);
+}
+
+.view-mode-toggle__btn--active {
+  background-color: var(--accent);
+  color: #ffffff;
+}
+.view-mode-toggle__btn--active:hover {
+  color: #ffffff;
+}
+
+
+
 
 
