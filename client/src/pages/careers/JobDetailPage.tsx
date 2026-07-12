@@ -463,7 +463,7 @@ const backLinkStyle: React.CSSProperties = {
 const spinnerStyle: React.CSSProperties = {
   width: '35px',
   height: '35px',
-  border: '3px solid rgba(255, 255, 255, 0.1)',
+  border: '3px solid var(--gray-border)',
   borderTop: '3px solid var(--accent)',
   borderRadius: '50%',
   animation: 'spin 1s linear infinite',

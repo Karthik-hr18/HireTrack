@@ -7,19 +7,19 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Color Palette (3 Neutral Grays + 1 Accent) */
-  --gray-bg: #0b0f19;          /* Deepest black-gray for background */
-  --gray-surface: #151d30;     /* Surface color for cards, elevated elements */
-  --gray-border: #222f4c;      /* Subtle border color */
-  --gray-text-primary: rgba(248, 250, 252, 0.87); /* White at 87% opacity (prevents halation) */
-  --gray-text-muted: #94a3b8;    /* Slate-400 for descriptions and placeholders */
+  /* Color Palette (3 Neutral Grays + 1 Accent) - Premium Light Theme */
+  --gray-bg: #f8fafc;          /* Off-white Slate-50 background */
+  --gray-surface: #ffffff;     /* Pure white surface color for cards, elevated elements */
+  --gray-border: #e2e8f0;      /* Slate-200 subtle border color */
+  --gray-text-primary: #0f172a; /* Slate-900 primary text color */
+  --gray-text-muted: #64748b;    /* Slate-500 description and placeholder text */
   
-  --accent: #6366f1;           /* Indigo-500 default accent */
-  --accent-hover: #818cf8;     /* Indigo-400 for hover interactions */
-  --accent-glow: rgba(99, 102, 241, 0.15);
+  --accent: #4f46e5;           /* Indigo-600 premium accent */
+  --accent-hover: #4338ca;     /* Indigo-700 hover state */
+  --accent-glow: rgba(79, 70, 229, 0.08);
 
-  --success: #10b981;          /* Neutral green for active status */
-  --error: #ef4444;            /* Red for errors/deletions */
+  --success: #10b981;          /* Green status */
+  --error: #ef4444;            /* Red status */
 
   /* Spacing Scale (4px base) */
   --space-1: 4px;
@@ -299,7 +299,7 @@ input:focus, select:focus, textarea:focus {
    ───────────────────────────────────────────── */
 .skeleton-pulse {
   animation: skeletonPulse 1.5s ease-in-out infinite;
-  background-color: rgba(255, 255, 255, 0.06);
+  background-color: rgba(0, 0, 0, 0.06);
   border-radius: var(--radius-input);
 }
 
@@ -512,11 +512,11 @@ input:focus, select:focus, textarea:focus {
 }
 .workspace-topbar__link:hover {
   color: var(--gray-text-primary);
-  background-color: rgba(255,255,255,0.04);
+  background-color: rgba(0, 0, 0, 0.04);
 }
 .workspace-topbar__link--active {
   color: var(--gray-text-primary);
-  background-color: rgba(99, 102, 241, 0.12);
+  background-color: rgba(79, 70, 229, 0.08);
   font-weight: 600;
 }
 
@@ -670,7 +670,7 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: rgba(255,255,255,0.04);
+  background-color: var(--gray-bg);
   border: 1px solid var(--gray-border);
   border-radius: var(--radius-input);
   padding: 0 10px;
@@ -728,7 +728,7 @@ input:focus, select:focus, textarea:focus {
   font-weight: 600;
   font-family: var(--font-sans);
   color: var(--gray-text-muted);
-  background: rgba(255,255,255,0.04);
+  background: var(--gray-surface);
   border: 1px solid var(--gray-border);
   border-radius: var(--radius-input);
   cursor: pointer;
@@ -896,10 +896,10 @@ input:focus, select:focus, textarea:focus {
   transition: background var(--transition-speed), border-left-color var(--transition-speed);
 }
 .candidate-row:hover {
-  background-color: rgba(255,255,255,0.025);
+  background-color: rgba(0, 0, 0, 0.02);
 }
 .candidate-row--selected {
-  background-color: rgba(99, 102, 241, 0.07);
+  background-color: rgba(79, 70, 229, 0.05);
   border-left-color: var(--accent);
 }
 .candidate-row--stale {
@@ -1408,7 +1408,7 @@ input:focus, select:focus, textarea:focus {
   font-size: 13px;
   line-height: 1.5;
   padding: 10px 12px;
-  background-color: rgba(255,255,255,0.04);
+  background-color: var(--gray-bg);
   border: 1px solid var(--gray-border);
   border-radius: var(--radius-input);
   color: var(--gray-text-primary);
@@ -1614,7 +1614,7 @@ input:focus, select:focus, textarea:focus {
   flex-direction: column;
   gap: 6px;
   padding: 10px;
-  background-color: rgba(255,255,255,0.02);
+  background-color: var(--gray-bg);
   border: 1px solid var(--gray-border);
   border-radius: var(--radius-default);
 }
@@ -2240,7 +2240,7 @@ input:focus, select:focus, textarea:focus {
 .kanban-column__count {
   font-size: 11px;
   font-weight: 700;
-  background-color: rgba(255, 255, 255, 0.06);
+  background-color: rgba(0, 0, 0, 0.05);
   color: var(--gray-text-muted);
   padding: 1px 6px;
   border-radius: var(--radius-pill);
@@ -2292,12 +2292,12 @@ input:focus, select:focus, textarea:focus {
   border-left: 3px solid transparent;
 }
 .kanban-card:hover {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: rgba(0, 0, 0, 0.015);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 .kanban-card--selected {
-  background-color: rgba(99, 102, 241, 0.05);
+  background-color: rgba(79, 70, 229, 0.04);
   border-left-color: var(--accent);
 }
 .kanban-card--stale {
@@ -2373,7 +2373,7 @@ input:focus, select:focus, textarea:focus {
 /* View Mode Toggle Button Group */
 .view-mode-toggle {
   display: inline-flex;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 0, 0, 0.03);
   border: 1px solid var(--gray-border);
   border-radius: var(--radius-default);
   padding: 2px;

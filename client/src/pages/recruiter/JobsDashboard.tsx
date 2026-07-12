@@ -478,7 +478,7 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: '0.85rem',
   fontWeight: 600,
-  color: '#cbd5e1',
+  color: 'var(--gray-text-primary)',
   marginBottom: '0.4rem'
 };
 
@@ -486,9 +486,9 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '0.65rem 0.85rem',
   borderRadius: '6px',
-  backgroundColor: '#0f172a',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
-  color: '#f8fafc',
+  backgroundColor: 'var(--gray-bg)',
+  border: '1px solid var(--gray-border)',
+  color: 'var(--gray-text-primary)',
   fontSize: '0.95rem',
   boxSizing: 'border-box'
 };
@@ -507,7 +507,7 @@ const dashboardHeaderStyle: React.CSSProperties = {
   gap: '1.5rem',
   flexWrap: 'wrap',
   marginBottom: '2.5rem',
-  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+  borderBottom: '1px solid var(--gray-border)',
   paddingBottom: '1.5rem'
 };
 
@@ -515,12 +515,12 @@ const titleStyle: React.CSSProperties = {
   fontSize: '2.2rem',
   fontWeight: 800,
   margin: '0 0 0.4rem 0',
-  color: '#f8fafc'
+  color: 'var(--gray-text-primary)'
 };
 
 const subtitleStyle: React.CSSProperties = {
   fontSize: '1rem',
-  color: '#94a3b8',
+  color: 'var(--gray-text-muted)',
   margin: 0
 };
 
@@ -532,10 +532,10 @@ const actionGroupStyle: React.CSSProperties = {
 
 const logoutButtonStyle: React.CSSProperties = {
   background: 'none',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
+  border: '1px solid var(--gray-border)',
   padding: '0.65rem 1.25rem',
   borderRadius: '8px',
-  color: '#f8fafc',
+  color: 'var(--gray-text-primary)',
   fontSize: '0.9rem',
   fontWeight: 600,
   cursor: 'pointer',
@@ -553,13 +553,16 @@ const metricCardStyle: React.CSSProperties = {
   padding: '1.5rem',
   display: 'flex',
   flexDirection: 'column',
-  textAlign: 'left'
+  textAlign: 'left',
+  backgroundColor: 'var(--gray-surface)',
+  border: '1px solid var(--gray-border)',
+  borderRadius: 'var(--radius-card)'
 };
 
 const metricLabelStyle: React.CSSProperties = {
   fontSize: '0.85rem',
   fontWeight: 600,
-  color: '#94a3b8',
+  color: 'var(--gray-text-muted)',
   textTransform: 'uppercase',
   letterSpacing: '0.05em'
 };
@@ -567,15 +570,15 @@ const metricLabelStyle: React.CSSProperties = {
 const metricValueStyle: React.CSSProperties = {
   fontSize: '2.2rem',
   fontWeight: 800,
-  color: '#f8fafc',
+  color: 'var(--gray-text-primary)',
   marginTop: '0.5rem'
 };
 
 const spinnerStyle: React.CSSProperties = {
   width: '35px',
   height: '35px',
-  border: '3px solid rgba(255, 255, 255, 0.1)',
-  borderTop: '3px solid #6366f1',
+  border: '3px solid var(--gray-border)',
+  borderTop: '3px solid var(--accent)',
   borderRadius: '50%',
   animation: 'spin 1s linear infinite',
   margin: '2rem auto 0 auto'
@@ -589,30 +592,30 @@ const tableStyle: React.CSSProperties = {
 };
 
 const tableHeaderRowStyle: React.CSSProperties = {
-  backgroundColor: 'rgba(15, 23, 42, 0.8)',
-  borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+  backgroundColor: 'var(--gray-bg)',
+  borderBottom: '2px solid var(--gray-border)'
 };
 
 const thStyle: React.CSSProperties = {
   padding: '1rem 1.5rem',
   fontWeight: 600,
-  color: '#cbd5e1'
+  color: 'var(--gray-text-primary)'
 };
 
 const tableRowStyle: React.CSSProperties = {
-  borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+  borderBottom: '1px solid var(--gray-border)',
   transition: 'background-color 0.2s'
 };
 
 const tdStyle: React.CSSProperties = {
   padding: '1rem 1.5rem',
-  color: '#94a3b8',
+  color: 'var(--gray-text-muted)',
   verticalAlign: 'middle'
 };
 
 const tdTitleStyle: React.CSSProperties = {
   padding: '1rem 1.5rem',
-  color: '#f8fafc',
+  color: 'var(--gray-text-primary)',
   fontWeight: 600,
   verticalAlign: 'middle'
 };
@@ -622,9 +625,9 @@ const activeBadgeStyle: React.CSSProperties = {
   borderRadius: '9999px',
   fontSize: '0.8rem',
   fontWeight: 600,
-  backgroundColor: 'rgba(16, 185, 129, 0.15)',
-  color: '#34d399',
-  border: '1px solid rgba(16, 185, 129, 0.3)',
+  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+  color: 'var(--success)',
+  border: '1px solid rgba(16, 185, 129, 0.2)',
   cursor: 'pointer'
 };
 
@@ -633,9 +636,9 @@ const closedBadgeStyle: React.CSSProperties = {
   borderRadius: '9999px',
   fontSize: '0.8rem',
   fontWeight: 600,
-  backgroundColor: 'rgba(239, 68, 68, 0.15)',
-  color: '#f87171',
-  border: '1px solid rgba(239, 68, 68, 0.3)',
+  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  color: 'var(--error)',
+  border: '1px solid rgba(239, 68, 68, 0.2)',
   cursor: 'pointer'
 };
 
@@ -649,10 +652,10 @@ const tdActionsStyle: React.CSSProperties = {
 };
 
 const actionEditStyle: React.CSSProperties = {
-  backgroundColor: 'transparent',
-  border: '1px solid rgba(255, 255, 255, 0.15)',
+  backgroundColor: 'var(--gray-surface)',
+  border: '1px solid var(--gray-border)',
   borderRadius: '6px',
-  color: '#e2e8f0',
+  color: 'var(--gray-text-primary)',
   padding: '0.4rem 0.85rem',
   fontSize: '0.85rem',
   fontWeight: 500,
@@ -661,10 +664,10 @@ const actionEditStyle: React.CSSProperties = {
 };
 
 const actionDeleteStyle: React.CSSProperties = {
-  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-  border: '1px solid rgba(239, 68, 68, 0.2)',
+  backgroundColor: 'rgba(239, 68, 68, 0.05)',
+  border: '1px solid rgba(239, 68, 68, 0.15)',
   borderRadius: '6px',
-  color: '#f87171',
+  color: 'var(--error)',
   padding: '0.4rem 0.85rem',
   fontSize: '0.85rem',
   fontWeight: 500,
@@ -688,16 +691,16 @@ const formButtonsStyle: React.CSSProperties = {
   justifyContent: 'flex-end',
   gap: '1rem',
   marginTop: '1rem',
-  borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+  borderTop: '1px solid var(--gray-border)',
   paddingTop: '1.25rem'
 };
 
 const cancelButtonStyle: React.CSSProperties = {
   background: 'none',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
+  border: '1px solid var(--gray-border)',
   padding: '0.65rem 1.5rem',
   borderRadius: '8px',
-  color: '#cbd5e1',
+  color: 'var(--gray-text-muted)',
   fontWeight: 600,
   cursor: 'pointer'
 };

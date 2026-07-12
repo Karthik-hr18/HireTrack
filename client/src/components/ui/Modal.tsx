@@ -32,7 +32,7 @@ const modalOverlayStyle: React.CSSProperties = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(9, 13, 22, 0.8)',
+  backgroundColor: 'rgba(15, 23, 42, 0.4)',
   backdropFilter: 'blur(8px)',
   display: 'flex',
   alignItems: 'center',
@@ -44,10 +44,10 @@ const modalOverlayStyle: React.CSSProperties = {
 const modalContainerStyle: React.CSSProperties = {
   width: '100%',
   maxWidth: '560px',
-  backgroundColor: '#1e293b',
+  backgroundColor: 'var(--gray-surface)',
   borderRadius: '12px',
-  border: '1px solid rgba(255, 255, 255, 0.08)',
-  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+  border: '1px solid var(--gray-border)',
+  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column'
@@ -55,7 +55,7 @@ const modalContainerStyle: React.CSSProperties = {
 
 const modalHeaderStyle: React.CSSProperties = {
   padding: '1.25rem 1.5rem',
-  borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+  borderBottom: '1px solid var(--gray-border)',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center'
@@ -65,14 +65,14 @@ const modalTitleStyle: React.CSSProperties = {
   margin: 0,
   fontSize: '1.25rem',
   fontWeight: 600,
-  color: '#f8fafc'
+  color: 'var(--gray-text-primary)'
 };
 
 const closeButtonStyle: React.CSSProperties = {
   background: 'none',
   border: 'none',
   fontSize: '1.75rem',
-  color: '#94a3b8',
+  color: 'var(--gray-text-muted)',
   cursor: 'pointer',
   padding: 0,
   lineHeight: 1

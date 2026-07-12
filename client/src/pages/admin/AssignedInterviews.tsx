@@ -159,7 +159,7 @@ const errorContainerStyle: React.CSSProperties = {
 const spinnerStyle: React.CSSProperties = {
   width: '30px',
   height: '30px',
-  border: '3px solid rgba(255, 255, 255, 0.1)',
+  border: '3px solid var(--gray-border)',
   borderTop: '3px solid var(--accent)',
   borderRadius: '50%',
   animation: 'spin 1s linear infinite',
@@ -174,7 +174,7 @@ const tableStyle: React.CSSProperties = {
 
 const tableHeaderRowStyle: React.CSSProperties = {
   borderBottom: '1px solid var(--gray-border)',
-  backgroundColor: 'rgba(255, 255, 255, 0.01)'
+  backgroundColor: 'var(--gray-bg)'
 };
 
 const thStyle: React.CSSProperties = {

@@ -130,20 +130,20 @@ const titleStyle: React.CSSProperties = {
   fontSize: '2.5rem',
   fontWeight: 800,
   margin: '0 0 0.5rem 0',
-  color: '#f8fafc'
+  color: 'var(--gray-text-primary)'
 };
 
 const subtitleStyle: React.CSSProperties = {
   fontSize: '1.1rem',
-  color: '#94a3b8',
+  color: 'var(--gray-text-muted)',
   margin: 0
 };
 
 const spinnerStyle: React.CSSProperties = {
   width: '40px',
   height: '40px',
-  border: '4px solid rgba(255, 255, 255, 0.1)',
-  borderTop: '4px solid #6366f1',
+  border: '4px solid var(--gray-border)',
+  borderTop: '4px solid var(--accent)',
   borderRadius: '50%',
   animation: 'spin 1s linear infinite',
   margin: '2rem auto 0 auto'
@@ -162,7 +162,10 @@ const jobCardStyle: React.CSSProperties = {
   justifyContent: 'space-between',
   padding: '1.75rem',
   textAlign: 'left',
-  height: '100%'
+  height: '100%',
+  backgroundColor: 'var(--gray-surface)',
+  border: '1px solid var(--gray-border)',
+  borderRadius: 'var(--radius-card)'
 };
 
 const cardHeaderStyle: React.CSSProperties = {
@@ -177,34 +180,34 @@ const jobTitleStyle: React.CSSProperties = {
   margin: 0,
   fontSize: '1.25rem',
   fontWeight: 700,
-  color: '#f8fafc',
+  color: 'var(--gray-text-primary)',
   lineHeight: 1.3
 };
 
 const jobMetaStyle: React.CSSProperties = {
   fontSize: '0.85rem',
-  color: '#6366f1',
+  color: 'var(--accent)',
   margin: '0 0 1rem 0',
   fontWeight: 600
 };
 
 const jobDescStyle: React.CSSProperties = {
   fontSize: '0.95rem',
-  color: '#94a3b8',
+  color: 'var(--gray-text-muted)',
   margin: '0 0 1.5rem 0',
   lineHeight: 1.5,
   flexGrow: 1
 };
 
 const cardFooterStyle: React.CSSProperties = {
-  borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+  borderTop: '1px solid var(--gray-border)',
   paddingTop: '1rem',
   display: 'flex',
   justifyContent: 'flex-end'
 };
 
 const linkStyle: React.CSSProperties = {
-  color: '#818cf8',
+  color: 'var(--accent)',
   textDecoration: 'none',
   fontWeight: 600,
   fontSize: '0.95rem',
@@ -215,12 +218,12 @@ const footerStyle: React.CSSProperties = {
   textAlign: 'center',
   marginTop: '4rem',
   paddingTop: '2rem',
-  borderTop: '1px solid rgba(255, 255, 255, 0.06)'
+  borderTop: '1px solid var(--gray-border)'
 };
 
 const adminLinkStyle: React.CSSProperties = {
   fontSize: '0.9rem',
-  color: '#64748b',
+  color: 'var(--gray-text-muted)',
   textDecoration: 'none',
   fontWeight: 500
 };
