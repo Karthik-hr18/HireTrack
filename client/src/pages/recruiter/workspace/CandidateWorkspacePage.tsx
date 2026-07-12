@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
+import { CandidateDetailPanel } from './CandidateDetailPanel';
 import { EmptyState } from '../../../components/ui/EmptyState';
 
 export const CandidateWorkspacePage: React.FC = () => {
@@ -20,12 +21,13 @@ export const CandidateWorkspacePage: React.FC = () => {
   const [activeStage, setActiveStage]   = useState('');
   const [selectedId,  setSelectedId]    = useState<string | null>(null);
   const [stageCounts, setStageCounts]   = useState<Record<string, number>>({});
-  // Right panel panel open state (mobile only)
   const [panelOpen,   setPanelOpen]     = useState(false);
+  // Ref to trigger list refresh from inside the detail panel
+  const listRefreshRef = useRef<(() => void) | null>(null);
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
-    setPanelOpen(true);   // mobile: show panel
+    setPanelOpen(true);
   };
 
   const handleDeselect = () => {
@@ -35,6 +37,10 @@ export const CandidateWorkspacePage: React.FC = () => {
 
   const handleCountsChange = useCallback((counts: Record<string, number>) => {
     setStageCounts(counts);
+  }, []);
+
+  const handleListRefresh = useCallback(() => {
+    listRefreshRef.current?.();
   }, []);
 
   const handleLogout = () => {
@@ -104,32 +110,22 @@ export const CandidateWorkspacePage: React.FC = () => {
             onCountsChange={handleCountsChange}
             selectedId={selectedId}
             onSelect={handleSelect}
+            onRefreshReady={(fn) => { listRefreshRef.current = fn; }}
           />
         </aside>
 
-        {/* RIGHT — Candidate Detail Panel (placeholder for Phase 3) */}
+        {/* RIGHT — Candidate Detail Panel */}
         <main
           className={`workspace-right-panel ${panelOpen ? 'is-open' : ''}`}
           aria-label="Candidate detail"
         >
           {selectedId ? (
-            <div className="workspace-right-placeholder">
-              {/* Mobile back button */}
-              <button
-                type="button"
-                className="workspace-right-back"
-                onClick={handleDeselect}
-                aria-label="Back to candidate list"
-              >
-                ← Back
-              </button>
-              <div style={{ padding: '2rem', color: 'var(--gray-text-muted)', fontSize: 14 }}>
-                <strong style={{ color: 'var(--accent-hover)' }}>Phase 3:</strong>{' '}
-                Candidate detail panel coming next.
-                <br />
-                Selected ID: <code style={{ opacity: 0.6 }}>{selectedId}</code>
-              </div>
-            </div>
+            <CandidateDetailPanel
+              key={selectedId}
+              applicationId={selectedId}
+              onDeselect={handleDeselect}
+              onRefreshList={handleListRefresh}
+            />
           ) : (
             <div className="workspace-right-panel__empty">
               <EmptyState

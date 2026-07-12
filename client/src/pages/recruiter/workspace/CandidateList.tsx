@@ -34,6 +34,8 @@ interface CandidateListProps {
   /** Currently selected candidate ID */
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** Passes the refresh function up so parent can trigger a reload */
+  onRefreshReady?: (refreshFn: () => void) => void;
 }
 
 export const CandidateList: React.FC<CandidateListProps> = ({
@@ -41,6 +43,7 @@ export const CandidateList: React.FC<CandidateListProps> = ({
   onCountsChange,
   selectedId,
   onSelect,
+  onRefreshReady,
 }) => {
   const token = localStorage.getItem('token');
   const apiUrl = import.meta.env.VITE_API_URL || '';
@@ -99,6 +102,13 @@ export const CandidateList: React.FC<CandidateListProps> = ({
   }, [token, apiUrl]);
 
   useEffect(() => { fetchApplications(); }, [fetchApplications]);
+
+  // ── Expose refresh function to parent via onRefreshReady ────
+  useEffect(() => {
+    onRefreshReady?.(fetchApplications);
+  }, [fetchApplications, onRefreshReady]);
+
+
 
   // ── Compute stage counts ────────────────────────────────────
   const counts = useMemo(() => {
