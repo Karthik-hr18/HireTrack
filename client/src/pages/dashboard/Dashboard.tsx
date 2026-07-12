@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { AdminDashboard } from '../admin/AdminDashboard';
-import { RecruiterDashboard } from '../recruiter/RecruiterDashboard';
 import { ApplicationsTracker } from '../candidate/ApplicationsTracker';
 
 export const Dashboard: React.FC = () => {
@@ -19,7 +18,7 @@ export const Dashboard: React.FC = () => {
       case 'admin':
         return <AdminDashboard token={token} />;
       case 'recruiter':
-        return <RecruiterDashboard token={token} />;
+        return <Navigate to="/recruiter/candidates" replace />;
       case 'candidate':
       default:
         // Re-use candidate tracker component as candidate's personalized dashboard

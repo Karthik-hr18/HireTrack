@@ -9,12 +9,6 @@ export const JobsDashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Login Form States
-  const [email, setEmail] = useState('karthikhr676@gmail.com');
-  const [password, setPassword] = useState('Karthik@64');
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [loggingIn, setLoggingIn] = useState(false);
-
   // Job Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('Create Job Posting');
@@ -29,36 +23,6 @@ export const JobsDashboard: React.FC = () => {
   const [maxExperience, setMaxExperience] = useState<number>(0);
   const [status, setStatus] = useState<'open' | 'closed'>('open');
 
-  // Trigger login on mount for fast activation if they click Demo Login
-  const handleDemoLogin = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    try {
-      setLoggingIn(true);
-      setLoginError(null);
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || 'Login failed');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setToken(data.token);
-      setUser(data.user);
-      // Save token in memory and fetch jobs
-    } catch (err) {
-      setLoginError((err as Error).message);
-    } finally {
-      setLoggingIn(false);
-    }
-  };
 
   const fetchJobs = async () => {
     if (!token) return;
@@ -223,49 +187,13 @@ export const JobsDashboard: React.FC = () => {
     return (
       <div style={authContainerStyle}>
         <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '2.5rem', textAlign: 'center' }}>
-          <h2 style={{ marginBottom: '0.5rem', fontSize: '1.6rem' }}>Recruiter Portal</h2>
+          <h2 style={{ marginBottom: '0.5rem', fontSize: '1.6rem' }}>Access Denied</h2>
           <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '2rem' }}>
-            Access internal HireTrack ATS recruitment dashboards.
+            Please sign in to access the internal recruitment dashboard.
           </p>
-
-          {loginError && (
-            <div style={{ color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-              {loginError}
-            </div>
-          )}
-
-          <form onSubmit={handleDemoLogin}>
-            <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
-              <label style={labelStyle}>Email Address</label>
-              <input 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                style={inputStyle}
-                required
-              />
-            </div>
-            <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-              <label style={labelStyle}>Password</label>
-              <input 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                style={inputStyle}
-                required
-              />
-            </div>
-
-            <button 
-              type="submit" 
-              className="api-btn" 
-              style={{ width: '100%', padding: '0.85rem' }}
-              disabled={loggingIn}
-            >
-              {loggingIn ? 'Authenticating...' : 'Sign In as Admin (Seeded)'}
-            </button>
-          </form>
-
+          <Link to="/login" className="api-btn" style={{ textDecoration: 'none', display: 'inline-block', width: '100%', padding: '0.85rem' }}>
+            Sign In
+          </Link>
           <div style={{ marginTop: '2rem' }}>
             <Link to="/" style={{ color: '#818cf8', textDecoration: 'none', fontSize: '0.9rem' }}>
               &larr; Back to Careers Board
@@ -288,7 +216,7 @@ export const JobsDashboard: React.FC = () => {
         </div>
         <div style={actionGroupStyle}>
           <Link 
-            to="/recruiter/applications" 
+            to="/recruiter/candidates" 
             className="api-btn" 
             style={{ 
               textDecoration: 'none', 

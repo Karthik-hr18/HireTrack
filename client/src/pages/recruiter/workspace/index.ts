@@ -25,5 +25,4 @@
  *   ScorecardsTab.tsx           — scorecard display + admin form (Phase 4)
  */
 
-// Exports will be added here as each phase is implemented.
-export {};
+export { CandidateWorkspacePage } from './CandidateWorkspacePage';

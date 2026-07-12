@@ -3,8 +3,6 @@ import { Navbar } from './components/layout/Navbar';
 import { CareersPage } from './pages/careers/CareersPage';
 import { JobDetailPage } from './pages/careers/JobDetailPage';
 import { JobsDashboard } from './pages/recruiter/JobsDashboard';
-import { ApplicationsDashboard } from './pages/recruiter/ApplicationsDashboard';
-import { ApplicationDetailPage } from './pages/recruiter/ApplicationDetailPage';
 import { CandidateWorkspacePage } from './pages/recruiter/workspace/CandidateWorkspacePage';
 import { AssignedInterviews } from './pages/admin/AssignedInterviews';
 import { ManageRecruiters } from './pages/admin/ManageRecruiters';
@@ -23,9 +21,6 @@ function App() {
         <Route path="/jobs/:id" element={<JobDetailPage />} />
         <Route path="/recruiter/jobs" element={<JobsDashboard />} />
         <Route path="/recruiter/candidates" element={<CandidateWorkspacePage />} />
-        {/* Legacy routes — kept until Phase 6 cleanup */}
-        <Route path="/recruiter/applications" element={<ApplicationsDashboard />} />
-        <Route path="/recruiter/applications/:id" element={<ApplicationDetailPage />} />
         <Route path="/admin/interviews" element={<AssignedInterviews />} />
         <Route path="/admin/recruiters" element={<ManageRecruiters />} />
         <Route path="/login" element={<LoginPage />} />
