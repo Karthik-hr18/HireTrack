@@ -103,7 +103,7 @@ export const AssignedInterviews: React.FC = () => {
                     </span>
                   </td>
                   <td style={{ ...tdStyle, textAlign: 'right' }}>
-                    <Link to={`/recruiter/applications/${item.application?._id}`} className="api-btn" style={viewBtnStyle}>
+                    <Link to={`/recruiter/candidates?candidate=${item.application?._id}`} className="api-btn" style={viewBtnStyle}>
                       Conduct Interview &rarr;
                     </Link>
                   </td>
