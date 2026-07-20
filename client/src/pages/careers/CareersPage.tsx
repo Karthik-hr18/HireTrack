@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { CareersNav } from './components/CareersNav';
+import { CareersHero } from './components/CareersHero';
+import { CompanyStory } from './components/CompanyStory';
+import { BenefitsSection } from './components/BenefitsSection';
+import { CompanyStats } from './components/CompanyStats';
+import { OpenPositionsSection } from './components/OpenPositionsSection';
+import { FAQSection } from './components/FAQSection';
+import { CareersFooter } from './components/CareersFooter';
 
 export const CareersPage: React.FC = () => {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -7,7 +14,7 @@ export const CareersPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "HireTrack | Browse Jobs";
+    document.title = "Careers at HireTrack — Build Products That Matter";
     const fetchJobs = async () => {
       try {
         setLoading(true);
@@ -29,201 +36,51 @@ export const CareersPage: React.FC = () => {
     fetchJobs();
   }, []);
 
-  if (loading) {
-    return (
-      <div style={containerStyle}>
-        <div className="card" style={{ padding: '3rem' }}>
-          <h2 style={{ color: '#94a3b8' }}>Loading job opportunities...</h2>
-          <div style={spinnerStyle}></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={containerStyle}>
-        <div className="card" style={{ padding: '3rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-          <h2 style={{ color: '#ef4444' }}>Unable to load jobs</h2>
-          <p style={{ color: '#94a3b8', margin: '1rem 0 2rem' }}>{error}</p>
-          <button 
-            className="api-btn" 
-            onClick={() => window.location.reload()}
-            style={{ backgroundColor: '#ef4444' }}
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div style={containerStyle}>
-      <header style={headerStyle}>
-        <h1 style={titleStyle}>
-          Join the <span className="gradient-text">Future</span>
-        </h1>
-        <p style={subtitleStyle}>Explore open roles and build your career with us</p>
-      </header>
+    <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Navigation */}
+      <CareersNav />
 
-      {jobs.length === 0 ? (
-        <div className="card" style={{ padding: '4rem 2rem' }}>
-          <h2 style={{ color: '#94a3b8', marginBottom: '1rem' }}>No Openings Right Now</h2>
-          <p style={{ color: '#64748b', maxWidth: '480px', margin: '0 auto' }}>
-            We don't have any active roles matching your query. Check back later or follow our social channels for updates.
-          </p>
-        </div>
-      ) : (
-        <div style={gridStyle}>
-          {jobs.map((job) => (
-            <div key={job._id} className="card" style={jobCardStyle}>
-              <div style={cardHeaderStyle}>
-                <h3 style={jobTitleStyle}>{job.title}</h3>
-                <span className="badge badge-success" style={{ margin: 0 }}>Open</span>
+      {/* Main Content */}
+      <main style={{ flex: 1 }}>
+        <CareersHero />
+        <CompanyStory />
+        <BenefitsSection />
+        <CompanyStats />
+        {loading ? (
+          <div className="careers-container" style={{ padding: '80px 0', textAlign: 'center' }}>
+            <div className="careers-card" style={{ padding: 48, maxWidth: 480, margin: '0 auto' }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--gray-text-muted)', marginBottom: 16 }}>
+                Loading career opportunities...
               </div>
-              <p style={jobMetaStyle}>
-                {job.location && <span>📍 {job.location} </span>}
-                {job.minExperience !== undefined && (
-                  <span>
-                    • 💼 {job.minExperience === 0 ? 'Freshers Eligible' : `${job.minExperience}+ Yrs Exp`}
-                  </span>
-                )}
-              </p>
-              <p style={jobDescStyle}>
-                {job.description.length > 140 
-                  ? `${job.description.substring(0, 140)}...` 
-                  : job.description}
-              </p>
-              <div style={cardFooterStyle}>
-                <Link to={`/jobs/${job._id}`} style={linkStyle}>
-                  View Details &rarr;
-                </Link>
-              </div>
+              <div className="skeleton-pulse" style={{ height: 40, width: '100%', borderRadius: 8 }} />
             </div>
-          ))}
-        </div>
-      )}
-      <footer style={footerStyle}>
-        <Link to="/recruiter/jobs" style={adminLinkStyle}>
-          ⚙️ Recruiter Portal
-        </Link>
-      </footer>
+          </div>
+        ) : error ? (
+          <div className="careers-container" style={{ padding: '80px 0', textAlign: 'center' }}>
+            <div className="careers-card" style={{ padding: 48, maxWidth: 480, margin: '0 auto', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--error)', marginBottom: 12 }}>
+                Unable to load jobs
+              </h3>
+              <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 24 }}>{error}</p>
+              <button 
+                type="button"
+                className="btn-primary-lg" 
+                onClick={() => window.location.reload()}
+                style={{ backgroundColor: 'var(--error)', margin: '0 auto' }}
+              >
+                Retry Loading
+              </button>
+            </div>
+          </div>
+        ) : (
+          <OpenPositionsSection jobs={jobs} />
+        )}
+        <FAQSection />
+      </main>
+
+      {/* Footer */}
+      <CareersFooter />
     </div>
   );
-};
-
-// Styles
-const containerStyle: React.CSSProperties = {
-  maxWidth: '1000px',
-  margin: '0 auto',
-  padding: '2rem 1rem',
-  textAlign: 'left'
-};
-
-const headerStyle: React.CSSProperties = {
-  marginBottom: '3rem',
-  textAlign: 'center'
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: '2.5rem',
-  fontWeight: 800,
-  margin: '0 0 0.5rem 0',
-  color: 'var(--gray-text-primary)'
-};
-
-const subtitleStyle: React.CSSProperties = {
-  fontSize: '1.1rem',
-  color: 'var(--gray-text-muted)',
-  margin: 0
-};
-
-const spinnerStyle: React.CSSProperties = {
-  width: '40px',
-  height: '40px',
-  border: '4px solid var(--gray-border)',
-  borderTop: '4px solid var(--accent)',
-  borderRadius: '50%',
-  animation: 'spin 1s linear infinite',
-  margin: '2rem auto 0 auto'
-};
-
-const gridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-  gap: '1.5rem',
-  marginBottom: '3rem'
-};
-
-const jobCardStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  padding: '1.75rem',
-  textAlign: 'left',
-  height: '100%',
-  backgroundColor: 'var(--gray-surface)',
-  border: '1px solid var(--gray-border)',
-  borderRadius: 'var(--radius-card)'
-};
-
-const cardHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'flex-start',
-  gap: '1rem',
-  marginBottom: '0.75rem'
-};
-
-const jobTitleStyle: React.CSSProperties = {
-  margin: 0,
-  fontSize: '1.25rem',
-  fontWeight: 700,
-  color: 'var(--gray-text-primary)',
-  lineHeight: 1.3
-};
-
-const jobMetaStyle: React.CSSProperties = {
-  fontSize: '0.85rem',
-  color: 'var(--accent)',
-  margin: '0 0 1rem 0',
-  fontWeight: 600
-};
-
-const jobDescStyle: React.CSSProperties = {
-  fontSize: '0.95rem',
-  color: 'var(--gray-text-muted)',
-  margin: '0 0 1.5rem 0',
-  lineHeight: 1.5,
-  flexGrow: 1
-};
-
-const cardFooterStyle: React.CSSProperties = {
-  borderTop: '1px solid var(--gray-border)',
-  paddingTop: '1rem',
-  display: 'flex',
-  justifyContent: 'flex-end'
-};
-
-const linkStyle: React.CSSProperties = {
-  color: 'var(--accent)',
-  textDecoration: 'none',
-  fontWeight: 600,
-  fontSize: '0.95rem',
-  transition: 'color 0.2s'
-};
-
-const footerStyle: React.CSSProperties = {
-  textAlign: 'center',
-  marginTop: '4rem',
-  paddingTop: '2rem',
-  borderTop: '1px solid var(--gray-border)'
-};
-
-const adminLinkStyle: React.CSSProperties = {
-  fontSize: '0.9rem',
-  color: 'var(--gray-text-muted)',
-  textDecoration: 'none',
-  fontWeight: 500
 };
