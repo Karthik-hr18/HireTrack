@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
   const [user, setUser] = useState<any | null>(userJson ? JSON.parse(userJson) : null);
+
+  // Hide old top Navbar on public Careers pages and Candidate Workspace
+  const isCareersHome = location.pathname === '/';
+  const isJobDetail = location.pathname.startsWith('/jobs/');
+  const isWorkspace = location.pathname === '/recruiter/candidates';
+
+  if (isCareersHome || isJobDetail || isWorkspace) {
+    return null;
+  }
 
   useEffect(() => {
     const fetchLatestUser = async () => {
