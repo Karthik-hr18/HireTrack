@@ -8,13 +8,14 @@ export const Navbar: React.FC = () => {
   const userJson = localStorage.getItem('user');
   const [user, setUser] = useState<any | null>(userJson ? JSON.parse(userJson) : null);
 
-  // Hide old top Navbar on public Careers pages, Candidate Workspace, and Candidate Applications Tracker
+  // Hide old top Navbar on public Careers pages, Workspace, Applications Tracker, and Auth pages
   const isCareersHome = location.pathname === '/';
   const isJobDetail = location.pathname.startsWith('/jobs/');
   const isWorkspace = location.pathname === '/recruiter/candidates';
   const isCandidateTracker = location.pathname === '/candidate/applications';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
-  if (isCareersHome || isJobDetail || isWorkspace || isCandidateTracker) {
+  if (isCareersHome || isJobDetail || isWorkspace || isCandidateTracker || isAuthPage) {
     return null;
   }
 

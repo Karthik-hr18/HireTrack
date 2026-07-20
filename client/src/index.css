@@ -3038,10 +3038,14 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 880px) {
+  .auth-page-wrapper {
+    padding: 24px 16px;
+  }
   .auth-card-wrapper {
     flex-direction: column;
     min-height: auto;
     height: auto;
+    border-radius: 20px;
   }
   .auth-form-container, .auth-toggle-container {
     position: relative;
@@ -3051,10 +3055,34 @@ input:focus, select:focus, textarea:focus {
     height: auto;
     clip-path: none !important;
     transform: none !important;
-    border-radius: 24px !important;
+    border-radius: 0 !important;
+  }
+  .auth-form-container {
+    padding: 32px 24px;
+    order: 1;
   }
   .auth-toggle-container {
-    padding: 36px 24px;
+    padding: 32px 20px;
+    order: 2;
+    border-radius: 0 0 20px 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-page-wrapper {
+    padding: 16px 12px;
+  }
+  .auth-form-container {
+    padding: 24px 16px;
+  }
+  .auth-toggle-container {
+    padding: 24px 16px;
+  }
+  .auth-toggle-container h2 {
+    font-size: 22px;
+  }
+  .auth-toggle-container p {
+    font-size: 13px;
   }
 }
 

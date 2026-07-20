@@ -29,16 +29,16 @@ export const CareersNav: React.FC = () => {
           </Link>
 
           <nav className="careers-nav__links" aria-label="Main navigation">
-            <a href="#open-positions" className="careers-nav__link">
+            <a href="/#open-positions" className="careers-nav__link">
               Careers
             </a>
-            <a href="#company-story" className="careers-nav__link">
+            <a href="/#company-story" className="careers-nav__link">
               Company
             </a>
-            <a href="#why-join" className="careers-nav__link">
+            <a href="/#why-join" className="careers-nav__link">
               Benefits
             </a>
-            <a href="#faq" className="careers-nav__link">
+            <a href="/#faq" className="careers-nav__link">
               FAQ
             </a>
 

@@ -113,9 +113,9 @@ export const ApplicationsTracker: React.FC = () => {
 
             {/* NAV ITEMS: Careers | Candidate Name | Sign Out */}
             <nav className="careers-nav__links" aria-label="Candidate Navigation">
-              <Link to="/" className="careers-nav__link" style={{ fontWeight: 600 }}>
+              <a href="/#open-positions" className="careers-nav__link" style={{ fontWeight: 600 }}>
                 Careers
-              </Link>
+              </a>
 
               {/* Candidate Name Pill */}
               <div 
