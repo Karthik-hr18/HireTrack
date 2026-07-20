@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
 import { CandidateDetailPanel } from './CandidateDetailPanel';
@@ -10,8 +10,6 @@ export const CandidateWorkspacePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const token    = localStorage.getItem('token');
-  const userJson = localStorage.getItem('user');
-  const user     = userJson ? JSON.parse(userJson) : null;
 
   // ── Workspace state ───────────────────────────────────────────
   const [activeStage, setActiveStage]   = useState(searchParams.get('stage') || '');
@@ -118,11 +116,7 @@ export const CandidateWorkspacePage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/');
-  };
+
 
   const isStaleApplication = (app: any): boolean => {
     if (app.stage !== 'resume_screening') return false;
@@ -132,43 +126,6 @@ export const CandidateWorkspacePage: React.FC = () => {
 
   return (
     <div className="workspace-root">
-      {/* ── TOP BAR ─────────────────────────────────────────── */}
-      <header className="workspace-topbar">
-        <Link to="/" className="workspace-topbar__logo" aria-label="HireTrack home">
-          Hire<span className="gradient-text">Track</span>
-        </Link>
-
-        {user && (
-          <span className="workspace-topbar__role-badge">
-            {user.role.toUpperCase()}
-          </span>
-        )}
-
-        <nav className="workspace-topbar__nav" aria-label="Main navigation">
-          <Link to="/recruiter/jobs"       className="workspace-topbar__link">Jobs</Link>
-          <Link to="/recruiter/candidates" className="workspace-topbar__link workspace-topbar__link--active">
-            Candidates
-          </Link>
-          {user?.role === 'admin' && (
-            <Link to="/admin/interviews" className="workspace-topbar__link">My Interviews</Link>
-          )}
-          {user?.role === 'admin' && (
-            <Link to="/admin/recruiters" className="workspace-topbar__link">Recruiters</Link>
-          )}
-        </nav>
-
-        <div className="workspace-topbar__user">
-          <span className="workspace-topbar__user-name">{user?.name}</span>
-          <button
-            type="button"
-            className="workspace-topbar__signout"
-            onClick={handleLogout}
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
-
       {/* ── CONTEXT BAR (stage tabs & view toggle) ──────────────── */}
       <div className="workspace-contextbar">
         <StageTabBar

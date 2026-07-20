@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 export const JobsDashboard: React.FC = () => {
   const [jobs, setJobs] = useState<any[]>([]);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [user, setUser] = useState<any | null>(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null);
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -235,17 +235,6 @@ export const JobsDashboard: React.FC = () => {
           </Link>
           <button className="api-btn" onClick={handleOpenCreateModal}>
             + Add New Job
-          </button>
-           <button 
-            style={logoutButtonStyle}
-            onClick={() => {
-              localStorage.removeItem('token');
-              localStorage.removeItem('user');
-              setToken(null);
-              setUser(null);
-            }}
-          >
-            Logout
           </button>
         </div>
       </header>
@@ -528,18 +517,6 @@ const actionGroupStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: '1rem'
-};
-
-const logoutButtonStyle: React.CSSProperties = {
-  background: 'none',
-  border: '1px solid var(--gray-border)',
-  padding: '0.65rem 1.25rem',
-  borderRadius: '8px',
-  color: 'var(--gray-text-primary)',
-  fontSize: '0.9rem',
-  fontWeight: 600,
-  cursor: 'pointer',
-  transition: 'background 0.2s'
 };
 
 const metricsRowStyle: React.CSSProperties = {
