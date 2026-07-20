@@ -40,6 +40,18 @@ export const AssignedInterviews: React.FC = () => {
     fetchInterviews();
   }, [token, navigate]);
 
+  const [activeTab, setActiveTab] = useState<'all' | 'technical' | 'hr'>('technical');
+
+  // Filter interviews by active tab
+  const filteredInterviews = interviews.filter((item) => {
+    if (activeTab === 'technical') return item.type === 'technical';
+    if (activeTab === 'hr') return item.type === 'hr';
+    return true;
+  });
+
+  const techCount = interviews.filter(i => i.type === 'technical').length;
+  const hrCount = interviews.filter(i => i.type === 'hr').length;
+
   return (
     <div style={containerStyle}>
       <header style={headerStyle}>
@@ -60,58 +72,99 @@ export const AssignedInterviews: React.FC = () => {
           <h2 style={{ color: 'var(--gray-text-muted)' }}>Syncing schedule queue...</h2>
           <div style={spinnerStyle}></div>
         </div>
-      ) : interviews.length === 0 ? (
-        <div className="card" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-          <h2 style={{ color: 'var(--gray-text-muted)', marginBottom: '1rem' }}>No Scheduled Panels</h2>
-          <p style={{ color: 'var(--gray-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
-            You do not have any pending candidate interviews assigned to you at the moment.
-          </p>
-        </div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <table style={tableStyle}>
-            <thead>
-              <tr style={tableHeaderRowStyle}>
-                <th style={thStyle}>Candidate</th>
-                <th style={thStyle}>Job Opening</th>
-                <th style={thStyle}>Scheduled Date & Time</th>
-                <th style={{ ...thStyle, textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {interviews.map((item) => (
-                <tr key={item._id} style={trStyle} className="table-row-hover">
-                  <td style={tdStyle}>
-                    <div>
-                      <strong style={candidateNameStyle}>{item.application?.candidate?.name}</strong>
-                      <div style={candidateEmailStyle}>{item.application?.candidate?.email}</div>
-                    </div>
-                  </td>
-                  <td style={tdStyle}>
-                    <span style={jobTitleStyle}>{item.application?.job?.title}</span>
-                    <div style={jobLocationStyle}>{item.application?.job?.location}</div>
-                  </td>
-                  <td style={tdStyle}>
-                    <span style={dateTimeStyle}>
-                      🗓️ {new Date(item.scheduledAt).toLocaleString(undefined, {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  </td>
-                  <td style={{ ...tdStyle, textAlign: 'right' }}>
-                    <Link to={`/recruiter/candidates?candidate=${item.application?._id}`} className="api-btn" style={viewBtnStyle}>
-                      Conduct Interview &rarr;
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          {/* CHROME WINDOW TAB SWITCHER FOR INTERVIEW TYPES */}
+          <div className="chrome-tab-bar">
+            <button 
+              type="button"
+              className={`chrome-tab ${activeTab === 'technical' ? 'chrome-tab--active' : ''}`}
+              onClick={() => setActiveTab('technical')}
+            >
+              <span>Technical Interviews</span>
+              <span className="chrome-tab-badge">{techCount}</span>
+            </button>
+
+            <button 
+              type="button"
+              className={`chrome-tab ${activeTab === 'hr' ? 'chrome-tab--active' : ''}`}
+              onClick={() => setActiveTab('hr')}
+            >
+              <span>HR Interviews</span>
+              <span className="chrome-tab-badge">{hrCount}</span>
+            </button>
+
+            <button 
+              type="button"
+              className={`chrome-tab ${activeTab === 'all' ? 'chrome-tab--active' : ''}`}
+              onClick={() => setActiveTab('all')}
+            >
+              <span>All Panels</span>
+              <span className="chrome-tab-badge">{interviews.length}</span>
+            </button>
+          </div>
+
+          {filteredInterviews.length === 0 ? (
+            <div className="card" style={{ padding: '4rem 2rem', textAlign: 'center', borderRadius: '0 0 16px 16px', borderTop: 'none' }}>
+              <h2 style={{ color: 'var(--gray-text-muted)', marginBottom: '1rem' }}>
+                No {activeTab === 'technical' ? 'Technical' : activeTab === 'hr' ? 'HR' : 'Assigned'} Interviews Scheduled
+              </h2>
+              <p style={{ color: 'var(--gray-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
+                You do not have any pending {activeTab} candidate interviews assigned to you at the moment.
+              </p>
+            </div>
+          ) : (
+            <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: '0 0 16px 16px', borderTop: 'none' }}>
+              <table style={tableStyle}>
+                <thead>
+                  <tr style={tableHeaderRowStyle}>
+                    <th style={thStyle}>Candidate</th>
+                    <th style={thStyle}>Job Opening</th>
+                    <th style={thStyle}>Round & Schedule</th>
+                    <th style={{ ...thStyle, textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredInterviews.map((item) => (
+                    <tr key={item._id} style={trStyle} className="table-row-hover">
+                      <td style={tdStyle}>
+                        <div>
+                          <strong style={candidateNameStyle}>{item.application?.candidate?.name}</strong>
+                          <div style={candidateEmailStyle}>{item.application?.candidate?.email}</div>
+                        </div>
+                      </td>
+                      <td style={tdStyle}>
+                        <span style={jobTitleStyle}>{item.application?.job?.title}</span>
+                        <div style={jobLocationStyle}>{item.application?.job?.location}</div>
+                      </td>
+                      <td style={tdStyle}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent)' }}>
+                            {item.type === 'technical' ? 'Technical Round' : 'HR Round'}
+                          </span>
+                          <span style={dateTimeStyle}>
+                            {new Date(item.scheduledAt).toLocaleString(undefined, {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: 'right' }}>
+                        <Link to={`/admin/interviews/${item._id}/conduct`} className="api-btn" style={viewBtnStyle}>
+                          Conduct {item.type === 'technical' ? 'Technical' : 'HR'} Interview &rarr;
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

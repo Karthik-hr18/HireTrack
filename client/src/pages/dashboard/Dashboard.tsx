@@ -1,73 +1,76 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { AdminDashboard } from '../admin/AdminDashboard';
-import { ApplicationsTracker } from '../candidate/ApplicationsTracker';
+import { useDashboard } from '../../hooks/useDashboard';
+import { DashboardSkeleton } from './DashboardSkeleton';
+import { DashboardErrorBoundary } from './DashboardErrorBoundary';
+import { WorkspaceHeader } from './components/WorkspaceHeader/WorkspaceHeader';
+import { KpiGrid } from './components/KPIs/KpiGrid';
+import { RecruitmentFunnel } from './components/RecruitmentFunnel/RecruitmentFunnel';
+import { CandidatePipelineDistribution } from './components/CandidatePipeline/CandidatePipelineDistribution';
+import { NeedsAttention } from './components/NeedsAttention/NeedsAttention';
+import { UpcomingInterviews } from './components/UpcomingInterviews/UpcomingInterviews';
+import { JobHealthGrid } from './components/JobHealth/JobHealthGrid';
+import { ActivityFeed } from './components/ActivityFeed/ActivityFeed';
+import { HiringInsights } from './components/HiringInsights/HiringInsights';
+import { SourcingChannels } from './components/SourcingChannels/SourcingChannels';
+import styles from './dashboard.module.css';
 
 export const Dashboard: React.FC = () => {
   const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : null;
 
+  const [timeframe] = useState('30d');
+  const { data, loading, error, refetch } = useDashboard(timeframe);
+
   if (!token || !user) {
     return <Navigate to="/login" replace />;
   }
 
-  // Choose sub-dashboard according to role type
-  const renderRoleDashboard = () => {
-    switch (user.role) {
-      case 'admin':
-        return <AdminDashboard token={token} />;
-      case 'recruiter':
-        return <Navigate to="/recruiter/candidates" replace />;
-      case 'candidate':
-      default:
-        // Re-use candidate tracker component as candidate's personalized dashboard
-        return <ApplicationsTracker />;
-    }
-  };
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+
+  if (error || !data) {
+    return <DashboardErrorBoundary error={error || 'Failed to sync dashboard'} onRetry={refetch} />;
+  }
 
   return (
-    <div style={containerStyle}>
-      <header style={headerStyle}>
-        <div>
-          <h1 style={titleStyle}>
-            Welcome Back, <span className="gradient-text">{user.name}</span>
-          </h1>
-          <p style={subtitleStyle}>
-            Role: <strong style={{ textTransform: 'uppercase', color: 'var(--accent-hover)' }}>{user.role}</strong> | Real-time ATS overview
-          </p>
-        </div>
-      </header>
-      
-      {renderRoleDashboard()}
+    <div className={styles.dashboardContainer}>
+      {/* ── WORKSPACE HEADER & QUICK ACTIONS ───────────────────────────────── */}
+      <WorkspaceHeader
+        userName={user.name || 'User'}
+        userRole={user.role}
+        summary={data.todaySummary}
+        quickActions={data.quickActions}
+      />
+
+      {/* ── LAYER 1: EXECUTIVE KPIS (8 Stripe-Style Metric Cards) ────────────── */}
+      <KpiGrid kpis={data.kpis} />
+
+      {/* ── LAYER 2: RECRUITMENT FUNNEL & CANDIDATE DISTRIBUTION ──────────── */}
+      <div className={styles.layerGrid2}>
+        <RecruitmentFunnel funnel={data.funnel} />
+        <CandidatePipelineDistribution distribution={data.pipelineDistribution} />
+      </div>
+
+      {/* ── LAYER 3: ACTION CENTER & UPCOMING SCHEDULE WORKSPACE ───────────── */}
+      <div className={styles.layerGrid2}>
+        <NeedsAttention items={data.attentionItems} />
+        <UpcomingInterviews interviews={data.upcomingInterviews} />
+      </div>
+
+      {/* ── LAYER 4: JOB HEALTH MATRIX & LIVE ACTIVITY AUDIT STREAM ────────── */}
+      <div className={styles.layerGrid2}>
+        <JobHealthGrid jobs={data.jobHealth} />
+        <ActivityFeed activities={data.activities} />
+      </div>
+
+      {/* ── LAYER 5: OPERATIONAL INSIGHTS & SOURCING CHANNELS ──────────────── */}
+      <div className={styles.layerGrid2}>
+        <HiringInsights insights={data.insights} />
+        <SourcingChannels channels={data.sourcingChannels} />
+      </div>
     </div>
   );
-};
-
-const containerStyle: React.CSSProperties = {
-  maxWidth: '1200px',
-  margin: '0 auto',
-  padding: '2rem 1rem',
-  textAlign: 'left'
-};
-
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '2rem'
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: '32px',
-  fontWeight: 800,
-  color: 'var(--gray-text-primary)',
-  letterSpacing: '-0.02em',
-  marginBottom: '0.25rem'
-};
-
-const subtitleStyle: React.CSSProperties = {
-  fontSize: '15px',
-  color: 'var(--gray-text-muted)',
-  margin: 0
 };

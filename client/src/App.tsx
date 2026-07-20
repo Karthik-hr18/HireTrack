@@ -5,6 +5,7 @@ import { JobDetailPage } from './pages/careers/JobDetailPage';
 import { JobsDashboard } from './pages/recruiter/JobsDashboard';
 import { CandidateWorkspacePage } from './pages/recruiter/workspace/CandidateWorkspacePage';
 import { AssignedInterviews } from './pages/admin/AssignedInterviews';
+import { ConductInterviewPage } from './pages/admin/ConductInterviewPage';
 import { ManageRecruiters } from './pages/admin/ManageRecruiters';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
@@ -22,6 +23,7 @@ function App() {
         <Route path="/recruiter/jobs" element={<JobsDashboard />} />
         <Route path="/recruiter/candidates" element={<CandidateWorkspacePage />} />
         <Route path="/admin/interviews" element={<AssignedInterviews />} />
+        <Route path="/admin/interviews/:id/conduct" element={<ConductInterviewPage />} />
         <Route path="/admin/recruiters" element={<ManageRecruiters />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Menu, X, Home, Users, Briefcase, Calendar, Settings, LogOut, Sparkles, BarChart2 } from 'lucide-react';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
 import { CandidateDetailPanel } from './CandidateDetailPanel';
@@ -10,6 +11,9 @@ export const CandidateWorkspacePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const token    = localStorage.getItem('token');
+  const userJson = localStorage.getItem('user');
+  const user     = userJson ? JSON.parse(userJson) : null;
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // ── Workspace state ───────────────────────────────────────────
   const [activeStage, setActiveStage]   = useState(searchParams.get('stage') || '');
@@ -118,6 +122,13 @@ export const CandidateWorkspacePage: React.FC = () => {
 
 
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setMenuOpen(false);
+    navigate('/');
+  };
+
   const isStaleApplication = (app: any): boolean => {
     if (app.stage !== 'resume_screening') return false;
     const daysSinceUpdate = (Date.now() - new Date(app.updatedAt).getTime()) / (1000 * 60 * 60 * 24);
@@ -126,34 +137,185 @@ export const CandidateWorkspacePage: React.FC = () => {
 
   return (
     <div className="workspace-root">
-      {/* ── CONTEXT BAR (stage tabs & view toggle) ──────────────── */}
-      <div className="workspace-contextbar">
+      {/* ── CONTEXT BAR (stage tabs, view toggle, and 3-bar Hamburger Menu) ──────────────── */}
+      <div className="workspace-contextbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
         <StageTabBar
           activeStage={activeStage}
           counts={stageCounts}
           onStageChange={handleStageChange}
         />
         
-        {/* View Mode Toggle Controls */}
-        <div className="view-mode-toggle" role="group" aria-label="View mode selector">
-          <button 
+        {/* Controls: View Mode Toggle + 3-BAR HAMBURGER MENU BUTTON */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="view-mode-toggle" role="group" aria-label="View mode selector">
+            <button 
+              type="button"
+              className={`view-mode-toggle__btn ${viewMode === 'list' ? 'view-mode-toggle__btn--active' : ''}`}
+              onClick={() => handleViewModeChange('list')}
+              title="List View"
+            >
+              List
+            </button>
+            <button 
+              type="button"
+              className={`view-mode-toggle__btn ${viewMode === 'kanban' ? 'view-mode-toggle__btn--active' : ''}`}
+              onClick={() => handleViewModeChange('kanban')}
+              title="Kanban Board View"
+            >
+              Board
+            </button>
+          </div>
+
+          {/* 3-BAR HAMBURGER MENU BUTTON (EXCLUSIVELY FOR CANDIDATE PIPELINE) */}
+          <button
             type="button"
-            className={`view-mode-toggle__btn ${viewMode === 'list' ? 'view-mode-toggle__btn--active' : ''}`}
-            onClick={() => handleViewModeChange('list')}
-            title="List View"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Open Workspace Navigation Menu"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 38,
+              height: 38,
+              borderRadius: 10,
+              border: '1px solid var(--gray-border)',
+              backgroundColor: 'var(--gray-surface)',
+              color: 'var(--gray-text-primary)',
+              cursor: 'pointer',
+              boxShadow: 'var(--shadow-card-subtle)',
+              transition: 'all 0.15s ease',
+            }}
+            title="Candidate Pipeline Menu"
           >
-            ☰ List
-          </button>
-          <button 
-            type="button"
-            className={`view-mode-toggle__btn ${viewMode === 'kanban' ? 'view-mode-toggle__btn--active' : ''}`}
-            onClick={() => handleViewModeChange('kanban')}
-            title="Kanban Board View"
-          >
-            ⊞ Board
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
+
+      {/* SIDE MENU DRAWER (SLIDE-OUT PANEL ON 3-BAR CLICK) */}
+      {menuOpen && (
+        <>
+          <div 
+            className="side-menu-overlay" 
+            onClick={() => setMenuOpen(false)} 
+            aria-hidden="true"
+          />
+
+          <aside className="side-menu-drawer" aria-label="Candidate Pipeline Navigation Menu">
+            <div className="side-menu-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, fontWeight: 800, color: 'var(--gray-text-primary)' }}>
+                <Sparkles size={18} style={{ color: 'var(--accent)' }} /> Pipeline Menu
+              </div>
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-text-muted)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* User Info Pill */}
+            <div className="side-menu-user-pill">
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 2 }}>
+                {user?.name || 'Recruiter'}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--gray-text-muted)', marginBottom: 8 }}>
+                {user?.email}
+              </div>
+              <span style={{
+                fontSize: 10,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-pill)',
+                backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                color: 'var(--accent)',
+                border: '1px solid rgba(79, 70, 229, 0.15)'
+              }}>
+                {user?.role}
+              </span>
+            </div>
+
+            {/* Side Menu List */}
+            <nav className="side-menu-list">
+              {/* HOME OPTION */}
+              <Link 
+                to="/" 
+                className="side-menu-item"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Home size={18} style={{ color: 'var(--accent)' }} />
+                <span>Home (Careers)</span>
+              </Link>
+
+              {/* ANALYTICS DASHBOARD OPTION */}
+              <Link 
+                to="/dashboard" 
+                className="side-menu-item"
+                onClick={() => setMenuOpen(false)}
+              >
+                <BarChart2 size={18} style={{ color: 'var(--accent)' }} />
+                <span>Analytics Dashboard</span>
+              </Link>
+
+              <Link 
+                to="/recruiter/candidates" 
+                className="side-menu-item side-menu-item--active"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Users size={18} />
+                <span>Candidate Pipeline</span>
+              </Link>
+
+              <Link 
+                to="/recruiter/jobs" 
+                className="side-menu-item"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Briefcase size={18} />
+                <span>Manage Jobs</span>
+              </Link>
+
+              {user?.role === 'admin' && (
+                <Link 
+                  to="/admin/interviews" 
+                  className="side-menu-item"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <Calendar size={18} />
+                  <span>Assigned Interviews</span>
+                </Link>
+              )}
+
+              {user?.role === 'admin' && (
+                <Link 
+                  to="/admin/recruiters" 
+                  className="side-menu-item"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <Settings size={18} />
+                  <span>Manage Recruiters</span>
+                </Link>
+              )}
+            </nav>
+
+            {/* Sign Out Action */}
+            <div style={{ borderTop: '1px solid var(--gray-border)', paddingTop: 16, marginTop: 'auto' }}>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="side-menu-item"
+                style={{ width: '100%', color: 'var(--error)', backgroundColor: 'rgba(239, 68, 68, 0.08)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+              >
+                <LogOut size={18} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
 
       {/* ── WORKSPACE BODY CONTENT ───────────────────────────── */}
       {viewMode === 'list' ? (

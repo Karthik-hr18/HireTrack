@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { StageBadge } from '../../../components/ui/StageBadge';
 import { SkeletonLoader } from '../../../components/ui/SkeletonLoader';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -349,7 +350,6 @@ const TabContent: React.FC<TabContentProps> = ({
 
   // Derive active scheduled interview
   const activeInterview = interviews.find((i) => i.status === 'scheduled') ?? null;
-  const canSubmitScorecard = isAdmin && activeInterview;
 
   switch (tab) {
     // ── Overview ─────────────────────────────────────────────────────────
@@ -540,70 +540,107 @@ const TabContent: React.FC<TabContentProps> = ({
       );
 
     // ── Interviews ───────────────────────────────────────────────────────
-    case 'interviews':
+    case 'interviews': {
       return (
         <div className="tab-content tab-content--interviews">
           {interviews.length === 0 ? (
             <EmptyState
-              icon="🗓"
+              icon="📅"
               title="No interviews scheduled"
               description="When a Technical or HR interview is scheduled, it will appear here."
             />
           ) : (
             <div className="interviews-list">
               {interviews.map((iv) => (
-                <div key={iv._id} className="interview-card">
-                  <div className="interview-card__header">
-                    <span className="interview-card__type">
-                      {iv.type === 'technical' ? '🖥 Technical Interview' : '🤝 HR Interview'}
+                <div key={iv._id} className="interview-card" style={{ borderLeft: `4px solid ${iv.type === 'technical' ? '#4f46e5' : '#10b981'}`, borderRadius: 12, padding: 16, backgroundColor: '#ffffff', border: '1px solid var(--gray-border)', marginBottom: 12 }}>
+                  <div className="interview-card__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span className="interview-card__type" style={{ fontSize: 13, fontWeight: 700, color: iv.type === 'technical' ? 'var(--accent)' : '#059669' }}>
+                      {iv.type === 'technical' ? 'Technical Interview Round' : 'HR Culture Round'}
                     </span>
-                    <span className={`interview-card__status interview-card__status--${iv.status}`}>
+                    <span className={`interview-card__status interview-card__status--${iv.status}`} style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', padding: '2px 8px', borderRadius: 99, backgroundColor: iv.status === 'scheduled' ? 'rgba(79, 70, 229, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: iv.status === 'scheduled' ? 'var(--accent)' : '#059669' }}>
                       {iv.status}
                     </span>
                   </div>
-                  <div className="interview-card__detail">
-                    Interviewer: <strong>{iv.interviewer?.name ?? 'TBD'}</strong>
+
+                  <div className="interview-card__detail" style={{ fontSize: 13, color: 'var(--gray-text-primary)', marginBottom: 4 }}>
+                    Assigned Interviewer: <strong>{iv.interviewer?.name ?? 'Admin Panel'}</strong>
                   </div>
-                  <div className="interview-card__detail">
-                    Scheduled: <strong>
+                  <div className="interview-card__detail" style={{ fontSize: 13, color: 'var(--gray-text-muted)', marginBottom: 12 }}>
+                    Scheduled Time: <strong>
                       {new Date(iv.scheduledAt).toLocaleString(undefined, {
                         month: 'short', day: 'numeric', year: 'numeric',
                         hour: '2-digit', minute: '2-digit',
                       })}
                     </strong>
                   </div>
+
+                  {iv.status === 'scheduled' && (
+                    <Link
+                      to={`/admin/interviews/${iv._id}/conduct`}
+                      className="btn-primary-sm"
+                      style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px' }}
+                    >
+                      Conduct {iv.type === 'technical' ? 'Technical' : 'HR'} Interview &rarr;
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
       );
+    }
 
     // ── Scorecards ───────────────────────────────────────────────────────
-    case 'scorecards':
+    case 'scorecards': {
+      // Sort scorecards chronologically in conduct order (oldest conduct first)
+      const sortedScorecards = [...scorecards].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+
       return (
         <div className="tab-content tab-content--scorecards">
-          {/* Submit Scorecard form section for Admin */}
-          {canSubmitScorecard && activeInterview && (
-            <ScorecardFormContent
-              interviewId={activeInterview._id}
-              interviewType={activeInterview.type}
-              onSubmitSuccess={onRefresh}
-            />
+          {/* Conduct Interview CTA for scheduled interviews */}
+          {activeInterview && (
+            <div style={{ padding: 16, backgroundColor: 'rgba(79, 70, 229, 0.06)', borderRadius: 14, border: '1px solid rgba(79, 70, 229, 0.18)', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--gray-text-primary)' }}>
+                  {activeInterview.type === 'technical' ? 'Technical Interview Scheduled' : 'HR Interview Scheduled'}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--gray-text-muted)' }}>
+                  Evaluators can conduct the live evaluation and submit the scorecard on the dedicated workspace.
+                </div>
+              </div>
+              <Link 
+                to={`/admin/interviews/${activeInterview._id}/conduct`}
+                className="btn-primary-sm"
+                style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
+              >
+                Conduct Interview &rarr;
+              </Link>
+            </div>
           )}
 
-          {/* List of submitted scorecards */}
-          {scorecards.length === 0 ? (
+          {/* Chronological list of submitted scorecards */}
+          {sortedScorecards.length === 0 ? (
             <EmptyState
-              icon="🏆"
+              icon="📋"
               title="No scorecards yet"
               description="Scorecards will appear here once submitted by an evaluator."
             />
           ) : (
             <div className="scorecards-list">
-              {scorecards.map((sc) => {
-                const interview = interviews.find((iv) => iv._id === sc.interview);
-                const isHr = interview?.type === 'hr';
+              {sortedScorecards.map((sc, index) => {
+                const interview = interviews.find((iv) => (iv._id?.toString() ?? iv._id) === (sc.interview?.toString() ?? sc.interview));
+                const isTech = interview?.type === 'technical' || sc.recommendation === 'pass';
+                const isHr = interview?.type === 'hr' || sc.recommendation === 'hire';
+                
+                const roundTitle = isTech 
+                  ? 'Technical Evaluation Scorecard' 
+                  : isHr 
+                  ? 'HR & Culture Evaluation Scorecard' 
+                  : 'Evaluation Scorecard';
+
                 const recClass = sc.recommendation === 'hire' || sc.recommendation === 'pass'
                   ? 'scorecard__rec--pass' : 'scorecard__rec--reject';
 
@@ -611,16 +648,19 @@ const TabContent: React.FC<TabContentProps> = ({
                   <div key={sc._id} className="scorecard-card">
                     <div className="scorecard-card__header">
                       <span className="scorecard-card__type">
-                        {isHr ? '🤝 HR Scorecard' : '🖥 Technical Scorecard'}
+                        Round {index + 1}: {roundTitle}
                       </span>
                       <span className={`scorecard-card__rec ${recClass}`}>
                         {sc.recommendation.toUpperCase()}
                       </span>
                     </div>
                     <div className="scorecard-card__meta">
-                      Submitted by <strong>{sc.submittedBy?.name ?? 'Admin'}</strong>
+                      Submitted by <strong>{sc.submittedBy?.name ?? 'Evaluator'}</strong>
                       {' · '}
-                      {new Date(sc.createdAt).toLocaleDateString()}
+                      {new Date(sc.createdAt).toLocaleString(undefined, {
+                        month: 'short', day: 'numeric', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                      })}
                     </div>
 
                     {isHr && (
@@ -661,161 +701,14 @@ const TabContent: React.FC<TabContentProps> = ({
           )}
         </div>
       );
+    }
 
     default:
       return null;
   }
 };
 
-// ─── Scorecard Form sub-component ───────────────────────────────────────────
-interface ScorecardFormContentProps {
-  interviewId: string;
-  interviewType: 'technical' | 'hr';
-  onSubmitSuccess: () => void;
-}
 
-const ScorecardFormContent: React.FC<ScorecardFormContentProps> = ({
-  interviewId,
-  interviewType,
-  onSubmitSuccess,
-}) => {
-  const token = localStorage.getItem('token');
-  const apiUrl = import.meta.env.VITE_API_URL || '';
-
-  const [recommendation, setRecommendation] = useState(interviewType === 'technical' ? 'pass' : 'hire');
-  const [comments, setComments] = useState('');
-  const [communication, setCommunication] = useState(3);
-  const [cultureFit, setCultureFit] = useState(3);
-  const [salaryExpectation, setSalaryExpectation] = useState('');
-  const [salaryOffered, setSalaryOffered] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!token || !comments.trim()) return;
-
-    const bodyData: any = {
-      recommendation,
-      comments: comments.trim()
-    };
-
-    if (interviewType === 'hr') {
-      bodyData.communication = communication;
-      bodyData.cultureFit = cultureFit;
-      if (salaryExpectation) bodyData.salaryExpectation = Number(salaryExpectation);
-      if (salaryOffered) bodyData.salaryOffered = Number(salaryOffered);
-    }
-
-    try {
-      setSubmitting(true);
-      setError(null);
-      const res = await fetch(`${apiUrl}/api/interviews/${interviewId}/scorecard`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(bodyData)
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || 'Failed to submit scorecard');
-      }
-
-      onSubmitSuccess();
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="scorecard-form">
-      <h5 className="scorecard-form__title">
-        Submit {interviewType === 'technical' ? 'Technical' : 'HR'} Evaluation
-      </h5>
-
-      <div className="scorecard-form__field">
-        <label htmlFor="sf-rec">Recommendation *</label>
-        {interviewType === 'technical' ? (
-          <select id="sf-rec" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} required>
-            <option value="pass">Pass (Advance to HR)</option>
-            <option value="reject">Reject Candidate</option>
-          </select>
-        ) : (
-          <select id="sf-rec" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} required>
-            <option value="hire">Accept & Hire</option>
-            <option value="reject">Reject Candidate</option>
-          </select>
-        )}
-      </div>
-
-      {interviewType === 'hr' && (
-        <>
-          <div className="scorecard-form__row-2">
-            <div className="scorecard-form__field">
-              <label htmlFor="sf-culture">Culture Fit (1-5)</label>
-              <select id="sf-culture" value={cultureFit} onChange={(e) => setCultureFit(Number(e.target.value))}>
-                {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
-            <div className="scorecard-form__field">
-              <label htmlFor="sf-comm">Communication (1-5)</label>
-              <select id="sf-comm" value={communication} onChange={(e) => setCommunication(Number(e.target.value))}>
-                {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className="scorecard-form__row-2">
-            <div className="scorecard-form__field">
-              <label htmlFor="sf-sal-exp">Salary Expectation ($)</label>
-              <input
-                id="sf-sal-exp"
-                type="number"
-                placeholder="e.g. 95000"
-                value={salaryExpectation}
-                onChange={(e) => setSalaryExpectation(e.target.value)}
-                required
-              />
-            </div>
-            <div className="scorecard-form__field">
-              <label htmlFor="sf-sal-off">Salary Offered ($)</label>
-              <input
-                id="sf-sal-off"
-                type="number"
-                placeholder="e.g. 100000"
-                value={salaryOffered}
-                onChange={(e) => setSalaryOffered(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-        </>
-      )}
-
-      <div className="scorecard-form__field">
-        <label htmlFor="sf-comments">Comments / Rationale *</label>
-        <textarea
-          id="sf-comments"
-          placeholder="Provide details about performance and decision rationale..."
-          value={comments}
-          onChange={(e) => setComments(e.target.value)}
-          required
-        />
-      </div>
-
-      {error && <div className="scorecard-form__error">⚠️ {error}</div>}
-
-      <button type="submit" className="api-btn scorecard-form__submit" disabled={submitting || !comments.trim()}>
-        {submitting ? 'Submitting...' : 'Submit Evaluation Scorecard'}
-      </button>
-    </form>
-  );
-};
 
 // ─── Notes sub-component (has its own form state) ─────────────────────────────
 const NotesTabContent: React.FC<{ app: DetailApplication }> = ({ app }) => {

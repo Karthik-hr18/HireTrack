@@ -45,9 +45,14 @@ export const CareersNav: React.FC = () => {
             {token ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 {user?.role === 'recruiter' || user?.role === 'admin' ? (
-                  <Link to="/recruiter/candidates" className="careers-nav__cta" style={{ backgroundColor: 'var(--accent)' }}>
-                    ✦ Candidate Workspace
-                  </Link>
+                  <>
+                    <Link to="/dashboard" className="careers-nav__cta" style={{ backgroundColor: 'var(--accent)' }}>
+                      Dashboard
+                    </Link>
+                    <Link to="/recruiter/candidates" className="careers-nav__cta" style={{ backgroundColor: 'var(--gray-surface)', color: 'var(--gray-text-primary)', border: '1px solid var(--gray-border)' }}>
+                      Candidate Pipeline
+                    </Link>
+                  </>
                 ) : (
                   <Link to="/candidate/applications" className="careers-nav__cta">
                     My Applications
