@@ -63,9 +63,9 @@ body {
 
 #root {
   width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: var(--space-5);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 /* Typography Scale */
