@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, AlertCircle, Sparkles } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent, customEmail?: string, customPassword?: string) => {
+  const handleLogin = async (e?: React.FormEvent, customEmail?: string, customPassword?: string) => {
     if (e) e.preventDefault();
     
     const targetEmail = customEmail || email;
@@ -27,7 +29,7 @@ export const LoginPage: React.FC = () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || 'Authentication failed');
+        throw new Error(errData.message || 'Authentication failed. Check credentials.');
       }
 
       const data = await response.json();
@@ -64,131 +66,166 @@ export const LoginPage: React.FC = () => {
 
     setEmail(demoEmail);
     setPassword(demoPassword);
-    handleLogin({ preventDefault: () => {} } as any, demoEmail, demoPassword);
+    handleLogin(undefined, demoEmail, demoPassword);
   };
 
   return (
-    <div style={authContainerStyle}>
-      <div className="card" style={{ maxWidth: '420px', width: '100%', padding: '2.5rem' }}>
-        <h2 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>Welcome Back</h2>
-        <p style={{ color: 'var(--gray-text-muted)', fontSize: '14px', textAlign: 'center', marginBottom: '2rem' }}>
-          Sign in to manage your job application pipeline.
-        </p>
-
-        {error && (
-          <div style={errorContainerStyle}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={(e) => handleLogin(e)}>
-          <div style={{ marginBottom: '1.25rem' }}>
-            <label>Email Address</label>
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required
-            />
-          </div>
-          <div style={{ marginBottom: '1.75rem' }}>
-            <label>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            className="api-btn" 
-            style={{ width: '100%', minHeight: '44px', marginBottom: '1rem' }}
-            disabled={loading}
-          >
-            {loading ? 'Authenticating...' : 'Sign In'}
-          </button>
-        </form>
-
-        <p style={{ fontSize: '14px', textAlign: 'center', margin: '1rem 0' }}>
-          Don't have an account?{' '}
-          <Link to="/register" style={{ color: 'var(--accent-hover)', textDecoration: 'none', fontWeight: 600 }}>
-            Sign Up
+    <div className="auth-page-wrapper">
+      <div className="auth-card-wrapper">
+        
+        {/* Left Blue/Indigo Toggle Panel */}
+        <div className="auth-toggle-container">
+          <h2>New here?</h2>
+          <p>Create an account and explore job opportunities across engineering and design.</p>
+          <Link to="/register" className="auth-switch-btn">
+            Create Account
           </Link>
-        </p>
 
-        <div style={demoCardStyle}>
-          <h4 style={demoTitleStyle}>⚡ Demo Logins (Seeded accounts)</h4>
-          <div style={demoButtonsContainerStyle}>
-            <button onClick={() => handleDemoLogin('admin')} style={demoBtnStyle}>
-              Admin
-            </button>
-            <button onClick={() => handleDemoLogin('recruiter')} style={demoBtnStyle}>
-              Recruiter 1
-            </button>
-            <button onClick={() => handleDemoLogin('candidate')} style={demoBtnStyle}>
-              Candidate
-            </button>
+          {/* Social login buttons */}
+          <div className="auth-social-login">
+            <div className="auth-social-btn" title="Sign in with Google">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#DB4437" d="M12 11v2h6.1c-.3 1.9-1.9 3.5-3.9 4.1v2.1c3-1 5.1-3.9 5.1-7.2 0-.6-.1-1.2-.2-1.8H12z" />
+                <path fill="#0F9D58" d="M6.3 13.1c-.2-.6-.3-1.3-.3-1.9 0-.6.1-1.2.3-1.8V6.3C3.9 7.7 2.3 9.9 2.3 12.2c0 2.4 1.6 4.6 3.9 5.9l.1-5z" />
+                <path fill="#F4B400" d="M12 7.6c1 0 1.9.3 2.6.9l1.9-1.9C15.6 5 13.9 4.4 12 4.4 9.4 4.4 7.1 5.7 5.6 7.9l1.9 1.8C8.2 9 10 7.6 12 7.6z" />
+                <path fill="#4285F4" d="M21.5 12.2c0-.8-.1-1.6-.3-2.3H12v4.3h5.5c-.2 1.1-.8 2-1.7 2.6l2 1.6c1.3-1.2 2.5-3 2.5-5.2z"/>
+              </svg>
+            </div>
+
+            <div className="auth-social-btn" title="Sign in with GitHub">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#333" d="M12 .5C5.6.5.6 5.4.6 11.8c0 4.9 3.1 9 7.4 10.4.5.1.7-.2.7-.5v-1.8c-3 .6-3.6-1.4-3.6-1.4-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1 1.7.7 2.1 1.2.1-.9.4-1.6.8-2-2.4-.3-4.9-1.2-4.9-5.3 0-1.2.4-2.2 1-3-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.6 1 .8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 1.7-1.3 2.6-1 2.6-1 .5 1.4.2 2.4.1 2.7.6.8 1 1.8 1 3 0 4.1-2.5 5-4.9 5.3.4.4.8 1 .8 2v3c0 .3.2.6.7.5 4.3-1.4 7.4-5.5 7.4-10.4C23.4 5.4 18.4.5 12 .5z"/>
+              </svg>
+            </div>
           </div>
         </div>
+
+        {/* Right White Form Container */}
+        <div className="auth-form-container">
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 6 }}>
+            Welcome Back!
+          </h2>
+          <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 24 }}>
+            Sign in to access your HireTrack workspace
+          </p>
+
+          {error && (
+            <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', color: 'var(--error)', padding: '10px 14px', borderRadius: 10, fontSize: 13, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} /> {error}
+            </div>
+          )}
+
+          <form onSubmit={(e) => handleLogin(e)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <label style={labelStyle}>Email Address</label>
+              <input 
+                type="email" 
+                placeholder="enter your email..."
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Password</label>
+              <div className="input-with-eye">
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  placeholder="••••••••"
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  style={inputStyle}
+                  required
+                />
+                <button
+                  type="button"
+                  className="eye-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              className="btn-primary-lg" 
+              style={{ width: '100%', marginTop: 8, justifyContent: 'center' }}
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          {/* Quick Demo Logins Card */}
+          <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--gray-border)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--gray-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Sparkles size={13} style={{ color: 'var(--accent)' }} /> Quick Demo Logins
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button 
+                type="button" 
+                onClick={() => handleDemoLogin('admin')}
+                style={demoBtnStyle}
+              >
+                Admin
+              </button>
+              <button 
+                type="button" 
+                onClick={() => handleDemoLogin('recruiter')}
+                style={demoBtnStyle}
+              >
+                Recruiter
+              </button>
+              <button 
+                type="button" 
+                onClick={() => handleDemoLogin('candidate')}
+                style={demoBtnStyle}
+              >
+                Candidate
+              </button>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </div>
   );
 };
 
-// Styles
-const authContainerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '70vh',
-  padding: 'var(--space-4) 0'
-};
-
-const errorContainerStyle: React.CSSProperties = {
-  color: 'var(--error)',
-  backgroundColor: 'rgba(239, 68, 68, 0.08)',
-  padding: 'var(--space-3)',
-  borderRadius: 'var(--radius-default)',
-  fontSize: '14px',
-  marginBottom: 'var(--space-4)',
-  border: '1px solid rgba(239, 68, 68, 0.2)',
-  textAlign: 'center'
-};
-
-const demoCardStyle: React.CSSProperties = {
-  marginTop: '2rem',
-  padding: '1.25rem',
-  backgroundColor: 'var(--gray-bg)',
-  border: '1px dashed var(--gray-border)',
-  borderRadius: 'var(--radius-default)'
-};
-
-const demoTitleStyle: React.CSSProperties = {
-  fontSize: '13px',
-  fontWeight: 700,
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 13,
+  fontWeight: 600,
   color: 'var(--gray-text-primary)',
-  marginBottom: '0.75rem',
-  textAlign: 'center'
+  marginBottom: 6,
 };
 
-const demoButtonsContainerStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: '8px',
-  justifyContent: 'center'
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '12px 14px',
+  borderRadius: 'var(--radius-default)',
+  border: '1px solid var(--gray-border)',
+  backgroundColor: 'var(--gray-bg)',
+  fontSize: 14,
+  color: 'var(--gray-text-primary)',
+  fontFamily: 'var(--font-sans)',
+  boxSizing: 'border-box',
 };
 
 const demoBtnStyle: React.CSSProperties = {
-  flex: 1,
-  padding: '8px 4px',
-  borderRadius: 'var(--radius-input)',
-  backgroundColor: 'var(--gray-surface)',
-  border: '1px solid var(--gray-border)',
-  color: 'var(--gray-text-primary)',
-  fontSize: '12px',
+  padding: '6px 12px',
+  fontSize: 12,
   fontWeight: 600,
+  borderRadius: 'var(--radius-pill)',
+  border: '1px solid var(--gray-border)',
+  backgroundColor: 'var(--gray-bg)',
+  color: 'var(--gray-text-primary)',
   cursor: 'pointer',
-  transition: 'all var(--transition-speed)',
-  textAlign: 'center'
+  fontFamily: 'inherit',
+  transition: 'all 0.15s ease',
 };
