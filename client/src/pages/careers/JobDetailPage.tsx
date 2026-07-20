@@ -4,8 +4,6 @@ import { CareersNav } from './components/CareersNav';
 import { CareersFooter } from './components/CareersFooter';
 import { 
   MapPin, 
-  Briefcase, 
-  Clock, 
   ArrowLeft, 
   ArrowUpRight, 
   Sparkles, 
@@ -184,9 +182,9 @@ export const JobDetailPage: React.FC = () => {
     return (
       <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <CareersNav />
-        <main className="careers-container" style={{ padding: '100px 24px', flex: 1, textAlign: 'center' }}>
+        <main style={{ padding: '100px 24px', flex: 1, textAlign: 'center' }}>
           <div className="careers-card" style={{ padding: 48, maxWidth: 480, margin: '0 auto' }}>
-            <h2 style={{ color: 'var(--gray-text-muted)', fontSize: 18, marginBottom: 16 }}>Loading opportunity details...</h2>
+            <h2 style={{ color: 'var(--gray-text-muted)', fontSize: 18, marginBottom: 16 }}>Loading job opportunity...</h2>
             <div style={spinnerStyle}></div>
           </div>
         </main>
@@ -199,7 +197,7 @@ export const JobDetailPage: React.FC = () => {
     return (
       <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <CareersNav />
-        <main className="careers-container" style={{ padding: '100px 24px', flex: 1, textAlign: 'center' }}>
+        <main style={{ padding: '100px 24px', flex: 1, textAlign: 'center' }}>
           <div className="careers-card" style={{ padding: 48, maxWidth: 480, margin: '0 auto', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
             <h2 style={{ color: 'var(--error)', fontSize: 20, marginBottom: 12 }}>Position Not Available</h2>
             <p style={{ color: 'var(--gray-text-muted)', margin: '0 0 24px', fontSize: 14 }}>{error || 'The requested job posting could not be found.'}</p>
@@ -213,392 +211,365 @@ export const JobDetailPage: React.FC = () => {
     );
   }
 
-  // Derive salary band estimate
-  const salaryEstimate = `$${(job.minExperience || 0) * 20 + 80}k – $${(job.minExperience || 0) * 20 + 120}k`;
-
   return (
     <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <CareersNav />
 
-      {/* OVERLAPPING HERO SECTION */}
-      <header className="job-detail-hero">
-        <div className="careers-container">
-          <div className="job-detail-hero__topbar">
-            <Link to="/" className="job-detail-hero__backlink">
-              <ArrowLeft size={16} /> Back to Open Roles
-            </Link>
-            <button 
-              type="button" 
-              onClick={() => navigate('/')} 
-              className="job-detail-hero__backlink"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+      {/* ARCHITECTURAL LAYERED COMPOSITION (Hence / Stripe / Vercel layout) */}
+      <main style={{ flex: 1 }}>
+        <div className="job-layered-wrapper">
+
+          {/* LEFT LAYER: HERO & APPLICATION FORM (Deep Indigo Header + Form) */}
+          <aside className="job-layered-left">
+            <div className="job-layered-left__topbar">
+              <Link to="/" className="job-layered-left__backlink">
+                <ArrowLeft size={15} /> Back to Open Roles
+              </Link>
+              <button 
+                type="button" 
+                onClick={() => navigate('/')} 
+                className="job-layered-left__backlink"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                View Other Openings <ArrowUpRight size={15} />
+              </button>
+            </div>
+
+            <h1 className="job-layered-left__title">{job.title}</h1>
+
+            <div className="job-layered-left__location">
+              <MapPin size={16} style={{ color: 'var(--accent)' }} />
+              {job.location || 'Remote'}
+            </div>
+
+            <button
+              type="button"
+              className="btn-primary-lg"
+              style={{ backgroundColor: '#ffffff', color: '#1e1b4b', fontWeight: 700, border: 'none', marginBottom: 28 }}
+              onClick={() => {
+                document.getElementById('application-form-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
-              View Other Openings <ArrowUpRight size={16} />
+              Apply Now <ArrowUpRight size={16} />
             </button>
-          </div>
 
-          <h1 className="job-detail-hero__title">{job.title}</h1>
+            <div className="job-layered-left__divider" />
 
-          <div className="job-detail-hero__meta">
-            <span className="job-detail-hero__chip">
-              <MapPin size={14} /> {job.location || 'Remote'}
-            </span>
-            <span className="job-detail-hero__chip">
-              <Briefcase size={14} /> {job.minExperience === 0 || job.minExperience === undefined ? 'Freshers Eligible' : `${job.minExperience}+ Yrs Experience`}
-            </span>
-            <span className="job-detail-hero__chip">
-              <Clock size={14} /> Full-time Position
-            </span>
-            <span className="job-detail-hero__chip" style={{ background: 'rgba(52, 211, 153, 0.2)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#6ee7b7' }}>
-              <Sparkles size={14} /> Active Role
-            </span>
-          </div>
+            {/* INTEGRATED APPLICATION FORM OR AUTHENTICATION CTA */}
+            <div id="application-form-section">
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: '#ffffff', marginBottom: 8, fontFamily: 'serif' }}>
+                Application Form
+              </h2>
+              <p style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.6)', marginBottom: 28 }}>
+                * Required fields
+              </p>
 
-          <button
-            type="button"
-            className="btn-primary-lg"
-            style={{ backgroundColor: '#ffffff', color: '#1e1b4b', fontWeight: 700, border: 'none' }}
-            onClick={() => {
-              document.getElementById('apply-section')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            Apply Now <ArrowUpRight size={16} />
-          </button>
-        </div>
-      </header>
-
-      {/* OVERLAPPING FLOATING CONTAINER */}
-      <main className="careers-container" style={{ flex: 1 }}>
-        <div className="job-detail-overlap-card">
-          <div className="job-detail-grid">
-
-            {/* LEFT COLUMN: Application Form or Signed-Out Auth State */}
-            <section id="apply-section">
               {success ? (
-                <div style={{ padding: '32px 24px', textAlign: 'center', backgroundColor: 'rgba(16, 185, 129, 0.05)', borderRadius: 16, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                  <CheckCircle2 size={48} style={{ color: 'var(--success)', margin: '0 auto 16px' }} />
-                  <h3 style={{ fontSize: 22, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
-                    Application Submitted!
-                  </h3>
-                  <p style={{ color: 'var(--gray-text-muted)', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
-                    Thank you for applying for <strong>{job.title}</strong>. Your profile and PDF resume have been successfully transmitted to our recruiting pipeline.
+                <div style={{ padding: 24, backgroundColor: 'rgba(52, 211, 153, 0.1)', borderRadius: 16, border: '1px solid rgba(52, 211, 153, 0.3)', color: '#ffffff' }}>
+                  <CheckCircle2 size={40} style={{ color: '#34d399', marginBottom: 12 }} />
+                  <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Application Submitted!</h3>
+                  <p style={{ fontSize: 13, lineHeight: 1.6, color: 'rgba(255, 255, 255, 0.8)', marginBottom: 20 }}>
+                    Your application for <strong>{job.title}</strong> has been received by our recruiting team.
                   </p>
-                  <Link to="/candidate/applications" className="btn-primary-lg" style={{ textDecoration: 'none', display: 'inline-flex', width: '100%', justifyContent: 'center' }}>
-                    View Application Tracker
+                  <Link to="/candidate/applications" className="btn-primary-lg" style={{ background: '#ffffff', color: '#1e1b4b', textDecoration: 'none', display: 'inline-flex', width: '100%', justifyContent: 'center' }}>
+                    View Tracker
                   </Link>
                 </div>
               ) : !user ? (
                 /* SIGNED-OUT VISITOR EXPERIENCE */
-                <div style={{ backgroundColor: 'var(--gray-bg)', padding: 32, borderRadius: 20, border: '1px solid var(--gray-border)' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(79, 70, 229, 0.1)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                    <ShieldCheck size={22} />
+                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: 28, borderRadius: 16, border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(79, 70, 229, 0.3)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                    <ShieldCheck size={20} />
                   </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#ffffff', marginBottom: 8 }}>
                     Sign in to apply for this position
                   </h3>
-                  <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
-                    Create a free candidate profile or log in to submit your resume, specify experience details, and track your application status in real-time.
+                  <p style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.6, marginBottom: 24 }}>
+                    Log in to your candidate account or register to upload your PDF resume, track evaluations, and schedule interviews.
                   </p>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Instant PDF resume evaluation
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Real-time pipeline stage updates
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Direct interview scheduling triggers
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <Link to="/login" className="btn-primary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
-                      <LogIn size={16} /> Sign In
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <Link to="/login" className="btn-primary-lg" style={{ background: '#ffffff', color: '#1e1b4b', padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none', border: 'none' }}>
+                      <LogIn size={16} /> Sign In to Apply
                     </Link>
-                    <Link to="/register" className="btn-secondary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
+                    <Link to="/register" className="btn-secondary-lg" style={{ background: 'transparent', color: '#ffffff', borderColor: 'rgba(255, 255, 255, 0.3)', padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
                       <UserPlus size={16} /> Create Account
                     </Link>
                   </div>
                 </div>
               ) : user.role !== 'candidate' ? (
-                /* RECRUITER / ADMIN USER */
-                <div style={{ backgroundColor: 'var(--gray-bg)', padding: 32, borderRadius: 20, border: '1px solid var(--gray-border)' }}>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
+                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: 24, borderRadius: 16, border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#ffffff', marginBottom: 6 }}>
                     Application Form Locked
                   </h3>
-                  <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.6 }}>
-                    You are currently logged in as a <strong>{user.role}</strong>. Job applications are reserved for candidate accounts.
+                  <p style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Logged in as <strong>{user.role}</strong>. Applications are reserved for candidate accounts.
                   </p>
                 </div>
               ) : (
                 /* AUTHENTICATED CANDIDATE APPLICATION FORM */
-                <div>
-                  <h3 style={{ fontSize: 22, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
-                    Apply for Position
-                  </h3>
-                  <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 24 }}>
-                    Complete your profile information and upload your PDF resume.
-                  </p>
-
+                <form onSubmit={handleApplySubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   {submitError && (
-                    <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', color: 'var(--error)', padding: '12px 16px', borderRadius: 12, fontSize: 13, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5', padding: '12px 16px', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <AlertCircle size={16} /> {submitError}
                     </div>
                   )}
 
                   {experienceError && (
-                    <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#b45309', padding: '12px 16px', borderRadius: 12, fontSize: 13, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.2)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d', padding: '12px 16px', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <AlertCircle size={16} /> {experienceError}
                     </div>
                   )}
 
-                  <form onSubmit={handleApplySubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                      <div>
-                        <label style={labelStyle}>Full Name</label>
-                        <input type="text" value={user.name} disabled style={disabledInputStyle} />
-                      </div>
-                      <div>
-                        <label style={labelStyle}>Email Address</label>
-                        <input type="email" value={user.email} disabled style={disabledInputStyle} />
-                      </div>
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>Full Name *</label>
+                    <input type="text" value={user.name} disabled className="job-layered-input-disabled" />
+                  </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                      <div>
-                        <label style={labelStyle}>Phone Number *</label>
-                        <input 
-                          type="tel" 
-                          value={phone} 
-                          onChange={(e) => setPhone(e.target.value)} 
-                          placeholder="e.g. 9876543210"
-                          style={inputStyle}
-                          required 
-                        />
-                      </div>
-                      <div>
-                        <label style={labelStyle}>Years of Experience *</label>
-                        <input 
-                          type="number" 
-                          min="0"
-                          value={experience} 
-                          onChange={(e) => setExperience(e.target.value === '' ? '' : Number(e.target.value))} 
-                          placeholder="0 for Freshers"
-                          style={inputStyle}
-                          required 
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>Email Address *</label>
+                    <input type="email" value={user.email} disabled className="job-layered-input-disabled" />
+                  </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                      <div>
-                        <label style={labelStyle}>Country *</label>
-                        <input 
-                          type="text" 
-                          value={country} 
-                          onChange={(e) => setCountry(e.target.value)} 
-                          placeholder="e.g. India"
-                          style={inputStyle}
-                          required 
-                        />
-                      </div>
-                      <div>
-                        <label style={labelStyle}>LinkedIn Profile URL *</label>
-                        <input 
-                          type="url" 
-                          value={linkedinUrl} 
-                          onChange={(e) => setLinkedinUrl(e.target.value)} 
-                          placeholder="https://linkedin.com/in/..."
-                          style={inputStyle}
-                          required 
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>Contact Number *</label>
+                    <input 
+                      type="tel" 
+                      value={phone} 
+                      onChange={(e) => setPhone(e.target.value)} 
+                      placeholder="e.g. +1 555-0198"
+                      className="job-layered-input"
+                      required 
+                    />
+                  </div>
 
-                    <div>
-                      <label style={labelStyle}>Residential Address *</label>
-                      <textarea 
-                        value={address} 
-                        onChange={(e) => setAddress(e.target.value)} 
-                        placeholder="Street, City, State, ZIP"
-                        style={{ ...inputStyle, height: 70, resize: 'vertical' }}
-                        required 
-                      />
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>Total Full Time Experience (Years) *</label>
+                    <input 
+                      type="number" 
+                      min="0"
+                      value={experience} 
+                      onChange={(e) => setExperience(e.target.value === '' ? '' : Number(e.target.value))} 
+                      placeholder="0 for Freshers"
+                      className="job-layered-input"
+                      required 
+                    />
+                  </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                      <div>
-                        <label style={labelStyle}>GitHub Profile (Optional)</label>
-                        <input 
-                          type="url" 
-                          value={githubUrl} 
-                          onChange={(e) => setGithubUrl(e.target.value)} 
-                          placeholder="https://github.com/..."
-                          style={inputStyle}
-                        />
-                      </div>
-                      <div>
-                        <label style={labelStyle}>Portfolio Website</label>
-                        <input 
-                          type="url" 
-                          value={portfolioUrl} 
-                          onChange={(e) => setPortfolioUrl(e.target.value)} 
-                          placeholder="https://mywebsite.com"
-                          style={inputStyle}
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>Country *</label>
+                    <input 
+                      type="text" 
+                      value={country} 
+                      onChange={(e) => setCountry(e.target.value)} 
+                      placeholder="e.g. India / USA"
+                      className="job-layered-input"
+                      required 
+                    />
+                  </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                      <div>
-                        <label style={labelStyle}>Current Employer</label>
-                        <input 
-                          type="text" 
-                          value={currentCompany} 
-                          onChange={(e) => setCurrentCompany(e.target.value)} 
-                          placeholder="e.g. Acme Corp"
-                          style={inputStyle}
-                        />
-                      </div>
-                      <div>
-                        <label style={labelStyle}>Current Job Title</label>
-                        <input 
-                          type="text" 
-                          value={currentTitle} 
-                          onChange={(e) => setCurrentTitle(e.target.value)} 
-                          placeholder="e.g. Software Engineer"
-                          style={inputStyle}
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>LinkedIn Profile URL *</label>
+                    <input 
+                      type="url" 
+                      value={linkedinUrl} 
+                      onChange={(e) => setLinkedinUrl(e.target.value)} 
+                      placeholder="https://linkedin.com/in/..."
+                      className="job-layered-input"
+                      required 
+                    />
+                  </div>
 
-                    <div>
-                      <label style={labelStyle}>Sourcing Channel</label>
-                      <select 
-                        value={source} 
-                        onChange={(e) => setSource(e.target.value)}
-                        style={inputStyle}
-                      >
-                        <option value="careers_page">Company Careers Page</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="indeed">Indeed</option>
-                        <option value="referral">Referral</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>Residential Address *</label>
+                    <textarea 
+                      value={address} 
+                      onChange={(e) => setAddress(e.target.value)} 
+                      placeholder="Street, City, State, ZIP"
+                      className="job-layered-input"
+                      style={{ height: 70, resize: 'vertical' }}
+                      required 
+                    />
+                  </div>
 
-                    <div>
-                      <label style={labelStyle}>Cover Letter / Additional Notes</label>
-                      <textarea 
-                        value={coverLetter} 
-                        onChange={(e) => setCoverLetter(e.target.value)} 
-                        placeholder="Introduce yourself to the hiring team..."
-                        style={{ ...inputStyle, height: 90, resize: 'vertical' }}
-                      />
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>GitHub Profile (Optional)</label>
+                    <input 
+                      type="url" 
+                      value={githubUrl} 
+                      onChange={(e) => setGithubUrl(e.target.value)} 
+                      placeholder="https://github.com/..."
+                      className="job-layered-input"
+                    />
+                  </div>
 
-                    <div>
-                      <label style={labelStyle}>Upload Resume PDF *</label>
-                      <input 
-                        type="file" 
-                        accept="application/pdf" 
-                        onChange={handleFileChange}
-                        required
-                        style={{ ...inputStyle, paddingTop: 8 }}
-                      />
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>Portfolio Website (Optional)</label>
+                    <input 
+                      type="url" 
+                      value={portfolioUrl} 
+                      onChange={(e) => setPortfolioUrl(e.target.value)} 
+                      placeholder="https://mywebsite.com"
+                      className="job-layered-input"
+                    />
+                  </div>
 
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 8 }}>
-                      <input 
-                        type="checkbox" 
-                        id="terms"
-                        checked={termsAccepted} 
-                        onChange={(e) => setTermsAccepted(e.target.checked)}
-                        required
-                        style={{ width: 18, height: 18, marginTop: 2, cursor: 'pointer' }}
-                      />
-                      <label htmlFor="terms" style={{ fontSize: 13, color: 'var(--gray-text-muted)', lineHeight: 1.5, cursor: 'pointer' }}>
-                        I confirm that the details provided are accurate. I accept the Terms of Service and Consent to share my profile details for evaluation.
-                      </label>
-                    </div>
+                  <div>
+                    <label style={darkLabelStyle}>Current Employer (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={currentCompany} 
+                      onChange={(e) => setCurrentCompany(e.target.value)} 
+                      placeholder="e.g. Acme Corp"
+                      className="job-layered-input"
+                    />
+                  </div>
 
-                    <button 
-                      type="submit" 
-                      className="btn-primary-lg" 
-                      style={{ width: '100%', marginTop: 12, justifyContent: 'center' }}
-                      disabled={submitting || !isEligible}
+                  <div>
+                    <label style={darkLabelStyle}>Current Job Title (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={currentTitle} 
+                      onChange={(e) => setCurrentTitle(e.target.value)} 
+                      placeholder="e.g. Software Engineer"
+                      className="job-layered-input"
+                    />
+                  </div>
+
+                  <div>
+                    <label style={darkLabelStyle}>Sourcing Channel</label>
+                    <select 
+                      value={source} 
+                      onChange={(e) => setSource(e.target.value)}
+                      className="job-layered-input"
+                      style={{ color: '#ffffff', backgroundColor: '#1e293b' }}
                     >
-                      {submitting ? 'Submitting Application...' : 'Submit Application'}
-                    </button>
-                  </form>
-                </div>
+                      <option value="careers_page">Company Careers Page</option>
+                      <option value="linkedin">LinkedIn</option>
+                      <option value="indeed">Indeed</option>
+                      <option value="referral">Referral</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={darkLabelStyle}>Cover Letter / Additional Notes (Optional)</label>
+                    <textarea 
+                      value={coverLetter} 
+                      onChange={(e) => setCoverLetter(e.target.value)} 
+                      placeholder="Introduce yourself to the hiring team..."
+                      className="job-layered-input"
+                      style={{ height: 80, resize: 'vertical' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={darkLabelStyle}>Upload Resume PDF *</label>
+                    <input 
+                      type="file" 
+                      accept="application/pdf" 
+                      onChange={handleFileChange}
+                      required
+                      style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: 13, paddingTop: 6 }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 4 }}>
+                    <input 
+                      type="checkbox" 
+                      id="terms"
+                      checked={termsAccepted} 
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      required
+                      style={{ width: 16, height: 16, marginTop: 3, cursor: 'pointer' }}
+                    />
+                    <label htmlFor="terms" style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.5, cursor: 'pointer' }}>
+                      I confirm details are accurate. I accept Terms of Service & Consent to share profile.
+                    </label>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="btn-primary-lg" 
+                    style={{ width: '100%', marginTop: 8, justifyContent: 'center', backgroundColor: 'var(--accent)', color: '#ffffff', border: 'none' }}
+                    disabled={submitting || !isEligible}
+                  >
+                    {submitting ? 'Submitting Application...' : 'Submit Application'}
+                  </button>
+                </form>
               )}
-            </section>
+            </div>
+          </aside>
 
-            {/* RIGHT COLUMN: Role Overview, Requirements & Company Info */}
-            <section>
-              {/* Overview Summary Pills */}
-              <div className="job-detail-overview-pill">
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--gray-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Experience</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--gray-text-primary)' }}>
-                    {job.minExperience === 0 || job.minExperience === undefined ? 'Freshers Eligible' : `${job.minExperience}–${job.maxExperience || '5+'} Years`}
-                  </div>
-                </div>
+          {/* RIGHT LAYER: ELEVATED WHITE EDITORIAL CONTENT SECTION */}
+          <section className="job-layered-right">
 
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--gray-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Seniority Level</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--gray-text-primary)' }}>
-                    {job.minExperience === 0 ? 'Entry Level' : job.minExperience >= 5 ? 'Senior / Lead' : 'Mid Level'}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--gray-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Est. Band</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--gray-text-primary)' }}>
-                    {salaryEstimate}
-                  </div>
-                </div>
+            {/* Top Metadata Grid */}
+            <div className="job-layered-metadata-grid">
+              <div className="job-layered-metadata-item">
+                <span className="job-layered-metadata-label">Experience</span>
+                <span className="job-layered-metadata-val">
+                  {job.minExperience === 0 || job.minExperience === undefined ? 'Freshers Eligible' : `${job.minExperience}–${job.maxExperience || '5+'} Years`}
+                </span>
               </div>
 
-              {/* Role Overview */}
-              <div style={{ marginBottom: 36 }}>
-                <h3 style={{ fontSize: 22, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 14 }}>
-                  Role Overview
-                </h3>
-                <p style={{ fontSize: 16, lineHeight: 1.7, color: 'var(--gray-text-muted)', whiteSpace: 'pre-line' }}>
-                  {job.description}
+              <div className="job-layered-metadata-item">
+                <span className="job-layered-metadata-label">Seniority Level</span>
+                <span className="job-layered-metadata-val">
+                  {job.minExperience === 0 ? 'Entry Level' : job.minExperience >= 5 ? 'Senior / Lead' : 'Mid Level'}
+                </span>
+              </div>
+
+              <div className="job-layered-metadata-item">
+                <span className="job-layered-metadata-label">Employment Type</span>
+                <span className="job-layered-metadata-val">Full-time</span>
+              </div>
+
+              <div className="job-layered-metadata-item">
+                <span className="job-layered-metadata-label">Compensation</span>
+                <span className="job-layered-metadata-val">
+                  ${(job.minExperience || 0) * 20 + 80}k – ${(job.minExperience || 0) * 20 + 120}k
+                </span>
+              </div>
+            </div>
+
+            {/* Role Overview */}
+            <div style={{ marginBottom: 48 }}>
+              <h2 style={{ fontSize: 28, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 18, fontFamily: 'serif' }}>
+                Role Overview
+              </h2>
+              <p style={{ fontSize: 16, lineHeight: 1.8, color: 'var(--gray-text-muted)', whiteSpace: 'pre-line' }}>
+                {job.description}
+              </p>
+            </div>
+
+            {/* Duties and Responsibilities / Requirements */}
+            {job.requirements && (
+              <div style={{ marginBottom: 48 }}>
+                <h2 style={{ fontSize: 28, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 18, fontFamily: 'serif' }}>
+                  Duties and Responsibilities
+                </h2>
+                <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--gray-text-muted)', whiteSpace: 'pre-line' }}>
+                  {job.requirements}
                 </p>
               </div>
+            )}
 
-              {/* Duties & Requirements */}
-              {job.requirements && (
-                <div style={{ marginBottom: 36 }}>
-                  <h3 style={{ fontSize: 22, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 14 }}>
-                    Duties & Requirements
-                  </h3>
-                  <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--gray-text-muted)', whiteSpace: 'pre-line' }}>
-                    {job.requirements}
-                  </p>
-                </div>
-              )}
+            {/* What We Offer & Culture */}
+            <div className="careers-card" style={{ padding: 32, backgroundColor: 'rgba(79, 70, 229, 0.03)', border: '1px solid rgba(79, 70, 229, 0.12)', borderRadius: 20 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Sparkles size={20} style={{ color: 'var(--accent)' }} /> What We Offer
+              </h3>
+              <ul style={{ paddingLeft: 20, margin: 0, fontSize: 15, color: 'var(--gray-text-muted)', lineHeight: 1.8 }}>
+                <li>Remote-first global freedom with async collaboration hours</li>
+                <li>$2,500 annual budget for conferences, courses, and certifications</li>
+                <li>Choice of MacBook Pro or Linux workstation + 4K monitor</li>
+                <li>Comprehensive family medical, dental, and health coverage</li>
+              </ul>
+            </div>
 
-              {/* What We Offer */}
-              <div className="careers-card" style={{ padding: 28, backgroundColor: 'rgba(79, 70, 229, 0.03)', border: '1px solid rgba(79, 70, 229, 0.12)' }}>
-                <h4 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Sparkles size={18} style={{ color: 'var(--accent)' }} /> What We Offer
-                </h4>
-                <ul style={{ paddingLeft: 20, margin: 0, fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.8 }}>
-                  <li>Remote-first flexibility with global async collaboration</li>
-                  <li>$2,500 annual personal learning and conference budget</li>
-                  <li>Latest hardware setup (MacBook Pro / Linux workstation)</li>
-                  <li>Comprehensive medical, dental, and health coverage</li>
-                </ul>
-              </div>
-            </section>
+          </section>
 
-          </div>
         </div>
       </main>
 
@@ -607,32 +578,13 @@ export const JobDetailPage: React.FC = () => {
   );
 };
 
-// Form Input Styles
-const labelStyle: React.CSSProperties = {
+const darkLabelStyle: React.CSSProperties = {
   display: 'block',
-  fontSize: 13,
+  fontSize: 12,
   fontWeight: 600,
-  color: 'var(--gray-text-primary)',
-  marginBottom: 6
-};
-
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '10px 14px',
-  borderRadius: 'var(--radius-default)',
-  border: '1px solid var(--gray-border)',
-  backgroundColor: 'var(--gray-bg)',
-  fontSize: 14,
-  color: 'var(--gray-text-primary)',
-  fontFamily: 'var(--font-sans)',
-  boxSizing: 'border-box'
-};
-
-const disabledInputStyle: React.CSSProperties = {
-  ...inputStyle,
-  backgroundColor: 'rgba(226, 232, 240, 0.5)',
-  color: 'var(--gray-text-muted)',
-  cursor: 'not-allowed'
+  color: 'rgba(255, 255, 255, 0.85)',
+  marginBottom: 6,
+  letterSpacing: '0.02em'
 };
 
 const spinnerStyle: React.CSSProperties = {
