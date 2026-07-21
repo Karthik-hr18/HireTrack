@@ -237,6 +237,78 @@ export const getApplicationById = async (req: Request, res: Response, next: Next
   }
 };
 
+/**
+ * Streams raw candidate resume PDF bytes directly with explicit application/pdf headers.
+ * Preserves accurate HTTP status codes (200, 404, 401, 502) and diagnostic server logging.
+ */
+export const streamApplicationResume = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    let resumeUrl = '';
+
+    if (id && mongoose.Types.ObjectId.isValid(id)) {
+      const application = await Application.findById(id).select('resumeUrl');
+      if (application && application.resumeUrl) {
+        resumeUrl = application.resumeUrl;
+      }
+    }
+
+    if (!resumeUrl && req.query.url) {
+      resumeUrl = req.query.url as string;
+    }
+
+    if (!resumeUrl) {
+      console.error('[Resume Stream Failed] Missing resume URL in database', { id });
+      return res.status(404).json({
+        message: 'No resume PDF file associated with this candidate profile',
+        code: 'RESUME_NOT_FOUND'
+      });
+    }
+
+    // Convert legacy /image/upload/ to /raw/upload/ if Cloudinary URL
+    const targetUrl = resumeUrl.includes('res.cloudinary.com') && resumeUrl.includes('/image/upload/')
+      ? resumeUrl.replace('/image/upload/', '/raw/upload/')
+      : resumeUrl;
+
+    const storageResponse = await fetch(targetUrl);
+
+    if (!storageResponse.ok) {
+      // Retry with original URL if targetUrl failed
+      const origResponse = await fetch(resumeUrl);
+      if (!origResponse.ok) {
+        console.error('[Resume Stream Failed] Storage provider error', {
+          id,
+          targetUrl,
+          status: origResponse.status
+        });
+        const errCode = origResponse.status === 404 ? 'RESUME_NOT_FOUND' : 'RESUME_UNAUTHORIZED';
+        return res.status(origResponse.status).json({
+          message: `Storage provider returned status ${origResponse.status}`,
+          code: errCode
+        });
+      }
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename="candidate-resume.pdf"');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      const origBuffer = await origResponse.arrayBuffer();
+      return res.send(Buffer.from(origBuffer));
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="candidate-resume.pdf"');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+
+    const pdfBuffer = await storageResponse.arrayBuffer();
+    return res.send(Buffer.from(pdfBuffer));
+  } catch (error) {
+    console.error('[Resume Stream Exception]', error);
+    return next(error);
+  }
+};
+
 export const advanceApplication = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {

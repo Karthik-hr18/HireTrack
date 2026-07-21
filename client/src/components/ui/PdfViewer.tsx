@@ -1,39 +1,205 @@
-import React from 'react';
-import { FileText, ExternalLink } from 'lucide-react';
-import { getNormalizedPdfUrl } from '../../utils/pdfUtils';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FileText, ExternalLink, RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
+import { getBackendResumeStreamUrl, getNormalizedPdfUrl } from '../../utils/pdfUtils';
 
 interface PdfViewerProps {
-  pdfUrl: string;
+  applicationId?: string;
+  pdfUrl?: string;
   title?: string;
   height?: string | number;
   className?: string;
 }
 
 export const PdfViewer: React.FC<PdfViewerProps> = ({
-  pdfUrl,
+  applicationId,
+  pdfUrl = '',
   title = 'Candidate Resume PDF',
   height = '100%',
   className = ''
 }) => {
-  if (!pdfUrl) {
+  const [loading, setLoading] = useState(true);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const streamUrl = getBackendResumeStreamUrl(applicationId, pdfUrl);
+  const rawUrl = getNormalizedPdfUrl(pdfUrl);
+
+  const verifyStreamAccess = useCallback(async () => {
+    if (!streamUrl && !rawUrl) {
+      setLoading(false);
+      setErrorStatus(404);
+      setErrorMessage('No resume file URL provided for this candidate.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setErrorStatus(null);
+      setErrorMessage(null);
+
+      // Perform HEAD check to verify PDF stream availability and content type
+      const targetCheckUrl = streamUrl || rawUrl;
+      const res = await fetch(targetCheckUrl, { method: 'HEAD' });
+
+      if (!res.ok) {
+        setErrorStatus(res.status);
+        if (res.status === 404) {
+          setErrorMessage('Resume PDF file not found in storage repository.');
+        } else if (res.status === 401 || res.status === 403) {
+          setErrorMessage('Access restricted: Invalid credentials or expired Cloudinary token.');
+        } else {
+          setErrorMessage(`Storage server returned error status ${res.status}.`);
+        }
+      }
+    } catch (err) {
+      // Direct stream test
+      console.warn('[PdfViewer Stream Warning] HEAD request check failed, defaulting to inline embed');
+    } finally {
+      setLoading(false);
+    }
+  }, [streamUrl, rawUrl]);
+
+  useEffect(() => {
+    verifyStreamAccess();
+  }, [verifyStreamAccess, reloadKey]);
+
+  const handleRetry = () => {
+    setReloadKey((prev) => prev + 1);
+  };
+
+  if (!pdfUrl && !applicationId) {
     return (
       <div
         style={{
           padding: 40,
           textAlign: 'center',
-          backgroundColor: 'var(--gray-bg, #f8fafc)',
+          backgroundColor: '#f8fafc',
           borderRadius: 12,
-          border: '1px solid var(--gray-border, #e2e8f0)',
-          color: 'var(--gray-text-muted, #64748b)'
+          border: '1px solid #e2e8f0',
+          color: '#64748b'
         }}
       >
         <FileText size={36} style={{ marginBottom: 8, opacity: 0.5 }} />
-        <p style={{ margin: 0, fontWeight: 600 }}>No PDF resume file provided.</p>
+        <p style={{ margin: 0, fontWeight: 600 }}>No PDF resume file associated with this record.</p>
       </div>
     );
   }
 
-  const normalizedUrl = getNormalizedPdfUrl(pdfUrl);
+  // ── Error State Card (No fake PDF fallbacks) ─────────────────────────────
+  if (errorStatus && errorStatus !== 200) {
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: height,
+          minHeight: typeof height === 'number' ? height : 500,
+          backgroundColor: '#1e293b',
+          borderRadius: 12,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 32,
+          color: '#ffffff',
+          textAlign: 'center'
+        }}
+      >
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 16,
+            backgroundColor: 'rgba(239, 68, 68, 0.15)',
+            color: '#ef4444',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16
+          }}
+        >
+          <AlertCircle size={28} />
+        </div>
+        <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 8px 0', color: '#f8fafc' }}>
+          Resume PDF Unavailable
+        </h3>
+        <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 24px 0', maxWidth: 420, lineHeight: 1.5 }}>
+          {errorMessage || `Unable to load PDF document (HTTP Status ${errorStatus}).`}
+        </p>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <button
+            type="button"
+            onClick={handleRetry}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 18px',
+              borderRadius: 10,
+              backgroundColor: 'var(--accent, #4f46e5)',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: 13,
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <RefreshCw size={14} /> Retry Loading
+          </button>
+
+          {rawUrl && (
+            <a
+              href={rawUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 18px',
+                borderRadius: 10,
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: '#f8fafc',
+                fontWeight: 700,
+                fontSize: 13,
+                textDecoration: 'none'
+              }}
+            >
+              Open Direct Storage Link <ExternalLink size={14} />
+            </a>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Loading Spinner State ────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: height,
+          minHeight: typeof height === 'number' ? height : 500,
+          backgroundColor: '#525659',
+          borderRadius: 12,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#ffffff'
+        }}
+      >
+        <Loader2 size={36} className="spin-animation" style={{ marginBottom: 12, color: '#ffffff' }} />
+        <p style={{ fontSize: 14, fontWeight: 600, color: '#e2e8f0', margin: 0 }}>
+          Streaming Authenticated PDF Resume...
+        </p>
+      </div>
+    );
+  }
+
+  const activeViewerUrl = streamUrl || rawUrl;
 
   return (
     <div
@@ -49,7 +215,8 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
       }}
     >
       <object
-        data={normalizedUrl}
+        key={reloadKey}
+        data={activeViewerUrl}
         type="application/pdf"
         width="100%"
         height="100%"
@@ -57,13 +224,13 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
         style={{ border: 'none', width: '100%', height: '100%', display: 'block' }}
       >
         <embed
-          src={normalizedUrl}
+          src={activeViewerUrl}
           type="application/pdf"
           width="100%"
           height="100%"
           style={{ border: 'none', width: '100%', height: '100%' }}
         />
-        {/* Fallback card if browser native PDF plugin fails to render inline */}
+        {/* Native Fallback container */}
         <div
           style={{
             padding: 40,
@@ -80,10 +247,10 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
           <FileText size={48} style={{ color: 'var(--accent, #4f46e5)', marginBottom: 12 }} />
           <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 8px 0' }}>{title}</h3>
           <p style={{ fontSize: 14, color: '#64748b', margin: '0 0 20px 0', maxWidth: 360 }}>
-            Inline PDF preview is restricted by your device browser. Click below to view the PDF directly.
+            Click below to open the PDF directly in a new browser window.
           </p>
           <a
-            href={normalizedUrl}
+            href={activeViewerUrl}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -99,7 +266,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
               textDecoration: 'none'
             }}
           >
-            Open Resume PDF Portfolio <ExternalLink size={14} />
+            Open Resume PDF <ExternalLink size={14} />
           </a>
         </div>
       </object>

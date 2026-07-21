@@ -4,6 +4,7 @@ import {
   getCandidateApplications,
   getManageApplications,
   getApplicationById,
+  streamApplicationResume,
   advanceApplication,
   rejectApplication,
   addApplicationNote
@@ -13,12 +14,16 @@ import { uploadResume } from '../middleware/upload';
 
 const router = Router();
 
+// Public / Token stream endpoint
+router.get('/resume-stream', streamApplicationResume);
+
 // 1. Candidate specific routes
 router.post('/', authenticate, authorize('candidate'), uploadResume, applyToJob);
 router.get('/me', authenticate, authorize('candidate'), getCandidateApplications);
 
 // 2. Recruiter & Admin management routes
 router.get('/', authenticate, authorize('recruiter', 'admin'), getManageApplications);
+router.get('/:id/resume', streamApplicationResume);
 router.get('/:id', authenticate, authorize('recruiter', 'admin'), getApplicationById);
 router.post('/:id/advance', authenticate, authorize('recruiter', 'admin'), advanceApplication);
 router.post('/:id/reject', authenticate, authorize('recruiter', 'admin'), rejectApplication);

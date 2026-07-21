@@ -1,28 +1,31 @@
 /**
-  * PDF Helper Utilities for HireTrack
-  * Handles URL normalization for Cloudinary PDFs and Google Docs Viewer embedding.
-  */
+ * PDF Helper Utilities for HireTrack
+ * Handles URL normalization and backend-authenticated PDF stream URLs.
+ */
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 /**
- * Normalizes Cloudinary PDF URLs:
- * Converts legacy `/image/upload/` paths to `/raw/upload/` so Cloudinary streams the raw PDF binary.
+ * Generates an authenticated backend PDF stream URL.
+ * Bypasses 3rd-party CDN 401 delivery restrictions by streaming through our backend server.
  */
-export const getNormalizedPdfUrl = (url: string): string => {
-  if (!url) return '';
-  
-  // Transform Cloudinary image upload URLs to raw upload URLs for PDFs
-  if (url.includes('res.cloudinary.com') && url.includes('/image/upload/')) {
-    return url.replace('/image/upload/', '/raw/upload/');
+export const getBackendResumeStreamUrl = (applicationId?: string, rawUrl?: string): string => {
+  if (applicationId) {
+    return `${API_URL}/api/applications/${applicationId}/resume`;
   }
-  
-  return url;
+  if (rawUrl) {
+    return `${API_URL}/api/applications/resume-stream?url=${encodeURIComponent(rawUrl)}`;
+  }
+  return '';
 };
 
 /**
- * Generates an embedded Google Docs PDF Viewer URL.
- * Works 100% reliably in an iframe across Chrome, Safari, Firefox, Edge, and mobile browsers.
+ * Normalizes Cloudinary PDF URLs for direct external links.
  */
-export const getGoogleDocsPdfUrl = (url: string): string => {
-  const normalized = getNormalizedPdfUrl(url);
-  return `https://docs.google.com/viewer?url=${encodeURIComponent(normalized)}&embedded=true`;
+export const getNormalizedPdfUrl = (url: string): string => {
+  if (!url) return '';
+  if (url.includes('res.cloudinary.com') && url.includes('/image/upload/')) {
+    return url.replace('/image/upload/', '/raw/upload/');
+  }
+  return url;
 };

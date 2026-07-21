@@ -211,7 +211,7 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
   }
 
   // ── Render: Error ────────────────────────────────────────────────────────
-  if (error || !detail) {
+  if (error || !detail || !detail.application) {
     return (
       <div className="detail-panel">
         <div className="detail-panel__header detail-panel__header--error">
@@ -485,6 +485,7 @@ const TabContent: React.FC<TabContentProps> = ({
               </div>
               <div className="resume-tab__viewer" style={{ minHeight: 620 }}>
                 <PdfViewer
+                  applicationId={app._id}
                   pdfUrl={app.resumeUrl}
                   title={`${app.candidate?.name || 'Candidate'} Resume Portfolio`}
                   height={620}

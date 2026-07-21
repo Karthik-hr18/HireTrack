@@ -1,11 +1,75 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Menu, X, Home, Users, Briefcase, Calendar, Settings, LogOut, Sparkles, BarChart2 } from 'lucide-react';
+import { Menu, X, Home, Users, Briefcase, Calendar, LogOut, BarChart2 } from 'lucide-react';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
 import { CandidateDetailPanel } from './CandidateDetailPanel';
 import { KanbanBoard } from './KanbanBoard';
 import { EmptyState } from '../../../components/ui/EmptyState';
+
+const STALE_THRESHOLD_DAYS = 7;
+const STALE_STAGES = ['resume_screening'];
+
+function isStaleApplication(app: any): boolean {
+  if (!app || !app.stage || !STALE_STAGES.includes(app.stage)) return false;
+  const daysSinceUpdate =
+    (Date.now() - new Date(app.updatedAt || app.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+  return daysSinceUpdate > STALE_THRESHOLD_DAYS;
+}
+
+// ── Localized Workspace Section Error Boundary ────────────────────────────────
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallbackTitle?: string;
+  onReset?: () => void;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class WorkspaceSectionErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('[Workspace Section Error Captured]', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 32, textAlign: 'center', backgroundColor: '#ffffff', borderRadius: 16, border: '1px solid var(--gray-border, #e2e8f0)', margin: 16 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--error, #ef4444)', marginBottom: 8 }}>
+            {this.props.fallbackTitle || 'Section Display Error'}
+          </h3>
+          <p style={{ fontSize: 13, color: 'var(--gray-text-muted, #64748b)', marginBottom: 16 }}>
+            {this.state.error?.message || 'An unexpected rendering error occurred in this workspace section.'}
+          </p>
+          <button
+            type="button"
+            className="btn-primary-sm"
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              this.props.onReset?.();
+            }}
+          >
+            Reload Section
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 export const CandidateWorkspacePage: React.FC = () => {
   const navigate = useNavigate();
@@ -20,21 +84,14 @@ export const CandidateWorkspacePage: React.FC = () => {
   }
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // ── Workspace state ───────────────────────────────────────────
-  const [activeStage, setActiveStage]   = useState(searchParams.get('stage') || '');
-  const [selectedId,  setSelectedId]    = useState<string | null>(searchParams.get('candidate'));
-  const [stageCounts, setStageCounts]   = useState<Record<string, number>>({});
-  const [panelOpen,   setPanelOpen]     = useState(!!searchParams.get('candidate'));
-  
-  // view mode: 'list' (default) or 'kanban'
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>(
-    (searchParams.get('view') as 'list' | 'kanban') || 'list'
-  );
-  
-  // Stores raw loaded applications from list component (for kanban rendering)
-  const [allApplications, setAllApplications] = useState<any[]>([]);
+  // Derive parameters directly from searchParams (clean SPA sync)
+  const activeStage = searchParams.get('stage') || '';
+  const selectedId = searchParams.get('candidate');
+  const viewMode = (searchParams.get('view') as 'list' | 'kanban') || 'list';
+  const panelOpen = !!selectedId;
 
-  // Ref to trigger list refresh from inside the detail panel
+  const [stageCounts, setStageCounts] = useState<Record<string, number>>({});
+  const [allApplications, setAllApplications] = useState<any[]>([]);
   const listRefreshRef = useRef<(() => void) | null>(null);
 
   // Redirect unauthenticated users
@@ -46,61 +103,45 @@ export const CandidateWorkspacePage: React.FC = () => {
 
   // Sync state changes with URL Search Params
   const handleSelect = (id: string) => {
-    setSelectedId(id);
-    setPanelOpen(true);
     setSearchParams((prev) => {
-      prev.set('candidate', id);
-      return prev;
-    });
+      const next = new URLSearchParams(prev);
+      next.set('candidate', id);
+      return next;
+    }, { replace: false });
   };
 
   const handleDeselect = () => {
-    setSelectedId(null);
-    setPanelOpen(false);
     setSearchParams((prev) => {
-      prev.delete('candidate');
-      return prev;
-    });
+      const next = new URLSearchParams(prev);
+      next.delete('candidate');
+      return next;
+    }, { replace: false });
   };
 
   const handleStageChange = (s: string) => {
-    setActiveStage(s);
-    setSelectedId(null);
-    setPanelOpen(false);
     setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
       if (s) {
-        prev.set('stage', s);
+        next.set('stage', s);
       } else {
-        prev.delete('stage');
+        next.delete('stage');
       }
-      prev.delete('candidate');
-      return prev;
-    });
+      next.delete('candidate');
+      return next;
+    }, { replace: false });
   };
 
   const handleViewModeChange = (mode: 'list' | 'kanban') => {
-    setViewMode(mode);
     setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
       if (mode === 'kanban') {
-        prev.set('view', 'kanban');
+        next.set('view', 'kanban');
       } else {
-        prev.delete('view');
+        next.delete('view');
       }
-      return prev;
-    });
+      return next;
+    }, { replace: false });
   };
-
-  // Listen for external URL changes (back/forward navigation)
-  useEffect(() => {
-    const stageParam = searchParams.get('stage') || '';
-    const candParam = searchParams.get('candidate');
-    const viewParam = searchParams.get('view') || 'list';
-    
-    setActiveStage(stageParam);
-    setSelectedId(candParam);
-    setPanelOpen(!!candParam);
-    setViewMode(viewParam as 'list' | 'kanban');
-  }, [searchParams]);
 
   const handleCountsChange = useCallback((counts: Record<string, number>) => {
     setStageCounts(counts);
@@ -125,137 +166,66 @@ export const CandidateWorkspacePage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setMenuOpen(false);
-    navigate('/');
-  };
-
-  const isStaleApplication = (app: any): boolean => {
-    if (app.stage !== 'resume_screening') return false;
-    const daysSinceUpdate = (Date.now() - new Date(app.updatedAt).getTime()) / (1000 * 60 * 60 * 24);
-    return daysSinceUpdate > 7;
-  };
-
   return (
-    <div className="workspace-root">
-      {/* ── CONTEXT BAR (stage tabs, view toggle, and 3-bar Hamburger Menu) ──────────────── */}
-      <div className="workspace-contextbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-        <StageTabBar
-          activeStage={activeStage}
-          counts={stageCounts}
-          onStageChange={handleStageChange}
-        />
-        
-        {/* Controls: View Mode Toggle + 3-BAR HAMBURGER MENU BUTTON */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div className="view-mode-toggle" role="group" aria-label="View mode selector">
-            <button 
+    <div className="workspace-container">
+      {/* HEADER NAVBAR */}
+      <header className="workspace-header">
+        <div className="workspace-header__left">
+          <button 
+            className="hamburger-btn"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle Navigation Menu"
+            type="button"
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+          
+          <Link to="/" className="workspace-logo-link">
+            <h1 className="workspace-title">Candidate Pipeline</h1>
+          </Link>
+          <span className="workspace-badge">Recruiter Workspace</span>
+        </div>
+
+        <div className="workspace-header__right">
+          {/* View Switcher: List vs Kanban */}
+          <div className="view-switcher" role="group" aria-label="Pipeline View Mode">
+            <button
               type="button"
-              className={`view-mode-toggle__btn ${viewMode === 'list' ? 'view-mode-toggle__btn--active' : ''}`}
+              className={`view-switcher__btn ${viewMode === 'list' ? 'is-active' : ''}`}
               onClick={() => handleViewModeChange('list')}
-              title="List View"
+              aria-pressed={viewMode === 'list'}
             >
               List
             </button>
-            <button 
+            <button
               type="button"
-              className={`view-mode-toggle__btn ${viewMode === 'kanban' ? 'view-mode-toggle__btn--active' : ''}`}
+              className={`view-switcher__btn ${viewMode === 'kanban' ? 'is-active' : ''}`}
               onClick={() => handleViewModeChange('kanban')}
-              title="Kanban Board View"
+              aria-pressed={viewMode === 'kanban'}
             >
               Board
             </button>
           </div>
-
-          {/* 3-BAR HAMBURGER MENU BUTTON (EXCLUSIVELY FOR CANDIDATE PIPELINE) */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Open Workspace Navigation Menu"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              border: '1px solid var(--gray-border)',
-              backgroundColor: 'var(--gray-surface)',
-              color: 'var(--gray-text-primary)',
-              cursor: 'pointer',
-              boxShadow: 'var(--shadow-card-subtle)',
-              transition: 'all 0.15s ease',
-            }}
-            title="Candidate Pipeline Menu"
-          >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
-      </div>
+      </header>
 
-      {/* SIDE MENU DRAWER (SLIDE-OUT PANEL ON 3-BAR CLICK) */}
+      {/* SIDE MENU DRAWER */}
       {menuOpen && (
-        <>
-          <div 
-            className="side-menu-overlay" 
-            onClick={() => setMenuOpen(false)} 
-            aria-hidden="true"
-          />
-
-          <aside className="side-menu-drawer" aria-label="Candidate Pipeline Navigation Menu">
+        <div className="side-menu-overlay" onClick={() => setMenuOpen(false)}>
+          <div className="side-menu-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="side-menu-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, fontWeight: 800, color: 'var(--gray-text-primary)' }}>
-                <Sparkles size={18} style={{ color: 'var(--accent)' }} /> Pipeline Menu
-              </div>
-              <button
-                type="button"
+              <span className="side-menu-title">HireTrack Navigation</span>
+              <button 
+                className="side-menu-close"
                 onClick={() => setMenuOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-text-muted)' }}
+                aria-label="Close menu"
+                type="button"
               >
                 <X size={20} />
               </button>
             </div>
 
-            {/* User Info Pill */}
-            <div className="side-menu-user-pill">
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 2 }}>
-                {user?.name || 'Recruiter'}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--gray-text-muted)', marginBottom: 8 }}>
-                {user?.email}
-              </div>
-              <span style={{
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-pill)',
-                backgroundColor: 'rgba(79, 70, 229, 0.08)',
-                color: 'var(--accent)',
-                border: '1px solid rgba(79, 70, 229, 0.15)'
-              }}>
-                {user?.role}
-              </span>
-            </div>
-
-            {/* Side Menu List */}
-            <nav className="side-menu-list">
-              {/* HOME OPTION */}
-              <Link 
-                to="/" 
-                className="side-menu-item"
-                onClick={() => setMenuOpen(false)}
-              >
-                <Home size={18} style={{ color: 'var(--accent)' }} />
-                <span>Home (Careers)</span>
-              </Link>
-
-              {/* ANALYTICS DASHBOARD OPTION */}
+            <nav className="side-menu-nav">
               <Link 
                 to="/dashboard" 
                 className="side-menu-item"
@@ -266,11 +236,20 @@ export const CandidateWorkspacePage: React.FC = () => {
               </Link>
 
               <Link 
-                to="/recruiter/candidates" 
-                className="side-menu-item side-menu-item--active"
+                to="/" 
+                className="side-menu-item"
                 onClick={() => setMenuOpen(false)}
               >
-                <Users size={18} />
+                <Home size={18} style={{ color: 'var(--accent)' }} />
+                <span>Home Overview</span>
+              </Link>
+
+              <Link 
+                to="/recruiter/candidates" 
+                className="side-menu-item is-active"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Users size={18} style={{ color: 'var(--accent)' }} />
                 <span>Candidate Pipeline</span>
               </Link>
 
@@ -279,7 +258,7 @@ export const CandidateWorkspacePage: React.FC = () => {
                 className="side-menu-item"
                 onClick={() => setMenuOpen(false)}
               >
-                <Briefcase size={18} />
+                <Briefcase size={18} style={{ color: 'var(--accent)' }} />
                 <span>Manage Jobs</span>
               </Link>
 
@@ -289,52 +268,62 @@ export const CandidateWorkspacePage: React.FC = () => {
                   className="side-menu-item"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <Calendar size={18} />
+                  <Calendar size={18} style={{ color: 'var(--accent)' }} />
                   <span>Assigned Interviews</span>
-                </Link>
-              )}
-
-              {user?.role === 'admin' && (
-                <Link 
-                  to="/admin/recruiters" 
-                  className="side-menu-item"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <Settings size={18} />
-                  <span>Manage Recruiters</span>
                 </Link>
               )}
             </nav>
 
-            {/* Sign Out Action */}
-            <div style={{ borderTop: '1px solid var(--gray-border)', paddingTop: 16, marginTop: 'auto' }}>
-              <button
+            {/* Footer with logged in user profile & logout button */}
+            <div className="side-menu-footer">
+              <div className="side-menu-user">
+                <div className="side-menu-avatar">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="side-menu-user-info">
+                  <span className="side-menu-user-name">{user?.name || 'Recruiter'}</span>
+                  <span className="side-menu-user-role">{user?.role ? user.role.toUpperCase() : 'RECRUITER'}</span>
+                </div>
+              </div>
+              
+              <button 
+                className="side-menu-logout"
                 type="button"
-                onClick={handleLogout}
-                className="side-menu-item"
-                style={{ width: '100%', color: 'var(--error)', backgroundColor: 'rgba(239, 68, 68, 0.08)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('user');
+                  navigate('/login');
+                }}
               >
-                <LogOut size={18} />
-                <span>Sign Out</span>
+                <LogOut size={16} /> Logout
               </button>
             </div>
-          </aside>
-        </>
+          </div>
+        </div>
       )}
 
-      {/* ── WORKSPACE BODY CONTENT ───────────────────────────── */}
+      {/* STAGE TAB BAR */}
+      <StageTabBar
+        activeStage={activeStage}
+        counts={stageCounts}
+        onStageChange={handleStageChange}
+      />
+
+      {/* WORKSPACE BODY */}
       {viewMode === 'list' ? (
         <div className="workspace-body">
           {/* LEFT — Candidate List */}
           <aside className="workspace-left-panel">
-            <CandidateList
-              activeStage={activeStage}
-              onCountsChange={handleCountsChange}
-              selectedId={selectedId}
-              onSelect={handleSelect}
-              onRefreshReady={(fn) => { listRefreshRef.current = fn; }}
-              onApplicationsLoad={setAllApplications}
-            />
+            <WorkspaceSectionErrorBoundary fallbackTitle="Candidate List Error">
+              <CandidateList
+                activeStage={activeStage}
+                onCountsChange={handleCountsChange}
+                selectedId={selectedId}
+                onSelect={handleSelect}
+                onRefreshReady={(fn) => { listRefreshRef.current = fn; }}
+                onApplicationsLoad={setAllApplications}
+              />
+            </WorkspaceSectionErrorBoundary>
           </aside>
 
           {/* RIGHT — Candidate Detail Panel */}
@@ -342,22 +331,24 @@ export const CandidateWorkspacePage: React.FC = () => {
             className={`workspace-right-panel ${panelOpen ? 'is-open' : ''}`}
             aria-label="Candidate detail"
           >
-            {selectedId ? (
-              <CandidateDetailPanel
-                key={selectedId}
-                applicationId={selectedId}
-                onDeselect={handleDeselect}
-                onRefreshList={handleListRefresh}
-              />
-            ) : (
-              <div className="workspace-right-panel__empty">
-                <EmptyState
-                  icon="👈"
-                  title="Select a candidate"
-                  description="Click any candidate on the left to view their profile, resume, timeline, notes, and interview history."
+            <WorkspaceSectionErrorBoundary fallbackTitle="Candidate Profile Error" onReset={handleDeselect}>
+              {selectedId ? (
+                <CandidateDetailPanel
+                  key={selectedId}
+                  applicationId={selectedId}
+                  onDeselect={handleDeselect}
+                  onRefreshList={handleListRefresh}
                 />
-              </div>
-            )}
+              ) : (
+                <div className="workspace-right-panel__empty">
+                  <EmptyState
+                    icon="👈"
+                    title="Select a candidate"
+                    description="Click any candidate on the left to view their profile, resume, timeline, notes, and interview history."
+                  />
+                </div>
+              )}
+            </WorkspaceSectionErrorBoundary>
           </main>
         </div>
       ) : (
@@ -374,34 +365,38 @@ export const CandidateWorkspacePage: React.FC = () => {
             />
           </div>
 
-          <KanbanBoard
-            applications={allApplications}
-            selectedId={selectedId}
-            onSelect={handleSelect}
-            isStaleCheck={isStaleApplication}
-          />
+          <WorkspaceSectionErrorBoundary fallbackTitle="Kanban Board Error">
+            <KanbanBoard
+              applications={allApplications}
+              selectedId={selectedId}
+              onSelect={handleSelect}
+              isStaleCheck={isStaleApplication}
+            />
+          </WorkspaceSectionErrorBoundary>
 
           {/* Slide-out detail drawer overlay over the Kanban board */}
           <main
             className={`workspace-right-panel kanban-drawer ${panelOpen ? 'is-open' : ''}`}
             aria-label="Candidate detail drawer"
           >
-            {selectedId ? (
-              <CandidateDetailPanel
-                key={selectedId}
-                applicationId={selectedId}
-                onDeselect={handleDeselect}
-                onRefreshList={handleListRefresh}
-              />
-            ) : (
-              <div className="workspace-right-panel__empty">
-                <EmptyState
-                  icon="👉"
-                  title="Select a candidate card"
-                  description="Click any candidate card on the Kanban columns to open their detail drawer overlay."
+            <WorkspaceSectionErrorBoundary fallbackTitle="Candidate Profile Error" onReset={handleDeselect}>
+              {selectedId ? (
+                <CandidateDetailPanel
+                  key={selectedId}
+                  applicationId={selectedId}
+                  onDeselect={handleDeselect}
+                  onRefreshList={handleListRefresh}
                 />
-              </div>
-            )}
+              ) : (
+                <div className="workspace-right-panel__empty">
+                  <EmptyState
+                    icon="👉"
+                    title="Select a candidate card"
+                    description="Click any candidate card on the Kanban columns to open their detail drawer overlay."
+                  />
+                </div>
+              )}
+            </WorkspaceSectionErrorBoundary>
           </main>
         </div>
       )}
