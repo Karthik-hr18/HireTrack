@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 
 import { PdfViewerModal } from '../../components/ui/PdfViewerModal';
+import { SchedulingCard } from '../recruiter/workspace/SchedulingCard';
 
 export const ConductInterviewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,7 @@ export const ConductInterviewPage: React.FC = () => {
   const [cultureRating, setCultureRating] = useState(4);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showHrScheduler, setShowHrScheduler] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -171,60 +173,82 @@ export const ConductInterviewPage: React.FC = () => {
 
   if (success) {
     return (
-      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <div style={{ maxWidth: 560, width: '100%', backgroundColor: '#ffffff', border: '1px solid var(--gray-border)', borderRadius: 16, padding: 32, textAlign: 'center', boxShadow: '0 8px 32px rgba(15, 23, 42, 0.08)' }}>
-          <CheckCircle2 size={48} style={{ color: 'var(--success)', margin: '0 auto 16px' }} />
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
-            Scorecard Submitted Successfully!
-          </h2>
-          <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 24 }}>
-            Evaluation for <strong>{candidate?.name}</strong> has been saved.
-          </p>
+      <>
+        {/* Dimmed overlay backdrop */}
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ maxWidth: 520, width: '100%', backgroundColor: '#ffffff', border: '1px solid var(--gray-border)', borderRadius: 16, padding: 32, boxShadow: '0 24px 64px rgba(15, 23, 42, 0.2)', position: 'relative' }}>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {isTech && (recommendation === 'pass' || recommendation === 'hire') && (
-              <button
-                type="button"
-                className="btn-primary-md"
-                onClick={() => navigate(`/recruiter/candidates?candidate=${app?._id || id}`)}
-                style={{ width: '100%', padding: '12px 20px', borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700 }}
-              >
-                📅 Schedule HR Interview Now
-              </button>
+            {/* Show inline HR scheduling form */}
+            {showHrScheduler ? (
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 16 }}>
+                  📅 Schedule HR Interview for {candidate?.name}
+                </h3>
+                <SchedulingCard
+                  applicationId={app?._id || id || ''}
+                  interviewType="hr"
+                  onCancel={() => setShowHrScheduler(false)}
+                  onSuccess={() => {
+                    navigate('/recruiter/candidates');
+                  }}
+                />
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center' }}>
+                <CheckCircle2 size={48} style={{ color: 'var(--success)', margin: '0 auto 16px' }} />
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
+                  Scorecard Submitted!
+                </h2>
+                <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 24 }}>
+                  Evaluation for <strong>{candidate?.name}</strong> has been saved.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {isTech && (recommendation === 'pass' || recommendation === 'hire') && (
+                    <button
+                      type="button"
+                      className="btn-primary-md"
+                      onClick={() => setShowHrScheduler(true)}
+                      style={{ width: '100%', padding: '12px 20px', borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700 }}
+                    >
+                      📅 Schedule HR Interview Now
+                    </button>
+                  )}
+
+                  {!isTech && (recommendation === 'pass' || recommendation === 'hire') && (
+                    <button
+                      type="button"
+                      className="btn-primary-md"
+                      onClick={async () => {
+                        try {
+                          await fetch(`${apiUrl}/api/applications/${app?._id || id}/advance`, {
+                            method: 'POST',
+                            headers: { Authorization: `Bearer ${token}` }
+                          });
+                        } catch (_e) { /* proceed anyway */ }
+                        navigate(`/recruiter/candidates?candidate=${app?._id || id}`);
+                      }}
+                      style={{ width: '100%', padding: '12px 20px', borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, backgroundColor: 'var(--success)' }}
+                    >
+                      ✉️ Issue Offer Letter
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={() => navigate('/recruiter/candidates')}
+                    style={{ width: '100%', padding: '12px 20px', borderRadius: 10, fontSize: 14 }}
+                  >
+                    Return to Candidates Pipeline
+                  </button>
+                </div>
+              </div>
             )}
 
-            {!isTech && (recommendation === 'pass' || recommendation === 'hire') && (
-              <button
-                type="button"
-                className="btn-primary-md"
-                onClick={async () => {
-                  try {
-                    await fetch(`${apiUrl}/api/applications/${app?._id || id}/advance`, {
-                      method: 'POST',
-                      headers: { Authorization: `Bearer ${token}` }
-                    });
-                    navigate(`/recruiter/candidates?candidate=${app?._id || id}`);
-                  } catch (e) {
-                    navigate(`/recruiter/candidates?candidate=${app?._id || id}`);
-                  }
-                }}
-                style={{ width: '100%', padding: '12px 20px', borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, backgroundColor: 'var(--success)' }}
-              >
-                ✉️ Issue Offer Letter / Move to Offer Stage
-              </button>
-            )}
-
-            <button
-              type="button"
-              className="btn-ghost"
-              onClick={() => navigate('/recruiter/candidates')}
-              style={{ width: '100%', padding: '12px 20px', borderRadius: 10, fontSize: 14 }}
-            >
-              Return to Candidates Pipeline
-            </button>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 

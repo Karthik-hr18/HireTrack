@@ -21,8 +21,10 @@ export const RecruiterNavbar: React.FC = () => {
         });
         if (response.ok) {
           const freshData = await response.json();
-          setUser(freshData);
-          localStorage.setItem('user', JSON.stringify(freshData));
+          // /api/auth/me returns { user: { id, name, email, role, ... } }
+          const userData = freshData.user || freshData;
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
         }
       } catch (e) {
         // Fallback to cached user

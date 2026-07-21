@@ -236,7 +236,7 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
     ] : [
       { id: 'qa-1', label: 'Review Candidates', icon: 'Users', url: '/recruiter/candidates', primary: true },
       { id: 'qa-2', label: 'Manage Jobs', icon: 'Briefcase', url: '/recruiter/jobs' },
-      { id: 'qa-3', label: 'My Applications', icon: 'FileText', url: '/candidate/applications' }
+      { id: 'qa-3', label: '+ Create Job', icon: 'PlusCircle', url: '/recruiter/jobs' }
     ];
 
     // 10. Assemble Executive KPIs (8 Stripe-Style Cards)
