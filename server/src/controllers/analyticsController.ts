@@ -11,6 +11,9 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
     }
 
     const userRole = req.user.role as 'admin' | 'recruiter' | 'candidate';
+    if (userRole === 'candidate') {
+      return res.status(403).json({ message: 'Dashboard access denied for candidates', code: 'FORBIDDEN' });
+    }
     const userName = (req.user as any).name || 'User';
 
     // 1. Basic Counts
@@ -104,32 +107,37 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
       scheduledAt: { $lte: new Date(Date.now() - 2 * 60 * 60 * 1000) } // past 2 hours
     });
 
-    const attentionItems = [
-      {
+    const attentionItems = [];
+    if (awaitingScreeningCount > 0) {
+      attentionItems.push({
         id: 'att-1',
         title: 'Candidates Waiting Screening (>7 days)',
-        count: Math.max(awaitingScreeningCount, 4),
+        count: awaitingScreeningCount,
         severity: 'critical' as const,
         subtitle: 'Applications in screening over SLA threshold',
         actionUrl: '/recruiter/candidates?stage=resume_screening'
-      },
-      {
+      });
+    }
+    if (overdueFeedbacksCount > 0) {
+      attentionItems.push({
         id: 'att-2',
         title: 'Overdue Interview Feedbacks',
-        count: Math.max(overdueFeedbacksCount, 2),
+        count: overdueFeedbacksCount,
         severity: 'attention' as const,
         subtitle: 'Completed interviews missing scorecard submissions',
         actionUrl: '/admin/interviews'
-      },
-      {
+      });
+    }
+    if (offersPendingCount > 0) {
+      attentionItems.push({
         id: 'att-3',
         title: 'Offers Awaiting Candidate Response',
         count: offersPendingCount,
         severity: 'info' as const,
         subtitle: 'Candidates reviewing generated offer letters',
         actionUrl: '/recruiter/candidates?stage=offer'
-      }
-    ];
+      });
+    }
 
     // 4. Upcoming Interviews List
     const upcomingRaw = await Interview.find({ status: 'scheduled' })
@@ -246,6 +254,10 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
     return res.status(200).json({
       userRole,
       userName,
+      totalActiveJobs,
+      totalApplications,
+      stageDistribution: rawStageCounts,
+      needsAttention: attentionItems,
       todaySummary: {
         interviewsTodayCount,
         awaitingReviewCount: Math.max(awaitingScreeningCount, 6),

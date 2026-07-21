@@ -51,7 +51,4 @@ const ScorecardSchema: Schema = new Schema(
   }
 );
 
-// Index 1:1 constraint
-ScorecardSchema.index({ interview: 1 }, { unique: true });
-
 export const Scorecard = mongoose.model<IScorecard>('Scorecard', ScorecardSchema);
