@@ -34,9 +34,8 @@ export const uploadToCloudinary = (fileBuffer: Buffer, filename: string): Promis
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: 'hiretrack_resumes',
-        resource_type: 'image', // Upload PDFs as 'image' type to allow inline browser rendering
-        public_id: `${Date.now()}-${filename.replace(/\.pdf$/i, '')}`,
-        format: 'pdf'
+        resource_type: 'raw', // Upload PDFs as 'raw' binary files so Cloudinary streams raw PDF bytes properly
+        public_id: `${Date.now()}-${filename.replace(/\.pdf$/i, '')}.pdf`
       },
       (error, result) => {
         if (error) {

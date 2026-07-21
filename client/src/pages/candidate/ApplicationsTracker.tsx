@@ -14,11 +14,15 @@ import {
   Briefcase 
 } from 'lucide-react';
 
+import { PdfViewerModal } from '../../components/ui/PdfViewerModal';
+
 export const ApplicationsTracker: React.FC = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
+  const [previewCandidateName, setPreviewCandidateName] = useState<string>('My Resume');
 
   const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
@@ -305,10 +309,12 @@ export const ApplicationsTracker: React.FC = () => {
                       </td>
 
                       <td style={tdStyle}>
-                        <a 
-                          href={app.resumeUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPreviewPdfUrl(app.resumeUrl);
+                            setPreviewCandidateName(user?.name || 'My Resume');
+                          }}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -316,11 +322,14 @@ export const ApplicationsTracker: React.FC = () => {
                             color: 'var(--accent)',
                             fontSize: 13,
                             fontWeight: 600,
-                            textDecoration: 'none',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: 0
                           }}
                         >
                           <FileText size={14} /> View PDF Resume <ExternalLink size={12} />
-                        </a>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -334,6 +343,14 @@ export const ApplicationsTracker: React.FC = () => {
 
       {/* FOOTER */}
       <CareersFooter />
+
+      {/* PDF VIEWER MODAL */}
+      <PdfViewerModal
+        isOpen={!!previewPdfUrl}
+        onClose={() => setPreviewPdfUrl(null)}
+        pdfUrl={previewPdfUrl || ''}
+        candidateName={previewCandidateName}
+      />
     </div>
   );
 };

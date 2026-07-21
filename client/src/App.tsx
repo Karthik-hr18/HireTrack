@@ -13,25 +13,29 @@ import { ApplicationsTracker } from './pages/candidate/ApplicationsTracker';
 import { Dashboard } from './pages/dashboard/Dashboard';
 import { NotFoundPage } from './pages/error/NotFoundPage';
 
+import { GlobalErrorBoundary } from './components/ui/GlobalErrorBoundary';
+
 function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<CareersPage />} />
-        <Route path="/jobs/:id" element={<JobDetailPage />} />
-        <Route path="/recruiter/jobs" element={<JobsDashboard />} />
-        <Route path="/recruiter/candidates" element={<CandidateWorkspacePage />} />
-        <Route path="/admin/interviews" element={<AssignedInterviews />} />
-        <Route path="/admin/interviews/:id/conduct" element={<ConductInterviewPage />} />
-        <Route path="/admin/recruiters" element={<ManageRecruiters />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/candidate/applications" element={<ApplicationsTracker />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
+    <GlobalErrorBoundary>
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<CareersPage />} />
+          <Route path="/jobs/:id" element={<JobDetailPage />} />
+          <Route path="/recruiter/jobs" element={<JobsDashboard />} />
+          <Route path="/recruiter/candidates" element={<CandidateWorkspacePage />} />
+          <Route path="/admin/interviews" element={<AssignedInterviews />} />
+          <Route path="/admin/interviews/:id/conduct" element={<ConductInterviewPage />} />
+          <Route path="/admin/recruiters" element={<ManageRecruiters />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/candidate/applications" element={<ApplicationsTracker />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
+    </GlobalErrorBoundary>
   );
 }
 

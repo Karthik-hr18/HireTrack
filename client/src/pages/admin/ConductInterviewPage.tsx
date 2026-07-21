@@ -5,6 +5,8 @@ import {
   CheckCircle2, XCircle, AlertCircle, Sparkles, Send, Award, Clock
 } from 'lucide-react';
 
+import { PdfViewerModal } from '../../components/ui/PdfViewerModal';
+
 export const ConductInterviewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ export const ConductInterviewPage: React.FC = () => {
   const [interview, setInterview] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
 
   // Scorecard Evaluation Form State
   const [recommendation, setRecommendation] = useState<'pass' | 'hire' | 'reject'>('pass');
@@ -259,10 +262,9 @@ export const ConductInterviewPage: React.FC = () => {
 
               {/* PDF Resume Link Button */}
               {app?.resumeUrl && (
-                <a
-                  href={app.resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => setPreviewPdfUrl(app.resumeUrl)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -276,12 +278,13 @@ export const ConductInterviewPage: React.FC = () => {
                     color: 'var(--accent)',
                     fontWeight: 700,
                     fontSize: 13,
-                    textDecoration: 'none',
+                    cursor: 'pointer',
+                    width: '100%',
                     transition: 'all 0.15s ease'
                   }}
                 >
                   <FileText size={16} /> View Candidate PDF Resume
-                </a>
+                </button>
               )}
             </div>
 
@@ -545,6 +548,14 @@ export const ConductInterviewPage: React.FC = () => {
 
         </div>
       </main>
+
+      {/* PDF VIEWER MODAL */}
+      <PdfViewerModal
+        isOpen={!!previewPdfUrl}
+        onClose={() => setPreviewPdfUrl(null)}
+        pdfUrl={previewPdfUrl || ''}
+        candidateName={candidate?.name || 'Candidate'}
+      />
     </div>
   );
 };

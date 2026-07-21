@@ -7,6 +7,7 @@ import { PipelineProgressBar } from './PipelineProgressBar';
 import { ActionCard } from './ActionCard';
 import { SchedulingCard } from './SchedulingCard';
 import { RejectionCard } from './RejectionCard';
+import { getNormalizedPdfUrl, getGoogleDocsPdfUrl } from '../../../utils/pdfUtils';
 
 // ─── Tab configuration ────────────────────────────────────────────────────────
 export type DetailTab =
@@ -471,9 +472,9 @@ const TabContent: React.FC<TabContentProps> = ({
           {app.resumeUrl ? (
             <>
               <div className="resume-tab__header">
-                <span className="resume-tab__filename">📄 Resume</span>
+                <span className="resume-tab__filename">📄 Candidate Resume Portfolio</span>
                 <a
-                  href={app.resumeUrl}
+                  href={getNormalizedPdfUrl(app.resumeUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="resume-tab__open-link"
@@ -483,7 +484,7 @@ const TabContent: React.FC<TabContentProps> = ({
               </div>
               <div className="resume-tab__viewer">
                 <iframe
-                  src={app.resumeUrl}
+                  src={getGoogleDocsPdfUrl(app.resumeUrl)}
                   title="Candidate Resume"
                   className="resume-tab__iframe"
                 />
