@@ -34,8 +34,9 @@ interface StageBadgeProps {
 }
 
 export const StageBadge: React.FC<StageBadgeProps> = ({ stage, size = 'md', className = '' }) => {
-  const label  = STAGE_LABELS[stage]  ?? stage.replace(/_/g, ' ').toUpperCase();
-  const cls    = STAGE_BADGE_CLASS[stage] ?? 'badge-stage-default';
+  const safeStage = stage || 'applied';
+  const label  = STAGE_LABELS[safeStage]  ?? safeStage.replace(/_/g, ' ').toUpperCase();
+  const cls    = STAGE_BADGE_CLASS[safeStage] ?? 'badge-stage-default';
   const sizeClass = size === 'sm' ? 'badge-stage--sm' : '';
 
   return (

@@ -7,7 +7,8 @@ import { PipelineProgressBar } from './PipelineProgressBar';
 import { ActionCard } from './ActionCard';
 import { SchedulingCard } from './SchedulingCard';
 import { RejectionCard } from './RejectionCard';
-import { getNormalizedPdfUrl, getGoogleDocsPdfUrl } from '../../../utils/pdfUtils';
+import { getNormalizedPdfUrl } from '../../../utils/pdfUtils';
+import { PdfViewer } from '../../../components/ui/PdfViewer';
 
 // ─── Tab configuration ────────────────────────────────────────────────────────
 export type DetailTab =
@@ -482,11 +483,11 @@ const TabContent: React.FC<TabContentProps> = ({
                   Open in new tab ↗
                 </a>
               </div>
-              <div className="resume-tab__viewer">
-                <iframe
-                  src={getGoogleDocsPdfUrl(app.resumeUrl)}
-                  title="Candidate Resume"
-                  className="resume-tab__iframe"
+              <div className="resume-tab__viewer" style={{ minHeight: 620 }}>
+                <PdfViewer
+                  pdfUrl={app.resumeUrl}
+                  title={`${app.candidate?.name || 'Candidate'} Resume Portfolio`}
+                  height={620}
                 />
               </div>
             </>

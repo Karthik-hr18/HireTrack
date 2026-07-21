@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, ExternalLink, FileText, RefreshCw } from 'lucide-react';
-import { getNormalizedPdfUrl, getGoogleDocsPdfUrl } from '../../utils/pdfUtils';
+import React from 'react';
+import { X, ExternalLink, FileText } from 'lucide-react';
+import { getNormalizedPdfUrl } from '../../utils/pdfUtils';
+import { PdfViewer } from './PdfViewer';
 
 interface Props {
   isOpen: boolean;
@@ -15,18 +16,9 @@ export const PdfViewerModal: React.FC<Props> = ({
   pdfUrl,
   candidateName = 'Candidate'
 }) => {
-  const [engine, setEngine] = useState<'google' | 'direct'>('google');
-  const [reloadKey, setReloadKey] = useState(0);
-
   if (!isOpen || !pdfUrl) return null;
 
   const normalizedUrl = getNormalizedPdfUrl(pdfUrl);
-  const googleViewerUrl = getGoogleDocsPdfUrl(pdfUrl);
-  const activeFrameUrl = engine === 'google' ? googleViewerUrl : normalizedUrl;
-
-  const handleRefresh = () => {
-    setReloadKey((prev) => prev + 1);
-  };
 
   return (
     <div
@@ -48,8 +40,8 @@ export const PdfViewerModal: React.FC<Props> = ({
           backgroundColor: '#ffffff',
           borderRadius: 20,
           width: '100%',
-          maxWidth: 1000,
-          height: '90vh',
+          maxWidth: 1040,
+          height: '92vh',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
@@ -90,59 +82,12 @@ export const PdfViewerModal: React.FC<Props> = ({
                 {candidateName} — Resume PDF Portfolio
               </h3>
               <p style={{ fontSize: 12, color: 'var(--gray-text-muted)', margin: 0 }}>
-                Interactive In-App PDF Document Viewer
+                In-App Native PDF Document Viewer
               </p>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {/* View Engine Toggle */}
-            <div style={{ display: 'flex', backgroundColor: 'var(--gray-bg)', padding: 3, borderRadius: 10, border: '1px solid var(--gray-border)' }}>
-              <button
-                type="button"
-                onClick={() => setEngine('google')}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 8,
-                  border: 'none',
-                  backgroundColor: engine === 'google' ? '#ffffff' : 'transparent',
-                  color: engine === 'google' ? 'var(--accent)' : 'var(--gray-text-muted)',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  boxShadow: engine === 'google' ? '0 1px 4px rgba(0,0,0,0.06)' : 'none'
-                }}
-              >
-                Google Engine
-              </button>
-              <button
-                type="button"
-                onClick={() => setEngine('direct')}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 8,
-                  border: 'none',
-                  backgroundColor: engine === 'direct' ? '#ffffff' : 'transparent',
-                  color: engine === 'direct' ? 'var(--accent)' : 'var(--gray-text-muted)',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  boxShadow: engine === 'direct' ? '0 1px 4px rgba(0,0,0,0.06)' : 'none'
-                }}
-              >
-                Direct Stream
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleRefresh}
-              title="Reload Preview"
-              style={{ padding: 8, borderRadius: 10, border: '1px solid var(--gray-border)', backgroundColor: '#fff', cursor: 'pointer', color: 'var(--gray-text-muted)' }}
-            >
-              <RefreshCw size={16} />
-            </button>
-
             <a
               href={normalizedUrl}
               target="_blank"
@@ -150,7 +95,7 @@ export const PdfViewerModal: React.FC<Props> = ({
               className="btn-primary-sm"
               style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '8px 14px' }}
             >
-              Open Tab <ExternalLink size={14} />
+              Open in New Tab <ExternalLink size={14} />
             </a>
 
             <button
@@ -170,18 +115,12 @@ export const PdfViewerModal: React.FC<Props> = ({
           </div>
         </header>
 
-        {/* IFRAME EMBED WORKSPACE */}
+        {/* NATIVE PDF VIEWER WORKSPACE */}
         <div style={{ flex: 1, backgroundColor: '#525659', position: 'relative' }}>
-          <iframe
-            key={reloadKey}
-            src={activeFrameUrl}
-            title={`${candidateName} Resume PDF`}
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-              backgroundColor: '#525659'
-            }}
+          <PdfViewer
+            pdfUrl={pdfUrl}
+            title={`${candidateName} Resume PDF Portfolio`}
+            height="100%"
           />
         </div>
       </div>

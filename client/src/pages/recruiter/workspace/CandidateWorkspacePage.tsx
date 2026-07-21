@@ -12,7 +12,12 @@ export const CandidateWorkspacePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const token    = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
-  const user     = userJson ? JSON.parse(userJson) : null;
+  let user: any = null;
+  try {
+    user = userJson ? JSON.parse(userJson) : null;
+  } catch (e) {
+    user = null;
+  }
   const [menuOpen, setMenuOpen] = useState(false);
 
   // ── Workspace state ───────────────────────────────────────────

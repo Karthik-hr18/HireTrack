@@ -52,7 +52,7 @@ export const CandidateRow: React.FC<CandidateRowProps> = ({
       ].filter(Boolean).join(' ')}
       onClick={() => onClick(application._id)}
       aria-pressed={isSelected}
-      aria-label={`${name} — ${jobTitle}, ${application.stage.replace(/_/g, ' ')}`}
+      aria-label={`${name} — ${jobTitle}, ${(application.stage || 'applied').replace(/_/g, ' ')}`}
     >
       <AvatarInitials name={name} size={36} />
 

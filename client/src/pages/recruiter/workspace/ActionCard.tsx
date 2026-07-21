@@ -117,7 +117,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
       {showScheduledInfo && activeInterview && (
         <div className="action-card__scheduled">
           <h5 className="action-card__scheduled-title">
-            📅 Scheduled {activeInterview.type.toUpperCase()} Panel
+            📅 Scheduled {(activeInterview.type || 'interview').toUpperCase()} Panel
           </h5>
           <div className="action-card__row">
             <span className="action-card__label">Interviewer:</span>
