@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
-import { CandidateDetailPanel } from './CandidateDetailPanel';
+import { CandidateDetailModal } from '../../../components/modal/CandidateDetailModal';
 import { KanbanBoard } from './KanbanBoard';
-import { EmptyState } from '../../../components/ui/EmptyState';
+import { JobGroupSidebar } from '../../../components/layout/JobGroupSidebar';
+import { useCandidateWorkspace } from '../../../hooks/useCandidateWorkspace';
 
 const STALE_THRESHOLD_DAYS = 7;
 const STALE_STAGES = ['resume_screening'];
@@ -74,24 +75,44 @@ class WorkspaceSectionErrorBoundary extends React.Component<ErrorBoundaryProps, 
   }
 }
 
+const FUNNEL_STAGES = [
+  { key: 'resume_screening',   label: 'RECRUITER SCREEN' },
+  { key: 'technical_interview', label: '1ST INTERVIEW' },
+  { key: 'hr_interview',       label: '2ND INTERVIEW' },
+  { key: 'offer',              label: 'OFFER' },
+  { key: 'hired',              label: 'HIRED' },
+  { key: 'rejected',           label: 'REJECTED' },
+];
+
 export const CandidateWorkspacePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const token    = localStorage.getItem('token');
 
-
   // Derive parameters directly from searchParams (clean SPA sync)
   const activeStage = searchParams.get('stage') || '';
+  const selectedJobId = searchParams.get('job') || undefined;
+
+  // Workspace state via hook
+  const {
+    groups,
+    loadingJobs,
+    expandedGroups,
+    toggleGroup,
+    applications,
+    loadingApps,
+    appsError,
+    searchTerm,
+    setSearchTerm,
+    stageCounts,
+    refreshApplications,
+  } = useCandidateWorkspace({ activeStage, selectedJobId });
+
   const selectedId = searchParams.get('candidate');
-  // Tab Memory: Restore last active view mode ('list' | 'kanban') from sessionStorage or URL
   const storedView = sessionStorage.getItem('candidate_view_mode') as 'list' | 'kanban' | null;
   const paramView = searchParams.get('view') as 'list' | 'kanban' | null;
   const viewMode = paramView || storedView || 'list';
   const panelOpen = !!selectedId;
-
-  const [stageCounts, setStageCounts] = useState<Record<string, number>>({});
-  const [allApplications, setAllApplications] = useState<any[]>([]);
-  const listRefreshRef = useRef<(() => void) | null>(null);
 
   // Sync stored view mode if missing from URL
   useEffect(() => {
@@ -112,6 +133,20 @@ export const CandidateWorkspacePage: React.FC = () => {
       navigate('/login');
     }
   }, [token, navigate]);
+
+  const handleSelectJob = (jobId?: string) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (jobId) {
+        next.set('job', jobId);
+      } else {
+        next.delete('job');
+      }
+      next.delete('stage');
+      next.delete('candidate');
+      return next;
+    }, { replace: false });
+  };
 
   // Sync state changes with URL Search Params
   const handleSelect = (id: string) => {
@@ -156,196 +191,150 @@ export const CandidateWorkspacePage: React.FC = () => {
     }, { replace: true });
   };
 
-  const handleCountsChange = useCallback((counts: Record<string, number>) => {
-    setStageCounts(counts);
-  }, []);
-
-  const handleListRefresh = useCallback(() => {
-    listRefreshRef.current?.();
-  }, []);
-
-
-
-  // Listen for Escape key to deselect active candidate
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        const tag = document.activeElement?.tagName.toLowerCase();
-        if (tag === 'textarea' || tag === 'input') {
-          return;
-        }
-        handleDeselect();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const currentIdx = selectedId ? allApplications.findIndex((a) => a._id === selectedId) : -1;
+  const currentIdx = selectedId ? applications.findIndex((a) => a._id === selectedId) : -1;
   const hasPrevious = currentIdx > 0;
-  const hasNext = currentIdx >= 0 && currentIdx < allApplications.length - 1;
+  const hasNext = currentIdx >= 0 && currentIdx < applications.length - 1;
 
   const handleNextCandidate = () => {
     if (hasNext) {
-      handleSelect(allApplications[currentIdx + 1]._id);
+      handleSelect(applications[currentIdx + 1]._id);
     }
   };
 
   const handlePreviousCandidate = () => {
     if (hasPrevious) {
-      handleSelect(allApplications[currentIdx - 1]._id);
+      handleSelect(applications[currentIdx - 1]._id);
     }
   };
 
   return (
     <div className="workspace-container">
-      {/* ── WORKSPACE CONTEXT BAR (Stage Tabs + Nested View Switcher) ── */}
-      <div className="workspace-contextbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 16 }}>
-        <StageTabBar
-          activeStage={activeStage}
-          counts={stageCounts}
-          onStageChange={handleStageChange}
-        />
+      {/* ── LEFT SIDEBAR (Lever Jobs Column) ── */}
+      <JobGroupSidebar
+        groups={groups}
+        selectedJobId={selectedJobId}
+        expandedGroups={expandedGroups}
+        onToggleGroup={toggleGroup}
+        onSelectJob={handleSelectJob}
+        loading={loadingJobs}
+        empty={groups.length === 0 && !loadingJobs}
+      />
 
-        {/* Nested View Switcher attached to Candidates workspace */}
-        <div className="view-switcher" role="group" aria-label="Pipeline View Mode" style={{ flexShrink: 0, marginLeft: 16 }}>
-          <button
-            type="button"
-            className={`view-switcher__btn ${viewMode === 'list' ? 'is-active' : ''}`}
-            onClick={() => handleViewModeChange('list')}
-            aria-pressed={viewMode === 'list'}
-          >
-            List
-          </button>
-          <button
-            type="button"
-            className={`view-switcher__btn ${viewMode === 'kanban' ? 'is-active' : ''}`}
-            onClick={() => handleViewModeChange('kanban')}
-            aria-pressed={viewMode === 'kanban'}
-          >
-            Board
-          </button>
-        </div>
-      </div>
-
-      {/* ── WORKSPACE BODY CONTENT ───────────────────────────── */}
-      {viewMode === 'list' ? (
-        <div className="workspace-body">
-          {/* LEFT — Candidate List */}
-          <aside className="workspace-left-panel">
-            <WorkspaceSectionErrorBoundary fallbackTitle="Candidate List Error">
-              <CandidateList
-                activeStage={activeStage}
-                onCountsChange={handleCountsChange}
-                selectedId={selectedId}
-                onSelect={handleSelect}
-                onRefreshReady={(fn) => { listRefreshRef.current = fn; }}
-                onApplicationsLoad={setAllApplications}
-              />
-            </WorkspaceSectionErrorBoundary>
-          </aside>
-
-          {/* RIGHT — Candidate Detail Panel */}
-          <main
-            className={`workspace-right-panel ${panelOpen ? 'is-open' : ''}`}
-            aria-label="Candidate detail"
-          >
-            <WorkspaceSectionErrorBoundary fallbackTitle="Candidate Profile Error" onReset={handleDeselect}>
-              {selectedId ? (
-                <CandidateDetailPanel
-                  key={selectedId}
-                  applicationId={selectedId}
-                  onDeselect={handleDeselect}
-                  onRefreshList={handleListRefresh}
-                  onNext={handleNextCandidate}
-                  onPrevious={handlePreviousCandidate}
-                  hasNext={hasNext}
-                  hasPrevious={hasPrevious}
-                />
-              ) : (
-                <div className="workspace-right-panel__empty">
-                  <EmptyState
-                    icon="👈"
-                    title="Select a candidate"
-                    description="Click any candidate on the left to view their profile, resume, timeline, notes, and interview history."
-                  />
-                </div>
-              )}
-            </WorkspaceSectionErrorBoundary>
-          </main>
-        </div>
-      ) : (
-        <div className="workspace-kanban-container" style={{ position: 'relative', overflow: 'hidden' }}>
-          {/* Hidden list loader to sync count statistics and candidates */}
-          <div style={{ display: 'none' }}>
-            <CandidateList
-              activeStage={activeStage}
-              onCountsChange={handleCountsChange}
-              selectedId={selectedId}
-              onSelect={handleSelect}
-              onRefreshReady={(fn) => { listRefreshRef.current = fn; }}
-              onApplicationsLoad={setAllApplications}
-            />
+      {/* ── MAIN CONTENT AREA ── */}
+      <div className="workspace-main-area">
+        {/* ── TOP HEADER BAR (Title, Search & View Switcher) ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Candidates Pipeline</h2>
+            {selectedJobId && (
+              <span className="badge badge-success" style={{ fontSize: 11 }}>Filtered by Job</span>
+            )}
           </div>
 
-          <WorkspaceSectionErrorBoundary fallbackTitle="Kanban Board Error">
-            <KanbanBoard
-              applications={allApplications}
-              selectedId={selectedId}
-              onSelect={handleSelect}
-              isStaleCheck={isStaleApplication}
-            />
-          </WorkspaceSectionErrorBoundary>
-
-          {/* Centered Modal Overlay for Board View */}
-          {selectedId && (
-            <div
-              className="kanban-modal-overlay"
-              onClick={handleDeselect}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <input
+              type="text"
+              placeholder="Search candidates, roles, emails…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="workspace-search-input"
               style={{
-                position: 'fixed',
-                inset: 0,
-                backgroundColor: 'rgba(15, 23, 42, 0.65)',
-                backdropFilter: 'blur(6px)',
-                zIndex: 1000,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 24,
+                padding: '6px 12px',
+                borderRadius: 6,
+                border: '1px solid #cbd5e1',
+                fontSize: 13,
+                width: 240,
               }}
-            >
-              <div
-                className="kanban-modal-container"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  width: '100%',
-                  maxWidth: 960,
-                  height: '88vh',
-                  backgroundColor: 'var(--gray-surface, #ffffff)',
-                  borderRadius: 16,
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
+            />
+            <div className="view-switcher" role="group" aria-label="Pipeline View Mode" style={{ flexShrink: 0 }}>
+              <button
+                type="button"
+                className={`view-switcher__btn ${viewMode === 'list' ? 'is-active' : ''}`}
+                onClick={() => handleViewModeChange('list')}
+                aria-pressed={viewMode === 'list'}
               >
-                <WorkspaceSectionErrorBoundary fallbackTitle="Candidate Profile Error" onReset={handleDeselect}>
-                  <CandidateDetailPanel
-                    key={selectedId}
-                    applicationId={selectedId}
-                    onDeselect={handleDeselect}
-                    onRefreshList={handleListRefresh}
-                    onNext={handleNextCandidate}
-                    onPrevious={handlePreviousCandidate}
-                    hasNext={hasNext}
-                    hasPrevious={hasPrevious}
-                  />
-                </WorkspaceSectionErrorBoundary>
-              </div>
+                List
+              </button>
+              <button
+                type="button"
+                className={`view-switcher__btn ${viewMode === 'kanban' ? 'is-active' : ''}`}
+                onClick={() => handleViewModeChange('kanban')}
+                aria-pressed={viewMode === 'kanban'}
+              >
+                Board
+              </button>
             </div>
-          )}
+          </div>
         </div>
-      )}
+
+        {/* ── STAGE TABS BAR ── */}
+        <div style={{ marginBottom: 12 }}>
+          <StageTabBar
+            activeStage={activeStage}
+            counts={stageCounts}
+            onStageChange={handleStageChange}
+          />
+        </div>
+
+        {/* ── PIPELINE FUNNEL METRICS BAR (Matching Lever Design) ── */}
+        <div className="lever-funnel-bar">
+          {FUNNEL_STAGES.map((s) => {
+            const count = stageCounts[s.key] || 0;
+            const isActive = activeStage === s.key;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                className={`lever-funnel-card ${isActive ? 'is-active' : ''}`}
+                onClick={() => handleStageChange(isActive ? '' : s.key)}
+              >
+                <span className="lever-funnel-count">{count}</span>
+                <span className="lever-funnel-label">{s.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── WORKSPACE BODY CONTENT ───────────────────────────── */}
+        {viewMode === 'list' ? (
+          <div className="workspace-body" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+            <WorkspaceSectionErrorBoundary fallbackTitle="Candidate List Error">
+              <CandidateList
+                applications={applications}
+                loading={loadingApps}
+                error={appsError}
+                selectedId={selectedId}
+                onSelect={handleSelect}
+              />
+            </WorkspaceSectionErrorBoundary>
+          </div>
+        ) : (
+          <div className="workspace-kanban-container" style={{ position: 'relative', overflow: 'hidden', flex: 1 }}>
+            <WorkspaceSectionErrorBoundary fallbackTitle="Kanban Board Error">
+              <KanbanBoard
+                applications={applications}
+                selectedId={selectedId}
+                onSelect={handleSelect}
+                isStaleCheck={isStaleApplication}
+              />
+            </WorkspaceSectionErrorBoundary>
+          </div>
+        )}
+
+        {/* Candidate Detail Modal */}
+        {selectedId && (
+          <CandidateDetailModal
+            isOpen={panelOpen}
+            applicationId={selectedId}
+            onClose={handleDeselect}
+            onRefreshList={refreshApplications}
+            onNext={handleNextCandidate}
+            onPrevious={handlePreviousCandidate}
+            hasNext={hasNext}
+            hasPrevious={hasPrevious}
+          />
+        )}
+      </div>
     </div>
   );
 };

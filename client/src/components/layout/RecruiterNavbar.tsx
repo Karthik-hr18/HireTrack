@@ -50,6 +50,7 @@ export const RecruiterNavbar: React.FC = () => {
       style={{ 
         height: 52, 
         minHeight: 52, 
+        flexShrink: 0,
         width: '100%', 
         backgroundColor: '#ffffff', 
         borderBottom: '1px solid var(--gray-border)', 

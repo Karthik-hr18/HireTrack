@@ -78,6 +78,7 @@ const seedDatabase = async () => {
         description: 'We are looking for a Full-Stack Software Engineer to build and scale collaborative client dashboards and real-time backend API logic.',
         requirements: '2+ years experience. Strong TypeScript, React, and Node.js skills.',
         location: 'Bangalore, India',
+        department: 'Engineering',
         minExperience: 2,
         maxExperience: 5,
         status: 'open' as const,
@@ -88,6 +89,7 @@ const seedDatabase = async () => {
         description: 'Join our backend infrastructure team to design microservice APIs, configure Redis caching layers, and implement distributed system workflows.',
         requirements: '5+ years experience. Depth in Spring Boot, SQL, Docker, and caching patterns.',
         location: 'Remote',
+        department: 'Engineering',
         minExperience: 5,
         maxExperience: 10,
         status: 'open' as const,
@@ -98,6 +100,7 @@ const seedDatabase = async () => {
         description: 'Scale our cloud infrastructure, configure build-and-test deployment pipelines, and optimize container networking rules.',
         requirements: '3+ years experience. AWS, Docker, Kubernetes, and CI/CD pipelines.',
         location: 'Bangalore, India',
+        department: 'IT',
         minExperience: 3,
         maxExperience: 8,
         status: 'open' as const,
@@ -108,8 +111,31 @@ const seedDatabase = async () => {
         description: 'Own the roadmap for candidate evaluation features, collaborate with engineering, and research user metrics.',
         requirements: '1+ year experience. Analytical mindset and data-focused communication skills.',
         location: 'Mumbai, India',
+        department: 'Product',
         minExperience: 1,
         maxExperience: 3,
+        status: 'open' as const,
+        createdBy: admin._id
+      },
+      {
+        title: 'Senior Account Executive',
+        description: 'Manage key customer relationships, drive enterprise sales pipelines, and consult on hiring platforms.',
+        requirements: '4+ years SaaS sales experience.',
+        location: 'Bangalore, India',
+        department: 'Sales',
+        minExperience: 4,
+        maxExperience: 8,
+        status: 'open' as const,
+        createdBy: admin._id
+      },
+      {
+        title: 'Financial Analyst',
+        description: 'Analyze operational metrics, forecast budget allocation, and assist finance leaders.',
+        requirements: '2+ years corporate finance experience.',
+        location: 'Remote',
+        department: 'Finance',
+        minExperience: 2,
+        maxExperience: 5,
         status: 'open' as const,
         createdBy: admin._id
       },
@@ -118,9 +144,10 @@ const seedDatabase = async () => {
         description: 'Build native iOS and Android experiences for our hiring client dashboard.',
         requirements: '3+ years experience with React Native and native mobile design rules.',
         location: 'Remote',
+        department: 'Engineering',
         minExperience: 3,
         maxExperience: 6,
-        status: 'closed' as const, // Seed one closed job
+        status: 'closed' as const,
         createdBy: admin._id
       }
     ];

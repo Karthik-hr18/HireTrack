@@ -1,6 +1,6 @@
+// Lever-style CandidateRow Component
 import React from 'react';
 import { AvatarInitials } from '../../../components/ui/AvatarInitials';
-import { StageBadge } from '../../../components/ui/StageBadge';
 
 export interface Application {
   _id: string;
@@ -20,53 +20,65 @@ interface CandidateRowProps {
   onClick: (id: string) => void;
 }
 
-function getRelativeTime(dateStr: string): string {
-  const ms = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(ms / 60_000);
-  if (min < 2)  return 'just now';
-  if (min < 60) return `${min}m`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24)  return `${hr}h`;
-  const d = Math.floor(hr / 24);
-  if (d < 30)   return `${d}d`;
-  return `${Math.floor(d / 30)}mo`;
+function getActionText(stage: string): string {
+  switch (stage) {
+    case 'resume_screening': return '📅 SCHEDULE';
+    case 'technical_interview': return '📋 SCORECARD';
+    case 'hr_interview': return '📋 SCORECARD';
+    case 'offer': return '✉ OFFER';
+    case 'hired': return '✅ HIRED';
+    default: return '📅 SCHEDULE';
+  }
 }
 
 export const CandidateRow: React.FC<CandidateRowProps> = ({
   application,
   isSelected,
-  isStale,
   onClick,
 }) => {
-  const name    = application.candidate?.name  || 'Unknown Candidate';
-  const jobTitle = application.job?.title       || 'Unknown Position';
-  const relTime  = getRelativeTime(application.updatedAt);
+  const name     = application.candidate?.name  || 'Unknown Candidate';
+  const email    = application.candidate?.email || 'Candidate';
+  const jobTitle = application.job?.title       || 'General Role';
+  const location = application.job?.location    || 'San Francisco';
+  const actionText = getActionText(application.stage);
 
   return (
-    <button
-      type="button"
-      className={[
-        'candidate-row',
-        isSelected ? 'candidate-row--selected' : '',
-        isStale    ? 'candidate-row--stale'    : '',
-      ].filter(Boolean).join(' ')}
+    <div
+      className={`lever-candidate-row ${isSelected ? 'is-selected' : ''}`}
       onClick={() => onClick(application._id)}
-      aria-pressed={isSelected}
-      aria-label={`${name} — ${jobTitle}, ${(application.stage || 'applied').replace(/_/g, ' ')}`}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(application._id); }}
     >
-      <AvatarInitials name={name} size={36} />
-
-      <div className="candidate-row__body">
-        <div className="candidate-row__top">
-          <span className="candidate-row__name">{name}</span>
-          <span className="candidate-row__time">
-            {isStale && <span className="candidate-row__stale-icon" aria-label="Stale">⚠</span>}
-            {relTime}
-          </span>
+      <div className="lever-candidate-row__left">
+        <span className="lever-candidate-row__checkbox" />
+        <AvatarInitials name={name} size={32} />
+        <div className="lever-candidate-row__identity">
+          <span className="lever-candidate-row__name">{name}</span>
+          <span className="lever-candidate-row__sub">{email}</span>
         </div>
-        <div className="candidate-row__subtitle">{jobTitle}</div>
-        <StageBadge stage={application.stage} size="sm" />
       </div>
-    </button>
+
+      <div className="lever-candidate-row__role">
+        <span>{jobTitle}</span>
+      </div>
+
+      <div className="lever-candidate-row__location">
+        <span>Full-Time · {location}</span>
+      </div>
+
+      <div className="lever-candidate-row__action">
+        <button
+          type="button"
+          className="lever-action-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick(application._id);
+          }}
+        >
+          {actionText}
+        </button>
+      </div>
+    </div>
   );
 };

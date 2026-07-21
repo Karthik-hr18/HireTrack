@@ -149,14 +149,15 @@ export const getCandidateApplications = async (req: Request, res: Response, next
 export const getManageApplications = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = Math.min(parseInt(req.query.limit as string) || 25, 100);
+    const limit = Math.min(parseInt(req.query.limit as string) || 200, 200);
     const skip = (page - 1) * limit;
 
     const query: any = {};
 
-    // Filter by specific job
-    if (req.query.jobId) {
-      query.job = new mongoose.Types.ObjectId(req.query.jobId as string);
+    // Filter by specific job (supports jobId or job parameter)
+    const rawJobId = (req.query.jobId || req.query.job) as string;
+    if (rawJobId && mongoose.Types.ObjectId.isValid(rawJobId)) {
+      query.job = new mongoose.Types.ObjectId(rawJobId);
     }
 
     // Filter by stage

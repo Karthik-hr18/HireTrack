@@ -23,6 +23,7 @@ const JobSchema: Schema = new Schema(
     description: { type: String, required: true },
     requirements: { type: String, trim: true },
     location: { type: String, trim: true },
+    department: { type: String, trim: true, default: 'General' },
     minExperience: { type: Number, default: 0, required: true },
     maxExperience: { type: Number, default: 0, required: true },
     vacancies: { type: Number, default: 1, required: true },

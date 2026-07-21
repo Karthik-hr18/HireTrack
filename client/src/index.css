@@ -117,6 +117,7 @@ p {
 .gradient-text {
   background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -3428,6 +3429,47 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
+/* Workspace Container Layout (Lever ATS Viewport Isolation) */
+.workspace-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+.workspace-main-area {
+  flex: 1 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: #ffffff;
+  padding: 16px 24px;
+  overflow-y: auto !important;
+}
+
+/* Sidebar */
+.lever-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  padding: 16px 12px;
+  width: 250px;
+  min-width: 250px;
+  flex-shrink: 0;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  box-sizing: border-box;
+  overflow: hidden !important;
+}
+
 .side-menu-header {
   display: flex;
   justify-content: space-between;
@@ -3539,6 +3581,906 @@ input:focus, select:focus, textarea:focus {
   background-color: rgba(79, 70, 229, 0.1);
   color: var(--accent);
   border-color: rgba(79, 70, 229, 0.2);
+}
+
+/* ── Job Group Sidebar Styling ───────────────────────────────────────── */
+.job-group-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: var(--gray-surface, #ffffff);
+  border: 1px solid var(--gray-border, #e2e8f0);
+  border-radius: var(--radius-card, 12px);
+  padding: 12px 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.job-group-sidebar--loading,
+.job-group-sidebar--empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--gray-text-muted, #64748b);
+  font-size: 13px;
+}
+
+.job-group-sidebar__all-jobs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-default, 8px);
+  color: var(--gray-text-primary, #0f172a);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-speed) var(--transition-timing);
+}
+
+.job-group-sidebar__all-jobs:hover {
+  background-color: var(--gray-bg, #f8fafc);
+}
+
+.job-group-sidebar__item--active {
+  background-color: rgba(79, 70, 229, 0.08) !important;
+  color: var(--accent, #4f46e5) !important;
+  border-color: rgba(79, 70, 229, 0.2) !important;
+}
+
+.job-group-sidebar__count,
+.job-group-sidebar__group-count,
+.job-group-sidebar__job-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background-color: var(--gray-bg, #f1f5f9);
+  color: var(--gray-text-muted, #64748b);
+  border: 1px solid var(--gray-border, #cbd5e1);
+}
+
+.job-group-sidebar__item--active .job-group-sidebar__count,
+.job-group-sidebar__item--active .job-group-sidebar__job-count {
+  background-color: var(--accent, #4f46e5);
+  color: #ffffff;
+  border-color: var(--accent, #4f46e5);
+}
+
+.job-group-sidebar__group {
+  margin-top: 4px;
+}
+
+.job-group-sidebar__group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-default, 8px);
+  color: var(--gray-text-muted, #475569);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color var(--transition-speed) var(--transition-timing);
+}
+
+.job-group-sidebar__group-header:hover {
+  background-color: var(--gray-bg, #f8fafc);
+  color: var(--gray-text-primary, #0f172a);
+}
+
+.job-group-sidebar__job-list {
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 0 0 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.job-group-sidebar__job-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-input, 6px);
+  color: var(--gray-text-primary, #1e293b);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-speed) var(--transition-timing);
+}
+
+.job-group-sidebar__job-button:hover {
+  background-color: var(--gray-bg, #f8fafc);
+}
+
+.job-group-sidebar__job-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+/* ── Lever ATS Clean Workspace Styles ────────────────────────────────────────── */
+
+/* Workspace Container Layout */
+.workspace-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-height: calc(100vh - 52px) !important;
+  overflow: hidden;
+}
+
+.workspace-main-area {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: #ffffff;
+  padding: 16px 24px;
+  overflow-y: auto;
+}
+
+/* Sidebar */
+.lever-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  padding: 16px 12px;
+  width: 250px;
+  min-width: 250px;
+  flex-shrink: 0;
+}
+
+.lever-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 8px 4px;
+}
+
+.lever-sidebar__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.lever-sidebar__show-all {
+  background: none;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.lever-sidebar__show-all:hover {
+  color: #0f172a;
+}
+
+.lever-sidebar__search-box {
+  margin-bottom: 8px;
+}
+
+.lever-sidebar__search-input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+}
+
+.lever-sidebar__all-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lever-sidebar__all-item.is-active {
+  background-color: #0284c7;
+  color: #ffffff;
+}
+
+.lever-sidebar__all-item.is-active .lever-sidebar__badge {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.lever-sidebar__group {
+  margin-top: 12px;
+}
+
+.lever-sidebar__group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.lever-sidebar__job-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lever-sidebar__job-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+
+.lever-sidebar__job-btn:hover {
+  background-color: #e2e8f0;
+}
+
+.lever-sidebar__job-btn.is-active {
+  background-color: #0284c7;
+  color: #ffffff;
+}
+
+.lever-sidebar__job-btn.is-active .lever-sidebar__badge {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.lever-sidebar__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.lever-sidebar__job-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lever-sidebar__badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  margin-left: 6px;
+}
+
+.lever-sidebar__filters {
+  margin-top: auto;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lever-sidebar__filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+}
+
+/* Funnel Metrics Row */
+.lever-funnel-bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background-color: #e2e8f0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.lever-funnel-card {
+  background-color: #ffffff;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  text-align: left;
+}
+
+.lever-funnel-card:hover {
+  background-color: #f8fafc;
+}
+
+.lever-funnel-card.is-active {
+  background-color: #f0f9ff;
+  box-shadow: inset 0 -3px 0 #0284c7;
+}
+
+.lever-funnel-count {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.lever-funnel-card.is-active .lever-funnel-count {
+  color: #0284c7;
+}
+
+.lever-funnel-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Candidate List Stage Grouping */
+.lever-candidate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.lever-stage-section__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #f1f5f9;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.lever-stage-section__title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #334155;
+}
+
+.lever-stage-section__count {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.lever-stage-section__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Lever Multi-Column Candidate Row */
+.lever-candidate-row {
+  display: grid;
+  grid-template-columns: 280px 1fr 200px 140px;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lever-candidate-row:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.lever-candidate-row.is-selected {
+  background-color: #f0f9ff;
+  border-color: #0284c7;
+}
+
+.lever-candidate-row__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lever-candidate-row__checkbox {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.lever-candidate-row__identity {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lever-candidate-row__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.lever-candidate-row__sub {
+  font-size: 12px;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lever-candidate-row__role {
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lever-candidate-row__location {
+  font-size: 12px;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lever-candidate-row__action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lever-action-btn {
+  background-color: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.lever-action-btn:hover {
+  background-color: #0369a1;
+}
+
+.lever-candidate-list__footer {
+  padding: 12px;
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LEVER ATS SIDEBAR — EXACT REFERENCE UI SPECIFICATIONS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.workspace-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-height: calc(100vh - 52px) !important;
+}
+
+.workspace-main-area {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: #ffffff;
+  padding: 16px 24px;
+}
+
+.lever-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: #f3f4f6 !important;
+  border-right: 1px solid #e5e7eb !important;
+  padding: 10px 8px !important;
+  width: 220px !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
+  flex-shrink: 0 !important;
+  height: calc(100vh - 52px) !important;
+  position: sticky !important;
+  top: 52px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Sidebar Top Header */
+.lever-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px 4px 2px;
+  flex-shrink: 0;
+}
+
+.lever-sidebar__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.lever-sidebar__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lever-sidebar__action-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.lever-sidebar__action-btn:hover {
+  color: #111827;
+}
+
+.lever-sidebar__sort-icon {
+  font-size: 11px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.lever-sidebar__divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+/* Quick Search input */
+.lever-sidebar__search-box {
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.lever-sidebar__search-input {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 11px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #ffffff;
+  outline: none;
+}
+
+/* All jobs fallback button */
+.lever-sidebar__all-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.lever-sidebar__all-item:hover {
+  background-color: #e5e7eb;
+}
+
+/* Scrollable Job Groups Area */
+.lever-sidebar__groups {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.lever-sidebar__groups::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lever-sidebar__groups::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 2px;
+}
+
+/* Group Section Header with Underline */
+.lever-sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lever-sidebar__group-header-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 2px;
+  margin-top: 4px;
+}
+
+.lever-sidebar__group-header {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.lever-sidebar__group-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lever-sidebar__group-line {
+  height: 1px;
+  background-color: #e5e7eb;
+  width: 100%;
+}
+
+/* Job Rows */
+.lever-sidebar__job-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.lever-sidebar__job-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 6px;
+  height: 26px;
+  border-radius: 3px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #374151;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.lever-sidebar__job-btn:hover {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+/* Active Selected Job Row: Vibrant Solid Blue Rectangle with Subtle 3px Rounded Corners */
+.lever-sidebar__job-btn.is-active {
+  background-color: #0077ff !important;
+  color: #ffffff !important;
+}
+
+.lever-sidebar__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #10b981;
+  flex-shrink: 0;
+}
+
+.lever-sidebar__job-btn.is-active .lever-sidebar__dot {
+  background-color: #ffffff !important;
+}
+
+.lever-sidebar__job-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Candidate Count Badges: Muted right-aligned text numbers for normal, white box for selected */
+.lever-sidebar__count-num {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.lever-sidebar__job-btn.is-active .lever-sidebar__count-num {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0 4px;
+  border-radius: 2px;
+  font-size: 10.5px;
+}
+
+/* Muted "Show closed" link matching reference */
+.lever-sidebar__show-closed-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  padding-right: 2px;
+}
+
+.lever-sidebar__show-closed-btn {
+  background: none;
+  border: none;
+  font-size: 10px;
+  font-weight: 500;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+}
+
+.lever-sidebar__show-closed-btn:hover {
+  color: #4b5563;
+}
+
+/* Bottom Accordions (Origin ˅, Tags ˅) */
+.lever-sidebar__filters {
+  margin-top: auto !important;
+  padding-top: 4px !important;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0 !important;
+}
+
+.lever-sidebar__filter-divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 4px 0;
+}
+
+.lever-sidebar__filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.15s ease;
+}
+
+.lever-sidebar__filter-row:hover {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.lever-sidebar__chevron {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* Additional Lever Filters & Section Dividers */
+.lever-sidebar__section-divider {
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 12px 0 8px 0;
+}
+
+.lever-sidebar__section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.lever-sidebar__filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lever-sidebar__filter-content {
+  padding: 6px 8px 8px 8px;
+  display: flex;
+  flex-direction: flex-wrap;
+  gap: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.lever-sidebar__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+}
+
+.lever-sidebar__checkbox-label input[type="checkbox"] {
+  accent-color: #0284c7;
+  cursor: pointer;
 }
 
 

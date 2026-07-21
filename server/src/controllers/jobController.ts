@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Job } from '../models/Job';
+import { Application } from '../models/Application';
 import { ActivityLog } from '../models/ActivityLog';
 import { CreateJobSchema, UpdateJobSchema } from '@hiretrack/shared';
 import mongoose from 'mongoose';
@@ -37,7 +38,7 @@ export const createJob = async (req: Request, res: Response, next: NextFunction)
 export const getPublicJobs = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = Math.min(parseInt(req.query.limit as string) || 25, 100);
+    const limit = Math.min(parseInt(req.query.limit as string) || 200, 200);
     const skip = (page - 1) * limit;
 
     const query = {
@@ -54,8 +55,20 @@ export const getPublicJobs = async (req: Request, res: Response, next: NextFunct
       Job.countDocuments(query)
     ]);
 
+    let resultJobs: any[] = jobs;
+    if (req.query.includeCounts === 'true') {
+      const counts = await Application.aggregate([
+        { $group: { _id: '$job', count: { $sum: 1 } } }
+      ]);
+      const countMap = new Map(counts.map((c) => [c._id?.toString(), c.count]));
+      resultJobs = jobs.map((j) => {
+        const obj = j.toObject();
+        return { ...obj, candidateCount: countMap.get(j._id.toString()) || 0 };
+      });
+    }
+
     return res.status(200).json({
-      jobs,
+      jobs: resultJobs,
       page,
       limit,
       total,

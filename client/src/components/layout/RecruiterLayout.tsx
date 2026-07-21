@@ -23,7 +23,8 @@ export const RecruiterLayout: React.FC = () => {
           display: 'flex', 
           flexDirection: 'column',
           opacity: fade ? 1 : 0.6,
-          transition: 'opacity 0.15s ease-in-out'
+          transition: 'opacity 0.15s ease-in-out',
+          overflowY: 'auto'
         }}
       >
         <Outlet />
