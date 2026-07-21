@@ -72,8 +72,8 @@ const ApplicationSchema: Schema = new Schema(
       default: 'applied'
     },
     resumeUrl: { type: String, required: true },
-    cloudinaryPublicId: { type: String, required: true },
-    cloudinaryAssetId: { type: String },
+    cloudinaryPublicId: { type: String, default: '' },
+    cloudinaryAssetId: { type: String, default: '' },
     cloudinaryResourceType: { type: String, default: 'raw' },
     cloudinaryType: { type: String, default: 'upload' },
     resumeSnapshotAt: { type: Date, required: true, default: Date.now },
