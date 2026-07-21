@@ -40,7 +40,7 @@ const recruiterRestrictedStages = [
 export const ActionCard: React.FC<ActionCardProps> = ({
   application,
   activeInterview,
-  isAdmin,
+  isAdmin: _isAdmin,
   isRecruiter,
   onAdvanceClick,
   onRejectClick,
@@ -50,9 +50,9 @@ export const ActionCard: React.FC<ActionCardProps> = ({
   const current = application.stage;
   const isTerminal = ['hired', 'rejected'].includes(current);
 
-  // Determine manual progression allowance (same logic as ApplicationDetailPage)
+  // Determine manual progression allowance
   const canAdvanceManually = !isTerminal && 
-    (current === 'applied' || (current === 'hr_interview_completed' && isAdmin) || (current === 'offer' && isAdmin));
+    (current === 'applied' || current === 'hr_interview_completed' || current === 'offer');
 
   const canRejectManually = !isTerminal && !(isRecruiter && recruiterRestrictedStages.includes(current));
 
@@ -61,11 +61,11 @@ export const ActionCard: React.FC<ActionCardProps> = ({
       case 'applied':
         return 'Screen Resume (Advance)';
       case 'hr_interview_completed':
-        return 'Proceed to Offer';
+        return '✉️ Issue Offer Letter (Move to Offer)';
       case 'offer':
-        return 'Confirm Candidate Acceptance (Hired)';
+        return '🎉 Confirm Candidate Acceptance (Mark Hired)';
       default:
-        return '';
+        return 'Advance Stage';
     }
   };
 
@@ -142,19 +142,17 @@ export const ActionCard: React.FC<ActionCardProps> = ({
       {!isTerminal && !canAdvanceManually && !showScheduledInfo && (
         <p className="action-card__instruction">
           {current === 'resume_screening' && "Waiting for Technical Interview to be scheduled."}
-          {current === 'technical_interview_scheduled' && `Waiting for ${activeInterview?.interviewer?.name || 'Admin'} to submit Technical Scorecard.`}
-          {current === 'technical_interview_completed' && (
-            isAdmin ? "Technical evaluation passed! Schedule HR Interview below." : "Technical evaluation passed! Waiting for Admin to schedule HR Interview."
-          )}
-          {current === 'hr_interview_scheduled' && `Waiting for ${activeInterview?.interviewer?.name || 'Admin'} to submit HR Scorecard.`}
+          {current === 'technical_interview_scheduled' && `Waiting for ${activeInterview?.interviewer?.name || 'Assigned Evaluator'} to submit Technical Scorecard.`}
+          {current === 'technical_interview_completed' && "Technical evaluation passed! Schedule HR Interview below."}
+          {current === 'hr_interview_scheduled' && `Waiting for ${activeInterview?.interviewer?.name || 'Assigned Evaluator'} to submit HR Scorecard.`}
           {isRecruiter && recruiterRestrictedStages.includes(current) && "Admin authorization required for stage progression updates."}
         </p>
       )}
 
       {/* Interactive options */}
       <div className="action-card__buttons">
-        {/* If recruiter needs to schedule a Technical Interview, or Admin needs to schedule tech/HR interview */}
-        {((current === 'resume_screening') || (current === 'technical_interview_completed' && isAdmin)) && onScheduleClick && (
+        {/* Schedule Technical Interview (during resume screening) or HR Interview (after technical interview) */}
+        {(current === 'resume_screening' || current === 'technical_interview_completed') && onScheduleClick && (
           <button 
             onClick={onScheduleClick}
             className="api-btn action-card__btn-schedule"

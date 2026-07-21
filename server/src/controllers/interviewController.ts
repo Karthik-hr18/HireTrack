@@ -31,13 +31,7 @@ export const scheduleInterview = async (req: Request, res: Response, next: NextF
         });
       }
     } else if (type === 'hr') {
-      // ONLY Admin can schedule HR. Recruiter CANNOT. Candidate must be in technical_interview_completed.
-      if (req.user.role !== 'admin') {
-        return res.status(403).json({
-          message: 'Only admins are authorized to schedule HR interviews.',
-          code: 'FORBIDDEN'
-        });
-      }
+      // Recruiter or Admin can schedule HR interview when technical interview is completed.
       if (application.stage !== 'technical_interview_completed') {
         return res.status(400).json({
           message: 'HR interviews can only be scheduled once the technical interview is completed.',

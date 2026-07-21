@@ -232,31 +232,41 @@ export const RecruiterNavbar: React.FC = () => {
           </nav>
         </div>
 
-        {/* RIGHTMOST — Recruiter Name & Sign Out Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--gray-text-primary)' }}>
-            {user?.name || 'Recruiter'}
-          </span>
-          <button
-            type="button"
-            onClick={handleLogout}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: 12,
-              fontWeight: 600,
-              color: 'var(--gray-text-muted)',
-              cursor: 'pointer',
-              padding: '4px 10px',
-              borderRadius: 'var(--radius-default)',
-              border: '1px solid var(--gray-border)',
-              backgroundColor: 'transparent'
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
+        {/* RIGHTMOST — Logged In User Profile Name & Sign Out */}
+        {(() => {
+          const displayName = user?.name || user?.email?.split('@')[0] || (user?.role === 'admin' ? 'Admin' : 'Recruiter');
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1.2 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--gray-text-primary)' }}>
+                  {displayName}
+                </span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  {user?.role || 'user'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: 'var(--gray-text-muted)',
+                  cursor: 'pointer',
+                  padding: '4px 10px',
+                  borderRadius: 'var(--radius-default)',
+                  border: '1px solid var(--gray-border)',
+                  backgroundColor: 'transparent'
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          );
+        })()}
       </div>
     </header>
   );

@@ -78,6 +78,7 @@ export interface Scorecard {
   _id: string;
   recommendation: string;
   comments: string;
+  ratings?: Record<string, number>;
   communication?: number;
   cultureFit?: number;
   salaryExpectation?: number;
@@ -720,30 +721,54 @@ const TabContent: React.FC<TabContentProps> = ({
                       })}
                     </div>
 
-                    {isHr && (
-                      <div className="scorecard-card__ratings">
-                        <div className="scorecard-card__rating-row">
-                          <span>Communication</span>
-                          <StarRating value={sc.communication ?? 0} />
-                        </div>
-                        <div className="scorecard-card__rating-row">
-                          <span>Culture Fit</span>
-                          <StarRating value={sc.cultureFit ?? 0} />
-                        </div>
-                        {sc.salaryExpectation && (
-                          <div className="scorecard-card__rating-row">
-                            <span>Salary Expected</span>
-                            <span>₹{sc.salaryExpectation.toLocaleString()}</span>
+                    {/* Detailed Ratings Breakdown for Technical & HR Scorecards */}
+                    <div className="scorecard-card__ratings" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12, padding: 12, backgroundColor: 'var(--gray-surface)', borderRadius: 8, border: '1px solid var(--gray-border)' }}>
+                      {sc.ratings && typeof sc.ratings === 'object' && Object.keys(sc.ratings).length > 0 && (
+                        Object.entries(sc.ratings).map(([key, val]) => (
+                          <div key={key} className="scorecard-card__rating-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{key.replace(/_/g, ' ')} Score</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <StarRating value={Number(val) || 0} />
+                              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--gray-text-primary)' }}>{Number(val) || 0}/5</span>
+                            </div>
                           </div>
-                        )}
-                        {sc.salaryOffered && (
-                          <div className="scorecard-card__rating-row">
-                            <span>Salary Offered</span>
-                            <span>₹{sc.salaryOffered.toLocaleString()}</span>
+                        ))
+                      )}
+
+                      {sc.communication !== undefined && sc.communication !== null && (
+                        <div className="scorecard-card__rating-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 600 }}>Communication & Soft Skills</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <StarRating value={sc.communication} />
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--gray-text-primary)' }}>{sc.communication}/5</span>
                           </div>
-                        )}
-                      </div>
-                    )}
+                        </div>
+                      )}
+
+                      {sc.cultureFit !== undefined && sc.cultureFit !== null && (
+                        <div className="scorecard-card__rating-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 600 }}>Culture & Team Fit</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <StarRating value={sc.cultureFit} />
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--gray-text-primary)' }}>{sc.cultureFit}/5</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {sc.salaryExpectation && (
+                        <div className="scorecard-card__rating-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 600 }}>Expected Salary</span>
+                          <span style={{ fontWeight: 700, color: 'var(--accent)' }}>₹{sc.salaryExpectation.toLocaleString()}</span>
+                        </div>
+                      )}
+
+                      {sc.salaryOffered && (
+                        <div className="scorecard-card__rating-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 600 }}>Offered Package</span>
+                          <span style={{ fontWeight: 700, color: 'var(--success)' }}>₹{sc.salaryOffered.toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
 
                     {sc.comments && (
                       <div className="scorecard-card__comments">
