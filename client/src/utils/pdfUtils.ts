@@ -9,14 +9,9 @@ const API_URL = import.meta.env.VITE_API_URL || '';
  * Generates an authenticated backend PDF stream URL.
  * Bypasses 3rd-party CDN 401 delivery restrictions by streaming through our backend server.
  */
-export const getBackendResumeStreamUrl = (applicationId?: string, rawUrl?: string): string => {
-  if (applicationId) {
-    return `${API_URL}/api/applications/${applicationId}/resume`;
-  }
-  if (rawUrl) {
-    return `${API_URL}/api/applications/resume-stream?url=${encodeURIComponent(rawUrl)}`;
-  }
-  return '';
+export const getBackendResumeStreamUrl = (applicationId?: string): string => {
+  if (!applicationId) return '';
+  return `${API_URL}/api/applications/${applicationId}/resume`;
 };
 
 /**

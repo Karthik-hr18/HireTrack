@@ -30,9 +30,18 @@ export const LoginPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || 'Authentication failed. Check credentials.');
-      }
+          // Attempt to parse error JSON; fallback to plain text if parsing fails
+          let errorMessage = 'Authentication failed. Check credentials.';
+          try {
+            const errData = await response.json();
+            if (errData && errData.message) errorMessage = errData.message;
+          } catch (jsonErr) {
+            // Not JSON – try to read raw text
+            const errText = await response.text();
+            if (errText) errorMessage = errText;
+          }
+          throw new Error(errorMessage);
+        }
 
       const data = await response.json();
       localStorage.setItem('token', data.token);

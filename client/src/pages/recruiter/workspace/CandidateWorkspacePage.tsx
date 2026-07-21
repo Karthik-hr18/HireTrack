@@ -67,7 +67,11 @@ class WorkspaceSectionErrorBoundary extends React.Component<ErrorBoundaryProps, 
       );
     }
 
-    return this.props.children;
+    return (
+      <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        {this.props.children}
+      </div>
+    );
   }
 }
 
@@ -151,6 +155,12 @@ export const CandidateWorkspacePage: React.FC = () => {
     listRefreshRef.current?.();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
   // Listen for Escape key to deselect active candidate
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -167,28 +177,41 @@ export const CandidateWorkspacePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="workspace-container">
-      {/* HEADER NAVBAR */}
-      <header className="workspace-header">
-        <div className="workspace-header__left">
-          <button 
-            className="hamburger-btn"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle Navigation Menu"
-            type="button"
-          >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
-          
-          <Link to="/" className="workspace-logo-link">
-            <h1 className="workspace-title">Candidate Pipeline</h1>
-          </Link>
-          <span className="workspace-badge">Recruiter Workspace</span>
-        </div>
+    <div className="workspace-root">
+      {/* ── WORKSPACE TOP BAR (Header + Nav + User) ───────────── */}
+      <div className="workspace-topbar">
+        <Link to="/" className="workspace-topbar__logo">
+          HireTrack
+        </Link>
+        <span className="workspace-topbar__role-badge">
+          {user?.role === 'admin' ? 'ADMIN' : 'RECRUITER'} WORKSPACE
+        </span>
 
-        <div className="workspace-header__right">
-          {/* View Switcher: List vs Kanban */}
-          <div className="view-switcher" role="group" aria-label="Pipeline View Mode">
+        <nav className="workspace-topbar__nav">
+          <Link to="/dashboard" className="workspace-topbar__link">
+            Analytics
+          </Link>
+          <Link to="/recruiter/candidates" className="workspace-topbar__link workspace-topbar__link--active">
+            Candidates
+          </Link>
+          <Link to="/recruiter/jobs" className="workspace-topbar__link">
+            Jobs
+          </Link>
+          {user?.role === 'admin' && (
+            <Link to="/admin/interviews" className="workspace-topbar__link">
+              Interviews
+            </Link>
+          )}
+          {user?.role === 'admin' && (
+            <Link to="/admin/recruiters" className="workspace-topbar__link">
+              Recruiters
+            </Link>
+          )}
+        </nav>
+
+        <div className="workspace-topbar__user">
+          {/* View Mode Switcher */}
+          <div className="view-switcher" role="group" aria-label="Pipeline View Mode" style={{ marginRight: 12 }}>
             <button
               type="button"
               className={`view-switcher__btn ${viewMode === 'list' ? 'is-active' : ''}`}
@@ -206,8 +229,39 @@ export const CandidateWorkspacePage: React.FC = () => {
               Board
             </button>
           </div>
+
+          <span className="workspace-topbar__user-name">{user?.name || 'Recruiter'}</span>
+          <button type="button" onClick={handleLogout} className="workspace-topbar__signout">
+            Sign Out
+          </button>
+
+          {/* Menu Drawer Toggle */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--gray-text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              padding: 4
+            }}
+          >
+            <Menu size={20} />
+          </button>
         </div>
-      </header>
+      </div>
+
+      {/* ── WORKSPACE CONTEXT BAR (Stage Tabs) ───────────────── */}
+      <div className="workspace-contextbar">
+        <StageTabBar
+          activeStage={activeStage}
+          counts={stageCounts}
+          onStageChange={handleStageChange}
+        />
+      </div>
 
       {/* SIDE MENU DRAWER */}
       {menuOpen && (
@@ -274,7 +328,6 @@ export const CandidateWorkspacePage: React.FC = () => {
               )}
             </nav>
 
-            {/* Footer with logged in user profile & logout button */}
             <div className="side-menu-footer">
               <div className="side-menu-user">
                 <div className="side-menu-avatar">
@@ -289,11 +342,7 @@ export const CandidateWorkspacePage: React.FC = () => {
               <button 
                 className="side-menu-logout"
                 type="button"
-                onClick={() => {
-                  localStorage.removeItem('token');
-                  localStorage.removeItem('user');
-                  navigate('/login');
-                }}
+                onClick={handleLogout}
               >
                 <LogOut size={16} /> Logout
               </button>
@@ -302,14 +351,7 @@ export const CandidateWorkspacePage: React.FC = () => {
         </div>
       )}
 
-      {/* STAGE TAB BAR */}
-      <StageTabBar
-        activeStage={activeStage}
-        counts={stageCounts}
-        onStageChange={handleStageChange}
-      />
-
-      {/* WORKSPACE BODY */}
+      {/* ── WORKSPACE BODY CONTENT ───────────────────────────── */}
       {viewMode === 'list' ? (
         <div className="workspace-body">
           {/* LEFT — Candidate List */}

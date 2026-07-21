@@ -18,14 +18,15 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   className = ''
 }) => {
   const [loading, setLoading] = useState(true);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const streamUrl = getBackendResumeStreamUrl(applicationId, pdfUrl);
+  const streamUrl = applicationId ? getBackendResumeStreamUrl(applicationId) : '';
   const rawUrl = getNormalizedPdfUrl(pdfUrl);
 
-  const verifyStreamAccess = useCallback(async () => {
+  const fetchAuthenticatedPdf = useCallback(async () => {
     if (!streamUrl && !rawUrl) {
       setLoading(false);
       setErrorStatus(404);
@@ -38,31 +39,57 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
       setErrorStatus(null);
       setErrorMessage(null);
 
-      // Perform HEAD check to verify PDF stream availability and content type
-      const targetCheckUrl = streamUrl || rawUrl;
-      const res = await fetch(targetCheckUrl, { method: 'HEAD' });
+      const token = localStorage.getItem('token');
+      const targetFetchUrl = streamUrl || rawUrl;
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      // Fetch raw PDF bytes with Authorization header
+      const res = await fetch(targetFetchUrl, { headers });
 
       if (!res.ok) {
         setErrorStatus(res.status);
         if (res.status === 404) {
           setErrorMessage('Resume PDF file not found in storage repository.');
         } else if (res.status === 401 || res.status === 403) {
-          setErrorMessage('Access restricted: Invalid credentials or expired Cloudinary token.');
+          setErrorMessage('Access restricted: Invalid authentication token or session expired.');
         } else {
-          setErrorMessage(`Storage server returned error status ${res.status}.`);
+          setErrorMessage(`Storage provider or server returned status ${res.status}.`);
         }
+        return;
       }
+
+      // Create Blob URL for in-page inline PDF rendering
+      const pdfBlob = await res.blob();
+      const createdUrl = URL.createObjectURL(
+        new Blob([pdfBlob], { type: 'application/pdf' })
+      );
+
+      setBlobUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return createdUrl;
+      });
     } catch (err) {
-      // Direct stream test
-      console.warn('[PdfViewer Stream Warning] HEAD request check failed, defaulting to inline embed');
+      console.error('[PdfViewer Fetch Error]', err);
+      setErrorStatus(500);
+      setErrorMessage('Network connection error while fetching candidate resume.');
     } finally {
       setLoading(false);
     }
   }, [streamUrl, rawUrl]);
 
   useEffect(() => {
-    verifyStreamAccess();
-  }, [verifyStreamAccess, reloadKey]);
+    fetchAuthenticatedPdf();
+
+    return () => {
+      setBlobUrl((current) => {
+        if (current) URL.revokeObjectURL(current);
+        return null;
+      });
+    };
+  }, [fetchAuthenticatedPdf, reloadKey]);
 
   const handleRetry = () => {
     setReloadKey((prev) => prev + 1);
@@ -81,12 +108,12 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
         }}
       >
         <FileText size={36} style={{ marginBottom: 8, opacity: 0.5 }} />
-        <p style={{ margin: 0, fontWeight: 600 }}>No PDF resume file associated with this record.</p>
+        <p style={{ margin: 0, fontWeight: 600 }}>No PDF resume file associated with this candidate profile.</p>
       </div>
     );
   }
 
-  // ── Error State Card (No fake PDF fallbacks) ─────────────────────────────
+  // ── Error State Card (Preserves 404, 401, 500 without fake PDF fallbacks) ──
   if (errorStatus && errorStatus !== 200) {
     return (
       <div
@@ -175,7 +202,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   }
 
   // ── Loading Spinner State ────────────────────────────────────────────────
-  if (loading) {
+  if (loading || !blobUrl) {
     return (
       <div
         style={{
@@ -193,13 +220,11 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
       >
         <Loader2 size={36} className="spin-animation" style={{ marginBottom: 12, color: '#ffffff' }} />
         <p style={{ fontSize: 14, fontWeight: 600, color: '#e2e8f0', margin: 0 }}>
-          Streaming Authenticated PDF Resume...
+          Buffering Authenticated Candidate Resume PDF...
         </p>
       </div>
     );
   }
-
-  const activeViewerUrl = streamUrl || rawUrl;
 
   return (
     <div
@@ -215,8 +240,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
       }}
     >
       <object
-        key={reloadKey}
-        data={activeViewerUrl}
+        data={blobUrl}
         type="application/pdf"
         width="100%"
         height="100%"
@@ -224,13 +248,13 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
         style={{ border: 'none', width: '100%', height: '100%', display: 'block' }}
       >
         <embed
-          src={activeViewerUrl}
+          src={blobUrl}
           type="application/pdf"
           width="100%"
           height="100%"
           style={{ border: 'none', width: '100%', height: '100%' }}
         />
-        {/* Native Fallback container */}
+        {/* Fallback CTA */}
         <div
           style={{
             padding: 40,
@@ -247,10 +271,10 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
           <FileText size={48} style={{ color: 'var(--accent, #4f46e5)', marginBottom: 12 }} />
           <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 8px 0' }}>{title}</h3>
           <p style={{ fontSize: 14, color: '#64748b', margin: '0 0 20px 0', maxWidth: 360 }}>
-            Click below to open the PDF directly in a new browser window.
+            Click below to open the authenticated PDF resume document.
           </p>
           <a
-            href={activeViewerUrl}
+            href={blobUrl}
             target="_blank"
             rel="noopener noreferrer"
             style={{

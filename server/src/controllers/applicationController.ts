@@ -5,7 +5,7 @@ import { User } from '../models/User';
 import { ActivityLog } from '../models/ActivityLog';
 import { Interview } from '../models/Interview';
 import { Scorecard } from '../models/Scorecard';
-import { uploadToCloudinary } from '../config/cloudinary';
+import { uploadToCloudinary, performCloudinaryUpload, getCloudinaryAssetInfo } from '../config/cloudinary';
 import { ApplySchema, RejectApplicationSchema, PipelineStage } from '@hiretrack/shared';
 import mongoose from 'mongoose';
 
@@ -67,8 +67,9 @@ export const applyToJob = async (req: Request, res: Response, next: NextFunction
       });
     }
 
-    // Upload resume to Cloudinary (uploaded as 'image' type for inline browser previews)
-    const resumeUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+    // Upload resume to Cloudinary
+    const uploadResult = await performCloudinaryUpload(req.file.buffer, req.file.originalname);
+    const resumeUrl = uploadResult.secure_url;
 
     // Create the application document
     const application = await Application.create({
@@ -77,6 +78,10 @@ export const applyToJob = async (req: Request, res: Response, next: NextFunction
       source: source || 'careers_page',
       stage: 'applied',
       resumeUrl,
+      cloudinaryPublicId: uploadResult.public_id || '',
+      cloudinaryAssetId: uploadResult.asset_id || '',
+      cloudinaryResourceType: uploadResult.resource_type || 'raw',
+      cloudinaryType: uploadResult.type || 'upload',
       resumeSnapshotAt: new Date(),
       phone: validatedData.phone,
       country: validatedData.country,
@@ -105,6 +110,13 @@ export const applyToJob = async (req: Request, res: Response, next: NextFunction
     const populatedApp = await Application.findById(application._id)
       .populate('job', 'title location status')
       .populate('candidate', 'name email');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Created application document:', {
+        id: application._id,
+        resumeUrl: application.resumeUrl,
+        createdAt: application.createdAt,
+      });
+    }
 
     return res.status(201).json(populatedApp);
   } catch (error) {
@@ -242,67 +254,98 @@ export const getApplicationById = async (req: Request, res: Response, next: Next
  * Preserves accurate HTTP status codes (200, 404, 401, 502) and diagnostic server logging.
  */
 export const streamApplicationResume = async (req: Request, res: Response, next: NextFunction) => {
+  if (process.env.NODE_ENV !== "production") {
+    console.log('=== RESUME STREAM DEBUG ===');
+    console.log('Method:', req.method);
+    console.log('Path:', req.originalUrl);
+    console.log('Authorization:', req.headers.authorization);
+    console.log('User:', req.user ? { userId: req.user.id, role: req.user.role } : 'Unauthenticated');
+  }
   try {
     const { id } = req.params;
-    let resumeUrl = '';
 
-    if (id && mongoose.Types.ObjectId.isValid(id)) {
-      const application = await Application.findById(id).select('resumeUrl');
-      if (application && application.resumeUrl) {
-        resumeUrl = application.resumeUrl;
-      }
-    }
+    // Load application together with Cloudinary metadata
+    const application = await Application.findById(id).select(
+      'resumeUrl candidate cloudinaryPublicId cloudinaryResourceType cloudinaryType'
+    );
 
-    if (!resumeUrl && req.query.url) {
-      resumeUrl = req.query.url as string;
-    }
-
-    if (!resumeUrl) {
-      console.error('[Resume Stream Failed] Missing resume URL in database', { id });
+    if (!application || !application.resumeUrl) {
+      console.error('[Resume Stream] Application or resume URL not found', { id });
       return res.status(404).json({
-        message: 'No resume PDF file associated with this candidate profile',
-        code: 'RESUME_NOT_FOUND'
+        message: 'No resume file associated with this candidate profile',
+        code: 'RESUME_NOT_FOUND',
       });
     }
 
-    // Convert legacy /image/upload/ to /raw/upload/ if Cloudinary URL
-    const targetUrl = resumeUrl.includes('res.cloudinary.com') && resumeUrl.includes('/image/upload/')
-      ? resumeUrl.replace('/image/upload/', '/raw/upload/')
-      : resumeUrl;
-
-    const storageResponse = await fetch(targetUrl);
-
-    if (!storageResponse.ok) {
-      // Retry with original URL if targetUrl failed
-      const origResponse = await fetch(resumeUrl);
-      if (!origResponse.ok) {
-        console.error('[Resume Stream Failed] Storage provider error', {
-          id,
-          targetUrl,
-          status: origResponse.status
-        });
-        const errCode = origResponse.status === 404 ? 'RESUME_NOT_FOUND' : 'RESUME_UNAUTHORIZED';
-        return res.status(origResponse.status).json({
-          message: `Storage provider returned status ${origResponse.status}`,
-          code: errCode
-        });
-      }
-
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'inline; filename="candidate-resume.pdf"');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Cache-Control', 'public, max-age=3600');
-      const origBuffer = await origResponse.arrayBuffer();
-      return res.send(Buffer.from(origBuffer));
+    // Authorization for candidates
+    if (
+      req.user &&
+      req.user.role === 'candidate' &&
+      application.candidate?.toString() !== req.user.id
+    ) {
+      return res.status(403).json({ message: 'Forbidden: you do not have access to this resume', code: 'FORBIDDEN' });
     }
 
-    res.setHeader('Content-Type', 'application/pdf');
+    // Generate signed URL using stored Cloudinary metadata (5‑minute expiry)
+    let fetchUrl = application.resumeUrl;
+    if (application.cloudinaryPublicId) {
+      const expiresAt = Math.floor(Date.now() / 1000) + 300; // 5 minutes
+      try {
+        const { v2: cloudinary } = await import('cloudinary');
+        const signed = (cloudinary.utils as any).private_download_url(
+          application.cloudinaryPublicId,
+          'pdf',
+          {
+            resource_type: application.cloudinaryResourceType || 'raw',
+            type: application.cloudinaryType || 'upload',
+            expires_at: expiresAt,
+          }
+        );
+        fetchUrl = signed;
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[Resume Stream] Using signed URL', { signedUrl: signed });
+        }
+      } catch (e) {
+        console.error('[Resume Stream] Failed to generate signed URL', e);
+        // fallback to public URL
+      }
+    }
+
+    // Stream the PDF (or image) using axios with responseType "stream"
+    const axios = (await import('axios')).default;
+    const response = await axios.get(fetchUrl, { responseType: 'stream' });
+
+    if (response.status !== 200) {
+      console.error('[Resume Stream] Cloudinary returned non‑200', {
+        status: response.status,
+        url: fetchUrl,
+      });
+      return res.status(response.status).json({
+        message: `Storage provider returned status ${response.status}`,
+        code: response.status === 404 ? 'RESUME_NOT_FOUND' : 'RESUME_UNAUTHORIZED',
+      });
+    }
+
+    const rawContentType = response.headers['content-type'];
+    const contentType = typeof rawContentType === 'string' ? rawContentType : 'application/pdf';
+
+    // If client prefers HTML, serve an embed preview
+    const acceptHeader = typeof req.headers.accept === 'string' ? req.headers.accept : '';
+    if (acceptHeader.includes('text/html')) {
+      const previewHtml = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Resume Preview</title></head>
+<body style="margin:0;height:100vh;">
+  <embed src="${fetchUrl}" type="${contentType}" style="width:100%;height:100%;border:none;" />
+</body></html>`;
+      res.setHeader('Content-Type', 'text/html');
+      return res.send(previewHtml);
+    }
+    // Otherwise stream the PDF normally
+    res.setHeader('Content-Type', contentType.includes('pdf') ? 'application/pdf' : contentType);
     res.setHeader('Content-Disposition', 'inline; filename="candidate-resume.pdf"');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Cache-Control', 'public, max-age=3600');
-
-    const pdfBuffer = await storageResponse.arrayBuffer();
-    return res.send(Buffer.from(pdfBuffer));
+    response.data.pipe(res);
   } catch (error) {
     console.error('[Resume Stream Exception]', error);
     return next(error);

@@ -643,16 +643,81 @@ input:focus, select:focus, textarea:focus {
 }
 
 .workspace-contextbar {
-  height: 40px;
-  min-height: 40px;
+  height: 44px;
+  min-height: 44px;
   border-bottom: 1px solid var(--gray-border);
   display: flex;
   align-items: center;
   padding: 0;
-  background-color: var(--gray-bg);
+  background-color: var(--gray-surface);
   flex-shrink: 0;
   z-index: 90;
   overflow-x: auto;
+}
+
+.workspace-contextbar .stage-tab-bar {
+  border-bottom: none;
+  height: 100%;
+  padding: 0 16px;
+}
+
+/* ── Stage Tab Bar ───────────────────────────────── */
+.stage-tab-bar {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  gap: 4px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--gray-border);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.stage-tab-bar::-webkit-scrollbar { display: none; }
+
+.stage-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 100%;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: var(--gray-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.stage-tab:hover {
+  color: var(--gray-text-primary);
+}
+.stage-tab--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+
+.stage-tab__count {
+  font-size: 11px;
+  font-weight: 700;
+  background-color: rgba(79, 70, 229, 0.1);
+  color: var(--accent);
+  padding: 1px 7px;
+  border-radius: var(--radius-pill, 12px);
+  min-width: 18px;
+  text-align: center;
+}
+.stage-tab--active .stage-tab__count {
+  background-color: var(--accent);
+  color: #ffffff;
 }
 
 .workspace-body {

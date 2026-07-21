@@ -13,6 +13,10 @@ export interface IApplication extends Document {
   source: ApplicationSourceType;
   stage: PipelineStageType;
   resumeUrl: string;
+  cloudinaryPublicId?: string;
+  cloudinaryAssetId?: string;
+  cloudinaryResourceType?: string;
+  cloudinaryType?: string;
   resumeSnapshotAt: Date;
   phone: string;
   country: string;
@@ -68,6 +72,10 @@ const ApplicationSchema: Schema = new Schema(
       default: 'applied'
     },
     resumeUrl: { type: String, required: true },
+    cloudinaryPublicId: { type: String, required: true },
+    cloudinaryAssetId: { type: String },
+    cloudinaryResourceType: { type: String, default: 'raw' },
+    cloudinaryType: { type: String, default: 'upload' },
     resumeSnapshotAt: { type: Date, required: true, default: Date.now },
     phone: { type: String, required: true },
     country: { type: String, required: true },
