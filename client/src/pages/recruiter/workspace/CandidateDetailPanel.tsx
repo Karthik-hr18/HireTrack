@@ -100,6 +100,10 @@ interface CandidateDetailPanelProps {
   onDeselect: () => void;
   /** Callback to refresh the candidate list after a write action */
   onRefreshList?: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -107,6 +111,10 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
   applicationId,
   onDeselect,
   onRefreshList,
+  onNext,
+  onPrevious,
+  hasNext = false,
+  hasPrevious = false,
 }) => {
   const token  = localStorage.getItem('token');
   const apiUrl = import.meta.env.VITE_API_URL || '';
@@ -246,15 +254,61 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
 
       {/* ── STICKY HEADER ─────────────────────────────────────────────── */}
       <div className="detail-panel__header">
-        {/* Mobile / deselect button */}
-        <button
-          className="detail-panel__back"
-          onClick={onDeselect}
-          aria-label="Back to candidate list"
-          title="Close panel"
-        >
-          ←
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            className="detail-panel__back"
+            onClick={onDeselect}
+            aria-label="Back to candidate list"
+            title="Close panel"
+          >
+            ←
+          </button>
+          
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <button
+              type="button"
+              disabled={!hasPrevious}
+              onClick={onPrevious}
+              style={{
+                padding: '4px 8px',
+                fontSize: 12,
+                fontWeight: 600,
+                color: hasPrevious ? 'var(--gray-text-primary)' : 'var(--gray-text-disabled)',
+                backgroundColor: 'var(--gray-surface)',
+                border: '1px solid var(--gray-border)',
+                borderRadius: 6,
+                cursor: hasPrevious ? 'pointer' : 'not-allowed',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 2
+              }}
+              title="Previous Candidate"
+            >
+              ‹ Prev
+            </button>
+            <button
+              type="button"
+              disabled={!hasNext}
+              onClick={onNext}
+              style={{
+                padding: '4px 8px',
+                fontSize: 12,
+                fontWeight: 600,
+                color: hasNext ? 'var(--gray-text-primary)' : 'var(--gray-text-disabled)',
+                backgroundColor: 'var(--gray-surface)',
+                border: '1px solid var(--gray-border)',
+                borderRadius: 6,
+                cursor: hasNext ? 'pointer' : 'not-allowed',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 2
+              }}
+              title="Next Candidate"
+            >
+              Next ›
+            </button>
+          </div>
+        </div>
 
         <div className="detail-panel__title-area">
           <div className="detail-panel__name-row">

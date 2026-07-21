@@ -6,6 +6,12 @@ export const CareersNav: React.FC = () => {
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : null;
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/';
+  };
+
   return (
     <header className="careers-nav">
       <div className="careers-container">
@@ -58,6 +64,25 @@ export const CareersNav: React.FC = () => {
                     My Applications
                   </Link>
                 )}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="btn-ghost"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'var(--gray-text-muted)',
+                    cursor: 'pointer',
+                    padding: '6px 12px',
+                    borderRadius: 'var(--radius-pill)',
+                    border: '1px solid var(--gray-border)'
+                  }}
+                >
+                  <span>Sign Out</span>
+                </button>
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

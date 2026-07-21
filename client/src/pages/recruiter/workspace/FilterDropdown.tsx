@@ -101,8 +101,11 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
           <option value="">Any Source</option>
           <option value="careers_page">Careers Page</option>
           <option value="linkedin">LinkedIn</option>
+          <option value="naukri">Naukri</option>
           <option value="indeed">Indeed</option>
           <option value="referral">Referral</option>
+          <option value="campus">Campus</option>
+          <option value="recruiter_added">Recruiter Added</option>
           <option value="other">Other</option>
         </select>
       </div>

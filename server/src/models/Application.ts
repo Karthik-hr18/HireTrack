@@ -49,7 +49,7 @@ const ApplicationSchema: Schema = new Schema(
     source: {
       type: String,
       required: true,
-      enum: ['careers_page', 'linkedin', 'naukri', 'referral', 'campus', 'recruiter_added'],
+      enum: ['careers_page', 'linkedin', 'naukri', 'indeed', 'referral', 'campus', 'recruiter_added', 'other'],
       index: true
     },
     stage: {

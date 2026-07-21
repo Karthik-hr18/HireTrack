@@ -176,27 +176,46 @@ export const CandidateWorkspacePage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const currentIdx = selectedId ? allApplications.findIndex((a) => a._id === selectedId) : -1;
+  const hasPrevious = currentIdx > 0;
+  const hasNext = currentIdx >= 0 && currentIdx < allApplications.length - 1;
+
+  const handleNextCandidate = () => {
+    if (hasNext) {
+      handleSelect(allApplications[currentIdx + 1]._id);
+    }
+  };
+
+  const handlePreviousCandidate = () => {
+    if (hasPrevious) {
+      handleSelect(allApplications[currentIdx - 1]._id);
+    }
+  };
+
   return (
-    <div className="workspace-root">
-      {/* ── WORKSPACE TOP BAR (Header + Nav + User) ───────────── */}
+    <div className="workspace-container">
+      {/* ── WORKSPACE TOPBAR (Header) ───────────────────────── */}
       <div className="workspace-topbar">
-        <Link to="/" className="workspace-topbar__logo">
-          HireTrack
-        </Link>
-        <span className="workspace-topbar__role-badge">
-          {user?.role === 'admin' ? 'ADMIN' : 'RECRUITER'} WORKSPACE
-        </span>
+        <div className="workspace-topbar__brand">
+          <Link to="/dashboard" className="workspace-topbar__logo" aria-label="HireTrack Homepage">
+            <span className="workspace-topbar__logo-icon">H</span>
+            Hire<span className="workspace-topbar__logo-accent">Track</span>
+          </Link>
+          <span className="workspace-topbar__divider" />
+          <span className="workspace-topbar__page-title">Candidate Pipeline</span>
+        </div>
 
         <nav className="workspace-topbar__nav">
           <Link to="/dashboard" className="workspace-topbar__link">
-            Analytics
+            Dashboard
           </Link>
-          <Link to="/recruiter/candidates" className="workspace-topbar__link workspace-topbar__link--active">
+          <Link to="/recruiter/candidates" className="workspace-topbar__link is-active">
             Candidates
           </Link>
           <Link to="/recruiter/jobs" className="workspace-topbar__link">
             Jobs
           </Link>
+
           {user?.role === 'admin' && (
             <Link to="/admin/interviews" className="workspace-topbar__link">
               Interviews
@@ -268,7 +287,7 @@ export const CandidateWorkspacePage: React.FC = () => {
         <div className="side-menu-overlay" onClick={() => setMenuOpen(false)}>
           <div className="side-menu-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="side-menu-header">
-              <span className="side-menu-title">HireTrack Navigation</span>
+              <span className="side-menu-title">Quick Navigation</span>
               <button 
                 className="side-menu-close"
                 onClick={() => setMenuOpen(false)}
@@ -380,6 +399,10 @@ export const CandidateWorkspacePage: React.FC = () => {
                   applicationId={selectedId}
                   onDeselect={handleDeselect}
                   onRefreshList={handleListRefresh}
+                  onNext={handleNextCandidate}
+                  onPrevious={handlePreviousCandidate}
+                  hasNext={hasNext}
+                  hasPrevious={hasPrevious}
                 />
               ) : (
                 <div className="workspace-right-panel__empty">
@@ -416,30 +439,53 @@ export const CandidateWorkspacePage: React.FC = () => {
             />
           </WorkspaceSectionErrorBoundary>
 
-          {/* Slide-out detail drawer overlay over the Kanban board */}
-          <main
-            className={`workspace-right-panel kanban-drawer ${panelOpen ? 'is-open' : ''}`}
-            aria-label="Candidate detail drawer"
-          >
-            <WorkspaceSectionErrorBoundary fallbackTitle="Candidate Profile Error" onReset={handleDeselect}>
-              {selectedId ? (
-                <CandidateDetailPanel
-                  key={selectedId}
-                  applicationId={selectedId}
-                  onDeselect={handleDeselect}
-                  onRefreshList={handleListRefresh}
-                />
-              ) : (
-                <div className="workspace-right-panel__empty">
-                  <EmptyState
-                    icon="👉"
-                    title="Select a candidate card"
-                    description="Click any candidate card on the Kanban columns to open their detail drawer overlay."
+          {/* Centered Modal Overlay for Board View */}
+          {selectedId && (
+            <div
+              className="kanban-modal-overlay"
+              onClick={handleDeselect}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                backdropFilter: 'blur(6px)',
+                zIndex: 1000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 24,
+              }}
+            >
+              <div
+                className="kanban-modal-container"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  width: '100%',
+                  maxWidth: 960,
+                  height: '88vh',
+                  backgroundColor: 'var(--gray-surface, #ffffff)',
+                  borderRadius: 16,
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <WorkspaceSectionErrorBoundary fallbackTitle="Candidate Profile Error" onReset={handleDeselect}>
+                  <CandidateDetailPanel
+                    key={selectedId}
+                    applicationId={selectedId}
+                    onDeselect={handleDeselect}
+                    onRefreshList={handleListRefresh}
+                    onNext={handleNextCandidate}
+                    onPrevious={handlePreviousCandidate}
+                    hasNext={hasNext}
+                    hasPrevious={hasPrevious}
                   />
-                </div>
-              )}
-            </WorkspaceSectionErrorBoundary>
-          </main>
+                </WorkspaceSectionErrorBoundary>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

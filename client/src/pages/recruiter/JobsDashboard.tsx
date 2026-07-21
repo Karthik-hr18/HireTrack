@@ -20,8 +20,8 @@ export const JobsDashboard: React.FC = () => {
   const [location, setLocation] = useState('');
   const [minExperience, setMinExperience] = useState<number>(0);
   const [maxExperience, setMaxExperience] = useState<number>(0);
+  const [vacancies, setVacancies] = useState<number>(1);
   const [status, setStatus] = useState<'open' | 'closed'>('open');
-
 
   const fetchJobs = async () => {
     if (!token) return;
@@ -63,6 +63,7 @@ export const JobsDashboard: React.FC = () => {
     setLocation('');
     setMinExperience(0);
     setMaxExperience(0);
+    setVacancies(1);
     setStatus('open');
     setIsModalOpen(true);
   };
@@ -76,6 +77,7 @@ export const JobsDashboard: React.FC = () => {
     setLocation(job.location || '');
     setMinExperience(job.minExperience || 0);
     setMaxExperience(job.maxExperience || 0);
+    setVacancies(job.vacancies || 1);
     setStatus(job.status);
     setIsModalOpen(true);
   };
@@ -98,7 +100,8 @@ export const JobsDashboard: React.FC = () => {
         requirements, 
         location,
         minExperience: Number(minExperience),
-        maxExperience: Number(maxExperience)
+        maxExperience: Number(maxExperience),
+        vacancies: Number(vacancies) || 1
       };
       if (editingJobId) {
         body.status = status;
@@ -369,7 +372,7 @@ export const JobsDashboard: React.FC = () => {
               </div>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div style={{ ...formGroupStyle, flex: 1 }}>
-                  <label style={labelStyle}>Min Experience (Yrs)</label>
+                  <label style={labelStyle}>Min Exp (Yrs)</label>
                   <input 
                     type="number" 
                     min="0"
@@ -380,12 +383,23 @@ export const JobsDashboard: React.FC = () => {
                   />
                 </div>
                 <div style={{ ...formGroupStyle, flex: 1 }}>
-                  <label style={labelStyle}>Max Experience (Yrs)</label>
+                  <label style={labelStyle}>Max Exp (Yrs)</label>
                   <input 
                     type="number" 
                     min="0"
                     value={maxExperience} 
                     onChange={(e) => setMaxExperience(Number(e.target.value))} 
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+                <div style={{ ...formGroupStyle, flex: 1 }}>
+                  <label style={labelStyle}>Vacancies *</label>
+                  <input 
+                    type="number" 
+                    min="1"
+                    value={vacancies} 
+                    onChange={(e) => setVacancies(Number(e.target.value))} 
                     style={inputStyle}
                     required
                   />

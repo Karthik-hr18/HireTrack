@@ -12,6 +12,7 @@ export interface JobItem {
   requirements?: string;
   status?: string;
   createdAt?: string;
+  vacancies?: number;
   department?: string;
 }
 
@@ -82,19 +83,36 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           >
             {department}
           </span>
-          <span 
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              padding: '3px 8px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              color: 'var(--success)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-            }}
-          >
-            Open Role
-          </span>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {job.vacancies && job.vacancies > 1 && (
+              <span 
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: '3px 8px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                  color: 'var(--accent)',
+                  border: '1px solid rgba(79, 70, 229, 0.2)',
+                }}
+              >
+                👥 {job.vacancies} Openings
+              </span>
+            )}
+            <span 
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                padding: '3px 8px',
+                borderRadius: 'var(--radius-pill)',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                color: 'var(--success)',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+              }}
+            >
+              Open Role
+            </span>
+          </div>
         </div>
 
         {/* Job Title */}

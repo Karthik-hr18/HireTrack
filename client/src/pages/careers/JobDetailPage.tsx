@@ -13,7 +13,8 @@ import {
   ShieldCheck, 
   LogIn, 
   UserPlus,
-  AlertCircle
+  AlertCircle,
+  Users
 } from 'lucide-react';
 
 export const JobDetailPage: React.FC = () => {
@@ -249,6 +250,9 @@ export const JobDetailPage: React.FC = () => {
             <span className="job-detail-hero__chip">
               <Clock size={14} /> Full-time Position
             </span>
+            <span className="job-detail-hero__chip">
+              <Users size={14} /> {job.vacancies || 1} {job.vacancies === 1 ? 'Vacancy' : 'Vacancies'}
+            </span>
             <span className="job-detail-hero__chip" style={{ background: 'rgba(52, 211, 153, 0.2)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#6ee7b7' }}>
               <Sparkles size={14} /> Active Role
             </span>
@@ -482,8 +486,10 @@ export const JobDetailPage: React.FC = () => {
                       >
                         <option value="careers_page">Company Careers Page</option>
                         <option value="linkedin">LinkedIn</option>
+                        <option value="naukri">Naukri</option>
                         <option value="indeed">Indeed</option>
                         <option value="referral">Referral</option>
+                        <option value="campus">Campus Placement</option>
                         <option value="other">Other</option>
                       </select>
                     </div>

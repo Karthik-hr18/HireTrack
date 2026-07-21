@@ -144,6 +144,10 @@ export const CandidateList: React.FC<CandidateListProps> = ({
     return list;
   }, [allApplications, activeStage, search]);
 
+  useEffect(() => {
+    onApplicationsLoad?.(visible);
+  }, [visible, onApplicationsLoad]);
+
   // Keyboard Navigation: Up/Down arrow to change candidate selection
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

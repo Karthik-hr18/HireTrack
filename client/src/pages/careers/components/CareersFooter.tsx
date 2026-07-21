@@ -118,7 +118,7 @@ export const CareersFooter: React.FC = () => {
         {/* Bottom copyright */}
         <div style={{ borderTop: '1px solid #1e293b', paddingTop: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, fontSize: 13 }}>
           <div>
-            © {new Date().getFullYear()} HireTrack Inc. All rights reserved. Designed with Digital Heroes principles.
+            © {new Date().getFullYear()} HireTrack Inc. All rights reserved.
           </div>
           <div style={{ display: 'flex', gap: 24 }}>
             <span style={{ color: '#64748b' }}>Privacy Policy</span>

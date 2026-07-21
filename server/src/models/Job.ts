@@ -9,6 +9,7 @@ export interface IJob extends Document {
   applicantsCount?: number;
   minExperience: number;
   maxExperience: number;
+  vacancies: number;
   status: 'open' | 'closed';
   createdBy: mongoose.Types.ObjectId;
   deletedAt?: Date | null;
@@ -24,6 +25,7 @@ const JobSchema: Schema = new Schema(
     location: { type: String, trim: true },
     minExperience: { type: Number, default: 0, required: true },
     maxExperience: { type: Number, default: 0, required: true },
+    vacancies: { type: Number, default: 1, required: true },
     status: { type: String, required: true, enum: ['open', 'closed'], default: 'open', index: true },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     deletedAt: { type: Date, default: null }

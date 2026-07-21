@@ -9,9 +9,11 @@ export const ApplicationSource = z.enum([
   'careers_page',
   'linkedin',
   'naukri',
+  'indeed',
   'referral',
   'campus',
-  'recruiter_added'
+  'recruiter_added',
+  'other'
 ]);
 export type ApplicationSourceType = z.infer<typeof ApplicationSource>;
 
@@ -87,7 +89,8 @@ export const CreateJobSchema = z.object({
   requirements: z.string().trim().optional(),
   location: z.string().trim().optional(),
   minExperience: z.number().nonnegative('Minimum experience cannot be negative').default(0),
-  maxExperience: z.number().nonnegative('Maximum experience cannot be negative').default(0)
+  maxExperience: z.number().nonnegative('Maximum experience cannot be negative').default(0),
+  vacancies: z.number().int().positive('Vacancies must be at least 1').default(1)
 });
 export type CreateJobInput = z.infer<typeof CreateJobSchema>;
 
