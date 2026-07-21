@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Menu, X, Home, Users, Briefcase, Calendar, LogOut, BarChart2 } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
 import { CandidateDetailPanel } from './CandidateDetailPanel';
@@ -79,24 +78,33 @@ export const CandidateWorkspacePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const token    = localStorage.getItem('token');
-  const userJson = localStorage.getItem('user');
-  let user: any = null;
-  try {
-    user = userJson ? JSON.parse(userJson) : null;
-  } catch (e) {
-    user = null;
-  }
-  const [menuOpen, setMenuOpen] = useState(false);
+
 
   // Derive parameters directly from searchParams (clean SPA sync)
   const activeStage = searchParams.get('stage') || '';
   const selectedId = searchParams.get('candidate');
-  const viewMode = (searchParams.get('view') as 'list' | 'kanban') || 'list';
+  // Tab Memory: Restore last active view mode ('list' | 'kanban') from sessionStorage or URL
+  const storedView = sessionStorage.getItem('candidate_view_mode') as 'list' | 'kanban' | null;
+  const paramView = searchParams.get('view') as 'list' | 'kanban' | null;
+  const viewMode = paramView || storedView || 'list';
   const panelOpen = !!selectedId;
 
   const [stageCounts, setStageCounts] = useState<Record<string, number>>({});
   const [allApplications, setAllApplications] = useState<any[]>([]);
   const listRefreshRef = useRef<(() => void) | null>(null);
+
+  // Sync stored view mode if missing from URL
+  useEffect(() => {
+    if (!paramView && storedView) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (storedView === 'kanban') {
+          next.set('view', 'kanban');
+        }
+        return next;
+      }, { replace: true });
+    }
+  }, [paramView, storedView, setSearchParams]);
 
   // Redirect unauthenticated users
   useEffect(() => {
@@ -136,6 +144,7 @@ export const CandidateWorkspacePage: React.FC = () => {
   };
 
   const handleViewModeChange = (mode: 'list' | 'kanban') => {
+    sessionStorage.setItem('candidate_view_mode', mode);
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       if (mode === 'kanban') {
@@ -144,7 +153,7 @@ export const CandidateWorkspacePage: React.FC = () => {
         next.delete('view');
       }
       return next;
-    }, { replace: false });
+    }, { replace: true });
   };
 
   const handleCountsChange = useCallback((counts: Record<string, number>) => {
@@ -155,11 +164,7 @@ export const CandidateWorkspacePage: React.FC = () => {
     listRefreshRef.current?.();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
+
 
   // Listen for Escape key to deselect active candidate
   useEffect(() => {
@@ -194,181 +199,34 @@ export const CandidateWorkspacePage: React.FC = () => {
 
   return (
     <div className="workspace-container">
-      {/* ── WORKSPACE TOPBAR (Header) ───────────────────────── */}
-      <div className="workspace-topbar">
-        <div className="workspace-topbar__brand">
-          <Link to="/dashboard" className="workspace-topbar__logo" aria-label="HireTrack Homepage">
-            <span className="workspace-topbar__logo-icon">H</span>
-            Hire<span className="workspace-topbar__logo-accent">Track</span>
-          </Link>
-          <span className="workspace-topbar__divider" />
-          <span className="workspace-topbar__page-title">Candidate Pipeline</span>
-        </div>
-
-        <nav className="workspace-topbar__nav">
-          <Link to="/dashboard" className="workspace-topbar__link">
-            Dashboard
-          </Link>
-          <Link to="/recruiter/candidates" className="workspace-topbar__link is-active">
-            Candidates
-          </Link>
-          <Link to="/recruiter/jobs" className="workspace-topbar__link">
-            Jobs
-          </Link>
-
-          {user?.role === 'admin' && (
-            <Link to="/admin/interviews" className="workspace-topbar__link">
-              Interviews
-            </Link>
-          )}
-          {user?.role === 'admin' && (
-            <Link to="/admin/recruiters" className="workspace-topbar__link">
-              Recruiters
-            </Link>
-          )}
-        </nav>
-
-        <div className="workspace-topbar__user">
-          {/* View Mode Switcher */}
-          <div className="view-switcher" role="group" aria-label="Pipeline View Mode" style={{ marginRight: 12 }}>
-            <button
-              type="button"
-              className={`view-switcher__btn ${viewMode === 'list' ? 'is-active' : ''}`}
-              onClick={() => handleViewModeChange('list')}
-              aria-pressed={viewMode === 'list'}
-            >
-              List
-            </button>
-            <button
-              type="button"
-              className={`view-switcher__btn ${viewMode === 'kanban' ? 'is-active' : ''}`}
-              onClick={() => handleViewModeChange('kanban')}
-              aria-pressed={viewMode === 'kanban'}
-            >
-              Board
-            </button>
-          </div>
-
-          <span className="workspace-topbar__user-name">{user?.name || 'Recruiter'}</span>
-          <button type="button" onClick={handleLogout} className="workspace-topbar__signout">
-            Sign Out
-          </button>
-
-          {/* Menu Drawer Toggle */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--gray-text-muted)',
-              display: 'flex',
-              alignItems: 'center',
-              padding: 4
-            }}
-          >
-            <Menu size={20} />
-          </button>
-        </div>
-      </div>
-
-      {/* ── WORKSPACE CONTEXT BAR (Stage Tabs) ───────────────── */}
-      <div className="workspace-contextbar">
+      {/* ── WORKSPACE CONTEXT BAR (Stage Tabs + Nested View Switcher) ── */}
+      <div className="workspace-contextbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 16 }}>
         <StageTabBar
           activeStage={activeStage}
           counts={stageCounts}
           onStageChange={handleStageChange}
         />
-      </div>
 
-      {/* SIDE MENU DRAWER */}
-      {menuOpen && (
-        <div className="side-menu-overlay" onClick={() => setMenuOpen(false)}>
-          <div className="side-menu-drawer" onClick={(e) => e.stopPropagation()}>
-            <div className="side-menu-header">
-              <span className="side-menu-title">Quick Navigation</span>
-              <button 
-                className="side-menu-close"
-                onClick={() => setMenuOpen(false)}
-                aria-label="Close menu"
-                type="button"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <nav className="side-menu-nav">
-              <Link 
-                to="/dashboard" 
-                className="side-menu-item"
-                onClick={() => setMenuOpen(false)}
-              >
-                <BarChart2 size={18} style={{ color: 'var(--accent)' }} />
-                <span>Analytics Dashboard</span>
-              </Link>
-
-              <Link 
-                to="/" 
-                className="side-menu-item"
-                onClick={() => setMenuOpen(false)}
-              >
-                <Home size={18} style={{ color: 'var(--accent)' }} />
-                <span>Home Overview</span>
-              </Link>
-
-              <Link 
-                to="/recruiter/candidates" 
-                className="side-menu-item is-active"
-                onClick={() => setMenuOpen(false)}
-              >
-                <Users size={18} style={{ color: 'var(--accent)' }} />
-                <span>Candidate Pipeline</span>
-              </Link>
-
-              <Link 
-                to="/recruiter/jobs" 
-                className="side-menu-item"
-                onClick={() => setMenuOpen(false)}
-              >
-                <Briefcase size={18} style={{ color: 'var(--accent)' }} />
-                <span>Manage Jobs</span>
-              </Link>
-
-              {user?.role === 'admin' && (
-                <Link 
-                  to="/admin/interviews" 
-                  className="side-menu-item"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <Calendar size={18} style={{ color: 'var(--accent)' }} />
-                  <span>Assigned Interviews</span>
-                </Link>
-              )}
-            </nav>
-
-            <div className="side-menu-footer">
-              <div className="side-menu-user">
-                <div className="side-menu-avatar">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-                <div className="side-menu-user-info">
-                  <span className="side-menu-user-name">{user?.name || 'Recruiter'}</span>
-                  <span className="side-menu-user-role">{user?.role ? user.role.toUpperCase() : 'RECRUITER'}</span>
-                </div>
-              </div>
-              
-              <button 
-                className="side-menu-logout"
-                type="button"
-                onClick={handleLogout}
-              >
-                <LogOut size={16} /> Logout
-              </button>
-            </div>
-          </div>
+        {/* Nested View Switcher attached to Candidates workspace */}
+        <div className="view-switcher" role="group" aria-label="Pipeline View Mode" style={{ flexShrink: 0, marginLeft: 16 }}>
+          <button
+            type="button"
+            className={`view-switcher__btn ${viewMode === 'list' ? 'is-active' : ''}`}
+            onClick={() => handleViewModeChange('list')}
+            aria-pressed={viewMode === 'list'}
+          >
+            List
+          </button>
+          <button
+            type="button"
+            className={`view-switcher__btn ${viewMode === 'kanban' ? 'is-active' : ''}`}
+            onClick={() => handleViewModeChange('kanban')}
+            aria-pressed={viewMode === 'kanban'}
+          >
+            Board
+          </button>
         </div>
-      )}
+      </div>
 
       {/* ── WORKSPACE BODY CONTENT ───────────────────────────── */}
       {viewMode === 'list' ? (

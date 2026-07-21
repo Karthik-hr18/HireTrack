@@ -766,6 +766,13 @@ input:focus, select:focus, textarea:focus {
 /* ─────────────────────────────────────────────
    WORKSPACE TOPBAR CONTENT
    ───────────────────────────────────────────── */
+.workspace-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .workspace-topbar__logo {
   font-size: 20px;
   font-weight: 800;
@@ -773,7 +780,6 @@ input:focus, select:focus, textarea:focus {
   color: var(--gray-text-primary);
   letter-spacing: -0.02em;
   flex-shrink: 0;
-  margin-right: 12px;
 }
 
 .workspace-topbar__role-badge {
@@ -793,7 +799,8 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   align-items: center;
   gap: 4px;
-  flex: 1;
+  flex: 0 0 auto;
+  margin: 0 16px;
 }
 
 .workspace-topbar__link {

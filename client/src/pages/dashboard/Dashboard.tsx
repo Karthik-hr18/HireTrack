@@ -13,6 +13,7 @@ import { JobHealthGrid } from './components/JobHealth/JobHealthGrid';
 import { ActivityFeed } from './components/ActivityFeed/ActivityFeed';
 import { HiringInsights } from './components/HiringInsights/HiringInsights';
 import { SourcingChannels } from './components/SourcingChannels/SourcingChannels';
+import { PageContainer } from '../../components/layout/PageContainer';
 import styles from './dashboard.module.css';
 
 export const Dashboard: React.FC = () => {
@@ -36,7 +37,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className={styles.dashboardContainer}>
+    <PageContainer>
       {/* ── WORKSPACE HEADER & QUICK ACTIONS ───────────────────────────────── */}
       <WorkspaceHeader
         userName={user.name || 'User'}
@@ -71,6 +72,6 @@ export const Dashboard: React.FC = () => {
         <HiringInsights insights={data.insights} />
         <SourcingChannels channels={data.sourcingChannels} />
       </div>
-    </div>
+    </PageContainer>
   );
 };

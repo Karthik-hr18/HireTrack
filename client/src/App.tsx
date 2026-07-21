@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Navbar } from './components/layout/Navbar';
+import { RecruiterLayout } from './components/layout/RecruiterLayout';
 import { CareersPage } from './pages/careers/CareersPage';
 import { JobDetailPage } from './pages/careers/JobDetailPage';
 import { JobsDashboard } from './pages/recruiter/JobsDashboard';
@@ -19,19 +19,24 @@ function App() {
   return (
     <GlobalErrorBoundary>
       <BrowserRouter>
-        <Navbar />
         <Routes>
+          {/* Public Careers & Candidate Portal Routes */}
           <Route path="/" element={<CareersPage />} />
           <Route path="/jobs/:id" element={<JobDetailPage />} />
-          <Route path="/recruiter/jobs" element={<JobsDashboard />} />
-          <Route path="/recruiter/candidates" element={<CandidateWorkspacePage />} />
-          <Route path="/admin/interviews" element={<AssignedInterviews />} />
-          <Route path="/admin/interviews/:id/conduct" element={<ConductInterviewPage />} />
-          <Route path="/admin/recruiters" element={<ManageRecruiters />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/candidate/applications" element={<ApplicationsTracker />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* Unified Recruiter / Admin Application Shell */}
+          <Route element={<RecruiterLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/recruiter/candidates" element={<CandidateWorkspacePage />} />
+            <Route path="/recruiter/jobs" element={<JobsDashboard />} />
+            <Route path="/admin/interviews" element={<AssignedInterviews />} />
+            <Route path="/admin/recruiters" element={<ManageRecruiters />} />
+          </Route>
+
+          <Route path="/admin/interviews/:id/conduct" element={<ConductInterviewPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

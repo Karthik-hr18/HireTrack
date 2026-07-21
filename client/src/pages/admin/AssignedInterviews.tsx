@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { PageContainer } from '../../components/layout/PageContainer';
+import { PageHeader } from '../../components/layout/PageHeader';
 
 export const AssignedInterviews: React.FC = () => {
   const navigate = useNavigate();
@@ -53,13 +55,11 @@ export const AssignedInterviews: React.FC = () => {
   const hrCount = interviews.filter(i => i.type === 'hr').length;
 
   return (
-    <div style={containerStyle}>
-      <header style={headerStyle}>
-        <div>
-          <h1 style={titleStyle}>My Assigned Interviews</h1>
-          <p style={subtitleStyle}>Conduct screening evaluations and submit candidate evaluation scorecards</p>
-        </div>
-      </header>
+    <PageContainer>
+      <PageHeader 
+        title="My Assigned Interviews"
+        subtitle="Conduct screening evaluations and submit candidate evaluation scorecards"
+      />
 
       {error && (
         <div style={errorContainerStyle}>
@@ -166,38 +166,12 @@ export const AssignedInterviews: React.FC = () => {
           )}
         </>
       )}
-    </div>
+    </PageContainer>
   );
 };
 
 // Styling Parameters
-const containerStyle: React.CSSProperties = {
-  maxWidth: '1200px',
-  margin: '0 auto',
-  padding: '2rem 1rem',
-  textAlign: 'left'
-};
 
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '2rem'
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: '32px',
-  fontWeight: 800,
-  color: 'var(--gray-text-primary)',
-  letterSpacing: '-0.02em',
-  marginBottom: '0.25rem'
-};
-
-const subtitleStyle: React.CSSProperties = {
-  fontSize: '15px',
-  color: 'var(--gray-text-muted)',
-  margin: 0
-};
 
 const errorContainerStyle: React.CSSProperties = {
   color: 'var(--error)',

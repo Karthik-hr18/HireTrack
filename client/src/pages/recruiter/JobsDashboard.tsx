@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { PageContainer } from '../../components/layout/PageContainer';
+import { PageHeader } from '../../components/layout/PageHeader';
 
 export const JobsDashboard: React.FC = () => {
   const [jobs, setJobs] = useState<any[]>([]);
   const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -207,40 +208,36 @@ export const JobsDashboard: React.FC = () => {
   }
 
   return (
-    <div style={containerStyle}>
-      <header style={dashboardHeaderStyle}>
-        <div>
-          <h1 style={titleStyle}>
-            {user?.role === 'admin' ? 'Admin' : 'Recruiter'}{' '}
-            <span className="gradient-text">Dashboard</span>
-          </h1>
-          <p style={subtitleStyle}>Create, edit, and track job opening pipelines</p>
-        </div>
-        <div style={actionGroupStyle}>
-          <Link 
-            to="/recruiter/candidates" 
-            className="api-btn" 
-            style={{ 
-              textDecoration: 'none', 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              backgroundColor: 'var(--gray-surface)', 
-              border: '1px solid var(--gray-border)', 
-              color: 'var(--gray-text-primary)',
-              marginRight: '0.5rem',
-              padding: '0 1.25rem',
-              boxSizing: 'border-box',
-              minHeight: '40px'
-            }}
-          >
-            👥 Candidate Pipeline
-          </Link>
-          <button className="api-btn" onClick={handleOpenCreateModal}>
-            + Add New Job
-          </button>
-        </div>
-      </header>
+    <PageContainer>
+      <PageHeader 
+        title="Manage Job Openings"
+        subtitle="Create, edit, and track job opening pipelines and active vacancies"
+        actions={
+          <>
+            <Link 
+              to="/recruiter/candidates" 
+              className="api-btn" 
+              style={{ 
+                textDecoration: 'none', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                backgroundColor: 'var(--gray-surface)', 
+                border: '1px solid var(--gray-border)', 
+                color: 'var(--gray-text-primary)',
+                padding: '0 1.25rem',
+                boxSizing: 'border-box',
+                minHeight: '40px'
+              }}
+            >
+              👥 Candidate Pipeline
+            </Link>
+            <button className="api-btn" onClick={handleOpenCreateModal}>
+              + Add New Job
+            </button>
+          </>
+        }
+      />
 
       {/* Metrics Row */}
       <div style={metricsRowStyle}>
@@ -327,28 +324,52 @@ export const JobsDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Sliding Right-Side Drawer Panel */}
-      <div 
-        className={`drawer-backdrop ${isModalOpen ? 'drawer-backdrop--open' : ''}`}
-        onClick={() => setIsModalOpen(false)}
-      >
+      {/* Centered Modal Overlay for Create/Edit Job */}
+      {isModalOpen && (
         <div 
-          className="drawer-panel"
-          onClick={(e) => e.stopPropagation()}
+          className="job-modal-overlay"
+          onClick={() => setIsModalOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
         >
-          <div className="drawer-panel__header">
-            <h3 className="drawer-panel__title">{modalTitle}</h3>
-            <button 
-              type="button" 
-              className="drawer-panel__close"
-              onClick={() => setIsModalOpen(false)}
-              aria-label="Close drawer"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="drawer-panel__content">
-            <form onSubmit={handleSaveJob} style={formStyle}>
+          <div 
+            className="job-modal-panel"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: 680,
+              maxHeight: '90vh',
+              backgroundColor: 'var(--gray-surface, #ffffff)',
+              borderRadius: 16,
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <div className="drawer-panel__header" style={{ padding: '20px 24px', borderBottom: '1px solid var(--gray-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="drawer-panel__title" style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>{modalTitle}</h3>
+              <button 
+                type="button" 
+                className="drawer-panel__close"
+                onClick={() => setIsModalOpen(false)}
+                aria-label="Close modal"
+                style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--gray-text-muted)' }}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="drawer-panel__content" style={{ padding: 24 }}>
+              <form onSubmit={handleSaveJob} style={formStyle}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>Job Title *</label>
                 <input 
@@ -458,13 +479,14 @@ export const JobsDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+    )}
 
       <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
         <Link to="/" style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.9rem' }}>
           &larr; Back to Public Careers Page
         </Link>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 
@@ -496,42 +518,7 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box'
 };
 
-const containerStyle: React.CSSProperties = {
-  maxWidth: '1100px',
-  margin: '0 auto',
-  padding: '2rem 1rem',
-  textAlign: 'left'
-};
 
-const dashboardHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: '1.5rem',
-  flexWrap: 'wrap',
-  marginBottom: '2.5rem',
-  borderBottom: '1px solid var(--gray-border)',
-  paddingBottom: '1.5rem'
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: '2.2rem',
-  fontWeight: 800,
-  margin: '0 0 0.4rem 0',
-  color: 'var(--gray-text-primary)'
-};
-
-const subtitleStyle: React.CSSProperties = {
-  fontSize: '1rem',
-  color: 'var(--gray-text-muted)',
-  margin: 0
-};
-
-const actionGroupStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1rem'
-};
 
 const metricsRowStyle: React.CSSProperties = {
   display: 'grid',

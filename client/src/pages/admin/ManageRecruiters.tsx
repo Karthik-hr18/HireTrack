@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PageContainer } from '../../components/layout/PageContainer';
+import { PageHeader } from '../../components/layout/PageHeader';
 
 export const ManageRecruiters: React.FC = () => {
   const navigate = useNavigate();
@@ -133,16 +135,16 @@ export const ManageRecruiters: React.FC = () => {
   };
 
   return (
-    <div style={containerStyle}>
-      <header style={headerStyle}>
-        <div>
-          <h1 style={titleStyle}>Manage Recruiters</h1>
-          <p style={subtitleStyle}>Provision and manage recruiter accounts and internal credentials</p>
-        </div>
-        <button onClick={openCreateModal} className="api-btn" style={addBtnStyle}>
-          ➕ Add Recruiter
-        </button>
-      </header>
+    <PageContainer>
+      <PageHeader 
+        title="Manage Recruiters"
+        subtitle="Provision and manage recruiter accounts and internal credentials"
+        actions={
+          <button onClick={openCreateModal} className="api-btn" style={addBtnStyle}>
+            ➕ Add Recruiter
+          </button>
+        }
+      />
 
       {error && (
         <div style={errorContainerStyle}>
@@ -269,38 +271,11 @@ export const ManageRecruiters: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 
-// CSS styles
-const containerStyle: React.CSSProperties = {
-  maxWidth: '1200px',
-  margin: '0 auto',
-  padding: '2rem 1rem',
-  textAlign: 'left'
-};
 
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '2rem'
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: '32px',
-  fontWeight: 800,
-  color: 'var(--gray-text-primary)',
-  letterSpacing: '-0.02em',
-  marginBottom: '0.25rem'
-};
-
-const subtitleStyle: React.CSSProperties = {
-  fontSize: '15px',
-  color: 'var(--gray-text-muted)',
-  margin: 0
-};
 
 const addBtnStyle: React.CSSProperties = {
   height: '42px',
