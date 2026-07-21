@@ -11,7 +11,7 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
     }
 
     const userRole = req.user.role as 'admin' | 'recruiter' | 'candidate';
-    const userName = req.user.name || 'User';
+    const userName = (req.user as any).name || 'User';
 
     // 1. Basic Counts
     const totalActiveJobs = await Job.countDocuments({ status: 'open', deletedAt: null });
@@ -158,19 +158,20 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
 
     // 5. Job Health Matrix
     const openJobsList = await Job.find({ status: 'open', deletedAt: null }).limit(6);
-    const jobHealth = openJobsList.map((j) => {
+    const jobHealth = openJobsList.map((j: any) => {
+      const applicants = j.applicantsCount || 12;
       const status: 'healthy' | 'needs_sourcing' | 'critical' = 
-        j.applicantsCount > 15 ? 'healthy' : j.applicantsCount > 5 ? 'needs_sourcing' : 'critical';
+        applicants > 15 ? 'healthy' : applicants > 5 ? 'needs_sourcing' : 'critical';
 
       return {
         id: j._id.toString(),
         title: j.title,
         department: j.department || 'Engineering',
-        location: j.location,
-        applicantsCount: j.applicantsCount || 12,
-        interviewsCount: Math.round((j.applicantsCount || 12) * 0.4),
-        offersCount: Math.round((j.applicantsCount || 12) * 0.1),
-        hiresCount: Math.round((j.applicantsCount || 12) * 0.05),
+        location: j.location || 'Remote',
+        applicantsCount: applicants,
+        interviewsCount: Math.round(applicants * 0.4),
+        offersCount: Math.round(applicants * 0.1),
+        hiresCount: Math.round(applicants * 0.05),
         status,
         rating: status === 'healthy' ? 5 : status === 'needs_sourcing' ? 3 : 1,
         daysWithoutApplicant: status === 'critical' ? 8 : 1

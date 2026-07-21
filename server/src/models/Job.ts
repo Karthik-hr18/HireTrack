@@ -5,6 +5,8 @@ export interface IJob extends Document {
   description: string;
   requirements?: string;
   location?: string;
+  department?: string;
+  applicantsCount?: number;
   minExperience: number;
   maxExperience: number;
   status: 'open' | 'closed';
