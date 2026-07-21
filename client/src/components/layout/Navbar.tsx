@@ -9,17 +9,6 @@ export const Navbar: React.FC = () => {
   const userJson = localStorage.getItem('user');
   const [user, setUser] = useState<any | null>(userJson ? JSON.parse(userJson) : null);
 
-  // Hide Navbar on public Careers pages, Job Details, Candidate Workspace (/recruiter/candidates), Candidate Tracker, and Auth pages
-  const isCareersHome = location.pathname === '/';
-  const isJobDetail = location.pathname.startsWith('/jobs/');
-  const isCandidateWorkspace = location.pathname === '/recruiter/candidates';
-  const isCandidateTracker = location.pathname === '/candidate/applications';
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-
-  if (isCareersHome || isJobDetail || isCandidateWorkspace || isCandidateTracker || isAuthPage) {
-    return null;
-  }
-
   useEffect(() => {
     const fetchLatestUser = async () => {
       if (!token) {
@@ -52,6 +41,17 @@ export const Navbar: React.FC = () => {
     setUser(null);
     navigate('/');
   };
+
+  // Hide Navbar on public Careers pages, Job Details, Candidate Workspace (/recruiter/candidates), Candidate Tracker, and Auth pages
+  const isCareersHome = location.pathname === '/';
+  const isJobDetail = location.pathname.startsWith('/jobs/');
+  const isCandidateWorkspace = location.pathname === '/recruiter/candidates';
+  const isCandidateTracker = location.pathname === '/candidate/applications';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+
+  if (isCareersHome || isJobDetail || isCandidateWorkspace || isCandidateTracker || isAuthPage) {
+    return null;
+  }
 
   return (
     <header className="careers-nav">
