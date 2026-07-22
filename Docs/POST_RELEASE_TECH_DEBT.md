@@ -7,7 +7,7 @@ This document outlines structural refactoring items that were identified during 
 ## Deferred Architectural & Component Refactors
 
 ### 1. Component Monolith Splitting — `CandidateDetailPanel.tsx`
-- **Current State**: Monolithic 990-line component managing state, tab routing, 6 tab panel renders (*Overview*, *Resume*, *Timeline*, *Notes*, *Interviews*, *Scorecards*), inline notes, scorecard submissions, and rejection modal.
+- **Current State**: Monolithic component managing state, tab routing, 6 tab panel renders (*Overview*, *Resume*, *Timeline*, *Notes*, *Interviews*, *Scorecards*), inline notes, scorecard submissions, and rejection modal.
 - **Proposed Post-Release Refactor**: Extract individual tab views into modular sub-components under `client/src/pages/recruiter/workspace/tabs/`:
   - `OverviewTab.tsx`
   - `ResumeTab.tsx`
@@ -18,7 +18,7 @@ This document outlines structural refactoring items that were identified during 
 - **Target Release**: v1.1.0 Maintenance Release
 
 ### 2. Stylesheet Modularization — `client/src/index.css`
-- **Current State**: Single 5,100-line monolithic stylesheet containing design tokens, global resets, recruiter workspace rules, public marketing page rules, and responsive media queries.
+- **Current State**: Monolithic stylesheet containing design tokens, global resets, recruiter workspace rules, public marketing page rules, and responsive media queries.
 - **Proposed Post-Release Refactor**: Split into logical CSS partials:
   - `styles/tokens.css` (Design system CSS variables)
   - `styles/base.css` (Global resets & typography)
@@ -28,7 +28,7 @@ This document outlines structural refactoring items that were identified during 
 
 ### 3. Centralized HTTP Client Interceptor — `apiClient.ts`
 - **Current State**: `localStorage.getItem('token')` is accessed directly inside component render cycles and custom hooks.
-- **Proposed Post-Release Refactor**: Migrate API requests to a central Axios client with request/response interceptors to automatically attach Bearer tokens and handle 401 Unauthorized token expirations.
+- **Proposed Post-Release Refactor**: Migrate API requests to a central Axios/Fetch client with request/response interceptors to automatically attach Bearer tokens and handle 401 Unauthorized token expirations.
 - **Target Release**: v1.1.0 Maintenance Release
 
 ---
