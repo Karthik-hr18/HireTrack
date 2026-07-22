@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Users, CheckCircle, ShieldCheck, Crown, Search, Plus } from 'lucide-react';
 import styles from '../dashboard.module.css';
 
 export const ManageRecruitersView: React.FC = () => {
@@ -37,10 +38,10 @@ export const ManageRecruitersView: React.FC = () => {
       } else {
         // Fallback default recruiter directory data
         setRecruiters([
-          { _id: '1', name: 'Karthik Recruiter', email: 'karthikhr676@gmail.com', department: 'Engineering', assignedJobs: 3, activeCandidates: 7, role: 'Lead Recruiter', isActive: true },
-          { _id: '2', name: 'Sarah Jenkins', email: 'sarah.j@hiretrack.io', department: 'Product', assignedJobs: 2, activeCandidates: 3, role: 'Senior Recruiter', isActive: true },
-          { _id: '3', name: 'Marcus Vance', email: 'marcus.vance@hiretrack.io', department: 'Sales', assignedJobs: 1, activeCandidates: 2, role: 'Talent Scout', isActive: true },
-          { _id: '4', name: 'Elena Rostova', email: 'elena.r@hiretrack.io', department: 'IT', assignedJobs: 1, activeCandidates: 2, role: 'Technical Recruiter', isActive: true }
+          { _id: '1', name: 'Karthik Recruiter', email: 'karthikhr676@gmail.com', department: 'Engineering', assignedJobs: 4, activeCandidates: 12, role: 'Lead Recruiter', isActive: true },
+          { _id: '2', name: 'Sarah Jenkins', email: 'sarah.j@hiretrack.io', department: 'Product', assignedJobs: 3, activeCandidates: 8, role: 'Senior Recruiter', isActive: true },
+          { _id: '3', name: 'Marcus Vance', email: 'marcus.vance@hiretrack.io', department: 'Sales', assignedJobs: 2, activeCandidates: 6, role: 'Talent Scout', isActive: true },
+          { _id: '4', name: 'Elena Rostova', email: 'elena.r@hiretrack.io', department: 'IT', assignedJobs: 2, activeCandidates: 5, role: 'Technical Recruiter', isActive: true }
         ]);
       }
     } catch (e) {
@@ -121,7 +122,6 @@ export const ManageRecruitersView: React.FC = () => {
       if (res.ok) {
         fetchRecruiters();
       } else {
-        // UI fallback toggle
         setRecruiters(prev => prev.map(item => item._id === rec._id ? { ...item, isActive: !item.isActive } : item));
       }
     } catch (e) {
@@ -150,50 +150,54 @@ export const ManageRecruitersView: React.FC = () => {
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <span className={styles.kpiTitle}>TOTAL RECRUITERS</span>
-            <span className={styles.kpiIcon}>👥</span>
+            <span className={styles.kpiIcon}><Users size={18} color="#0284c7" /></span>
           </div>
           <div className={styles.kpiValue}>{recruiters.length}</div>
-          <span className={styles.kpiTrend}> Active team headcount</span>
+          <span className={styles.kpiTrend}>Active team headcount</span>
         </div>
 
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
-            <span className={styles.kpiTitle}>ACTIVE RECRUITERS</span>
-            <span className={styles.kpiIcon}>✅</span>
+            <span className={styles.kpiTitle}>ACTIVE CREDENTIALS</span>
+            <span className={styles.kpiIcon}><CheckCircle size={18} color="#10b981" /></span>
           </div>
           <div className={styles.kpiValue}>{recruiters.filter(r => r.isActive !== false).length}</div>
-          <span className={styles.kpiTrendGood}> Provisioned credentials</span>
+          <span className={styles.kpiTrendGood}>Provisioned accounts</span>
         </div>
 
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <span className={styles.kpiTitle}>HIRING MANAGERS</span>
-            <span className={styles.kpiIcon}>👔</span>
+            <span className={styles.kpiIcon}><ShieldCheck size={18} color="#3b82f6" /></span>
           </div>
           <div className={styles.kpiValue}>3</div>
-          <span className={styles.kpiTrend}> Department leads</span>
+          <span className={styles.kpiTrend}>Department leads</span>
         </div>
 
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <span className={styles.kpiTitle}>ADMIN USERS</span>
-            <span className={styles.kpiIcon}>👑</span>
+            <span className={styles.kpiIcon}><Crown size={18} color="#8b5cf6" /></span>
           </div>
           <div className={styles.kpiValue}>1</div>
-          <span className={styles.kpiTrend}> Master Administrator</span>
+          <span className={styles.kpiTrend}>Master Administrator</span>
         </div>
       </div>
 
       {/* ── TOP TOOLBAR (Search, Filters, Add Button) ───────────────────── */}
       <div className={styles.toolbarCard}>
         <div className={styles.toolbarLeft}>
-          <input
-            type="text"
-            placeholder="🔍 Search recruiters by name or email…"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className={styles.toolbarSearchInput}
-          />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <Search size={14} style={{ position: 'absolute', left: 10, color: '#94a3b8' }} />
+            <input
+              type="text"
+              placeholder="Search recruiters by name or email…"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className={styles.toolbarSearchInput}
+              style={{ paddingLeft: 30 }}
+            />
+          </div>
 
           <select
             value={filterDepartment}
@@ -218,8 +222,8 @@ export const ManageRecruitersView: React.FC = () => {
           </select>
         </div>
 
-        <button type="button" onClick={handleOpenCreateModal} className={styles.primaryAddBtn}>
-          ➕ Add Recruiter
+        <button type="button" onClick={handleOpenCreateModal} className={styles.primaryAddBtn} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <Plus size={14} /> Add Recruiter
         </button>
       </div>
 
@@ -264,9 +268,9 @@ export const ManageRecruitersView: React.FC = () => {
                   <td>
                     <span className={styles.deptBadge}>{rec.department || 'Engineering'}</span>
                   </td>
-                  <td>{rec.assignedJobs || 2} jobs</td>
+                  <td>{rec.assignedJobs || 3} jobs</td>
                   <td>
-                    <strong style={{ color: '#0284c7' }}>{rec.activeCandidates || 4} candidates</strong>
+                    <strong style={{ color: '#0284c7' }}>{rec.activeCandidates || 8} candidates</strong>
                   </td>
                   <td>{rec.role || 'Recruiter'}</td>
                   <td>

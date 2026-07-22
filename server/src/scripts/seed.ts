@@ -12,7 +12,7 @@ import { ActivityLog } from '../models/ActivityLog';
 dotenv.config();
 
 const seedDatabase = async () => {
-  console.log('Starting full database seeding...');
+  console.log('Starting full database seeding with 15 jobs and 50 candidates...');
   await connectDB();
 
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@hiretrack.com';
@@ -34,7 +34,6 @@ const seedDatabase = async () => {
     // ── 2. SEED ADMIN ACCOUNT ────────────────────────────────────────────────
     let admin = await User.findOne({ email: adminEmail.toLowerCase() });
     if (admin) {
-      console.log(`Admin account already exists: ${adminEmail}. Updating password...`);
       admin.passwordHash = await bcrypt.hash(adminPassword, salt);
       admin.isActive = true;
       admin.isEmailVerified = true;
@@ -48,337 +47,348 @@ const seedDatabase = async () => {
         isActive: true,
         isEmailVerified: true
       });
-      console.log(`Admin account seeded successfully: ${adminEmail}`);
     }
 
     // ── 3. SEED RECRUITERS ───────────────────────────────────────────────────
     const recruiters = [];
-    for (let i = 1; i <= 3; i++) {
-      const recEmail = `recruiter${i}@hiretrack.com`;
-      let recruiter = await User.findOne({ email: recEmail });
+    const recruiterData = [
+      { name: 'Karthik Recruiter', email: 'karthikhr676@gmail.com' },
+      { name: 'Sarah Jenkins', email: 'sarah.j@hiretrack.io' },
+      { name: 'Marcus Vance', email: 'marcus.vance@hiretrack.io' },
+      { name: 'Elena Rostova', email: 'elena.r@hiretrack.io' }
+    ];
+
+    for (const r of recruiterData) {
+      let recruiter = await User.findOne({ email: r.email });
       if (!recruiter) {
         recruiter = await User.create({
-          name: `Recruiter ${i}`,
-          email: recEmail,
+          name: r.name,
+          email: r.email,
           passwordHash: defaultHash,
           role: 'recruiter',
           isActive: true,
           isEmailVerified: true
         });
-        console.log(`Recruiter account seeded: ${recEmail}`);
       }
       recruiters.push(recruiter);
     }
 
-    // ── 4. SEED JOBS ─────────────────────────────────────────────────────────
-    console.log('Seeding jobs...');
+    // ── 4. SEED 15 DIVERSE JOBS ACROSS DEPARTMENTS & DATES ───────────────────
+    console.log('Seeding 15 jobs...');
+    const now = new Date();
+    
     const jobsData = [
       {
         title: 'Full-Stack Software Engineer (React / Node)',
-        description: 'We are looking for a Full-Stack Software Engineer to build and scale collaborative client dashboards and real-time backend API logic.',
-        requirements: '2+ years experience. Strong TypeScript, React, and Node.js skills.',
+        description: 'Build scale collaborative client dashboards and real-time backend API logic.',
+        requirements: '3+ years TypeScript, React, Node.js, and MongoDB.',
         location: 'Bangalore, India',
         department: 'Engineering',
-        minExperience: 2,
-        maxExperience: 5,
+        minExperience: 3,
+        maxExperience: 6,
         status: 'open' as const,
-        createdBy: admin._id
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 1, 10) // Feb
       },
       {
         title: 'Senior Backend Engineer (Java / Microservices)',
-        description: 'Join our backend infrastructure team to design microservice APIs, configure Redis caching layers, and implement distributed system workflows.',
-        requirements: '5+ years experience. Depth in Spring Boot, SQL, Docker, and caching patterns.',
+        description: 'Design microservice APIs, configure Redis caching, and distributed systems.',
+        requirements: '5+ years Spring Boot, SQL, Docker, Redis.',
         location: 'Remote',
         department: 'Engineering',
         minExperience: 5,
         maxExperience: 10,
         status: 'open' as const,
-        createdBy: admin._id
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 1, 20) // Feb
       },
       {
-        title: 'DevOps & Infrastructure Specialist',
-        description: 'Scale our cloud infrastructure, configure build-and-test deployment pipelines, and optimize container networking rules.',
-        requirements: '3+ years experience. AWS, Docker, Kubernetes, and CI/CD pipelines.',
+        title: 'DevOps & Cloud Infrastructure Specialist',
+        description: 'Scale cloud infrastructure, Kubernetes clusters, and deployment pipelines.',
+        requirements: '4+ years AWS, Terraform, Docker, Kubernetes.',
         location: 'Bangalore, India',
         department: 'IT',
-        minExperience: 3,
-        maxExperience: 8,
-        status: 'open' as const,
-        createdBy: admin._id
-      },
-      {
-        title: 'Associate Product Manager',
-        description: 'Own the roadmap for candidate evaluation features, collaborate with engineering, and research user metrics.',
-        requirements: '1+ year experience. Analytical mindset and data-focused communication skills.',
-        location: 'Mumbai, India',
-        department: 'Product',
-        minExperience: 1,
-        maxExperience: 3,
-        status: 'open' as const,
-        createdBy: admin._id
-      },
-      {
-        title: 'Senior Account Executive',
-        description: 'Manage key customer relationships, drive enterprise sales pipelines, and consult on hiring platforms.',
-        requirements: '4+ years SaaS sales experience.',
-        location: 'Bangalore, India',
-        department: 'Sales',
         minExperience: 4,
         maxExperience: 8,
         status: 'open' as const,
-        createdBy: admin._id
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 2, 5) // Mar
       },
       {
-        title: 'Financial Analyst',
-        description: 'Analyze operational metrics, forecast budget allocation, and assist finance leaders.',
-        requirements: '2+ years corporate finance experience.',
+        title: 'Lead Product Designer (UI/UX)',
+        description: 'Craft beautiful B2B SaaS dashboards, design systems, and component libraries.',
+        requirements: '5+ years Figma, Design Systems, SaaS UX research.',
+        location: 'Mumbai, India',
+        department: 'Design',
+        minExperience: 5,
+        maxExperience: 9,
+        status: 'open' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 2, 18) // Mar
+      },
+      {
+        title: 'Associate Product Manager',
+        description: 'Drive feature roadmaps, conduct candidate evaluation research, and analyze metrics.',
+        requirements: '2+ years SaaS product management experience.',
+        location: 'Mumbai, India',
+        department: 'Product',
+        minExperience: 2,
+        maxExperience: 4,
+        status: 'open' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 3, 2) // Apr
+      },
+      {
+        title: 'Senior Account Executive',
+        description: 'Manage enterprise client relationships and expand revenue pipelines.',
+        requirements: '5+ years B2B SaaS enterprise sales.',
+        location: 'Bangalore, India',
+        department: 'Sales',
+        minExperience: 5,
+        maxExperience: 10,
+        status: 'open' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 3, 15) // Apr
+      },
+      {
+        title: 'Growth Marketing Manager',
+        description: 'Lead digital acquisition campaigns, SEO strategies, and lead generation.',
+        requirements: '3+ years digital marketing & performance analytics.',
+        location: 'Remote',
+        department: 'Marketing',
+        minExperience: 3,
+        maxExperience: 7,
+        status: 'open' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 4, 8) // May
+      },
+      {
+        title: 'Financial Planning & Analysis Lead',
+        description: 'Manage corporate budget allocation, financial forecasting, and SaaS metrics.',
+        requirements: '4+ years corporate FP&A and financial modeling.',
         location: 'Remote',
         department: 'Finance',
-        minExperience: 2,
-        maxExperience: 5,
+        minExperience: 4,
+        maxExperience: 8,
         status: 'open' as const,
-        createdBy: admin._id
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 4, 22) // May
       },
       {
-        title: 'React Native Developer',
-        description: 'Build native iOS and Android experiences for our hiring client dashboard.',
-        requirements: '3+ years experience with React Native and native mobile design rules.',
+        title: 'Senior Technical Recruiter',
+        description: 'Source engineering talent, conduct screening calls, and optimize candidate pipeline.',
+        requirements: '3+ years technical sourcing in fast-paced SaaS companies.',
+        location: 'Bangalore, India',
+        department: 'HR',
+        minExperience: 3,
+        maxExperience: 6,
+        status: 'open' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 5, 4) // Jun
+      },
+      {
+        title: 'Data Platform & Analytics Engineer',
+        description: 'Build ETL data pipelines, data warehouse architecture, and reporting models.',
+        requirements: '4+ years Python, SQL, Snowflake, dbt, Spark.',
+        location: 'Bangalore, India',
+        department: 'Engineering',
+        minExperience: 4,
+        maxExperience: 8,
+        status: 'open' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 5, 15) // Jun
+      },
+      {
+        title: 'Customer Success Manager',
+        description: 'Ensure client adoption, conduct onboarding training, and maintain high retention.',
+        requirements: '3+ years B2B customer success management.',
+        location: 'Mumbai, India',
+        department: 'Customer Success',
+        minExperience: 3,
+        maxExperience: 6,
+        status: 'open' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 5, 28) // Jun
+      },
+      {
+        title: 'Site Reliability Engineer (SRE)',
+        description: 'Ensure system uptime, incident response automation, and infrastructure health.',
+        requirements: '4+ years Linux systems, Prometheus, Grafana, Go/Python.',
+        location: 'Remote',
+        department: 'IT',
+        minExperience: 4,
+        maxExperience: 9,
+        status: 'open' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 6, 2) // Jul
+      },
+      {
+        title: 'React Native Mobile Developer',
+        description: 'Develop iOS and Android recruiter mobile companion application.',
+        requirements: '3+ years React Native & mobile SDK integrations.',
         location: 'Remote',
         department: 'Engineering',
         minExperience: 3,
         maxExperience: 6,
         status: 'closed' as const,
-        createdBy: admin._id
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 1, 15) // Feb
+      },
+      {
+        title: 'Content Strategy Specialist',
+        description: 'Produce high-converting technical blog posts, whitepapers, and case studies.',
+        requirements: '2+ years B2B content writing.',
+        location: 'Remote',
+        department: 'Marketing',
+        minExperience: 2,
+        maxExperience: 5,
+        status: 'closed' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 2, 10) // Mar
+      },
+      {
+        title: 'Operations & Facilities Manager',
+        description: 'Oversee office administration, vendor management, and employee workplace setup.',
+        requirements: '4+ years office operations experience.',
+        location: 'Bangalore, India',
+        department: 'Operations',
+        minExperience: 4,
+        maxExperience: 7,
+        status: 'closed' as const,
+        createdBy: admin._id,
+        createdAt: new Date(now.getFullYear(), 3, 1) // Apr
       }
     ];
 
     const jobs = await Job.create(jobsData);
     console.log(`Seeded ${jobs.length} jobs.`);
 
-    // ── 5. SEED CANDIDATE USERS ──────────────────────────────────────────────
-    console.log('Seeding candidates...');
-    const candidatesData = [
-      { name: 'John Doe', email: 'john.doe@gmail.com' },
-      { name: 'Alice Smith', email: 'alice.smith@yahoo.com' },
-      { name: 'Bob Jones', email: 'bob.jones@outlook.com' },
-      { name: 'Emma Watson', email: 'emma.w@gmail.com' },
-      { name: 'David Miller', email: 'david.miller@hiretrack.com' },
-      { name: 'Sarah Jenkins', email: 'sarah.j@gmail.com' },
-      { name: 'James Taylor', email: 'james.t@outlook.com' },
-      { name: 'Sophia Davies', email: 'sophia.d@gmail.com' },
-      { name: 'Michael Brown', email: 'michael.b@yahoo.com' },
-      { name: 'Emily Wilson', email: 'emily.wilson@gmail.com' }
+    // ── 5. SEED 50 CANDIDATE USERS & APPLICATIONS ────────────────────────────
+    console.log('Seeding 50 candidates and applications...');
+
+    const candidateNames = [
+      'Karthik H R', 'Alice Smith', 'Bob Jones', 'John Doe', 'Emily Wilson',
+      'Michael Brown', 'Sophia Davies', 'James Taylor', 'Sarah Jenkins', 'David Miller',
+      'Vikram Rao', 'Ananya Sharma', 'Rohan Mehta', 'Priya Nair', 'Arjun Kapoor',
+      'Neha Gupta', 'Siddharth Joshi', 'Tanvi Reddy', 'Aditya Verma', 'Meera Kulkarni',
+      'Aarav Kumar', 'Diya Patel', 'Ishaan Sengupta', 'Kavya Deshmukh', 'Kabir Malhotra',
+      'Riya Bansal', 'Yash Nambiar', 'Shreya Saxena', 'Varun Iyer', 'Pooja Agarwal',
+      'Manish Hegde', 'Divya Menon', 'Rahul Bose', 'Sneha Pillai', 'Tarun Chawla',
+      'Deepika Das', 'Gautam Singhal', 'Swati Roy', 'Nikhil Bhat', 'Bhavna Kulkarni',
+      'Amitabh Tripathi', 'Krutika Shah', 'Harshwardhan Patil', 'Simran Gill', 'Sameer Quadri',
+      'Sonali Thakur', 'Abhinav Sen', 'Ritu Mukherji', 'Kunal Merchant', 'Nisha Fernandez'
     ];
 
-    const candidates = [];
-    for (const cand of candidatesData) {
-      const user = await User.create({
-        name: cand.name,
-        email: cand.email,
+    const sources = ['linkedin', 'careers_page', 'referral', 'indeed', 'naukri'];
+
+    const stages: Array<'applied' | 'resume_screening' | 'technical_interview_scheduled' | 'technical_interview_completed' | 'hr_interview_scheduled' | 'hr_interview_completed' | 'offer' | 'hired' | 'rejected'> = [
+      'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', // 15
+      'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', // 10
+      'technical_interview_scheduled', 'technical_interview_scheduled', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', // 10
+      'hr_interview_scheduled', 'hr_interview_scheduled', 'hr_interview_completed', 'hr_interview_completed', 'hr_interview_completed', 'hr_interview_completed', // 6
+      'offer', 'offer', 'offer', 'offer', // 4
+      'hired', 'hired', 'hired', // 3
+      'rejected', 'rejected' // 2
+    ];
+
+    // Distribute creation dates over 6 months (Feb 2026 to Jul 2026)
+    const monthOffsets = [
+      0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
+    ]; // 0=Feb, 1=Mar, 2=Apr, 3=May, 4=Jun, 5=Jul
+
+    const resumeAssetUrl = '/assets/Karthik_HR_Resume_OnePage.pdf';
+
+    for (let i = 0; i < 50; i++) {
+      const name = candidateNames[i];
+      const email = `${name.toLowerCase().replace(/ /g, '.')}@example.com`;
+
+      const candidateUser = await User.create({
+        name,
+        email,
         passwordHash: defaultHash,
         role: 'candidate',
         isActive: true,
         isEmailVerified: true
       });
-      candidates.push(user);
-    }
-    console.log(`Seeded ${candidates.length} candidate accounts.`);
 
-    // ── 6. SEED APPLICATIONS ACCROSS ALL STAGES ──────────────────────────────
-    console.log('Seeding applications, timeline activities, interviews, and scorecards...');
-
-    const stages: Array<'applied' | 'resume_screening' | 'technical_interview_scheduled' | 'technical_interview_completed' | 'hr_interview_scheduled' | 'hr_interview_completed' | 'offer' | 'hired' | 'rejected'> = [
-      'applied',
-      'resume_screening',
-      'technical_interview_scheduled',
-      'technical_interview_completed',
-      'hr_interview_scheduled',
-      'hr_interview_completed',
-      'offer',
-      'hired',
-      'rejected'
-    ];
-
-    // Seed 12 applications
-    for (let i = 0; i < 12; i++) {
-      const candidate = candidates[i % candidates.length];
       const job = jobs[i % jobs.length];
-      const stage = stages[i % stages.length];
-
-      // Formulate realistic experience parameters based on candidate loop
-      const candidateExp = (i % 5) + 2; // Experience between 2 and 6 years
+      const stage = stages[i];
+      const source = sources[i % sources.length];
+      const monthIdx = monthOffsets[i];
+      
+      const appDate = new Date(now.getFullYear(), 1 + monthIdx, 5 + (i % 22));
 
       const app = await Application.create({
-        candidate: candidate._id,
+        candidate: candidateUser._id,
         job: job._id,
-        source: 'linkedin',
-        stage: stage,
-        resumeUrl: 'https://res.cloudinary.com/demo/image/upload/sample_resume.pdf',
-        phone: `+91 90000000${i}`,
+        source,
+        stage,
+        resumeUrl: resumeAssetUrl,
+        phone: `+91 98765${10000 + i}`,
         country: 'India',
-        address: 'MG Road, Bangalore, Karnataka',
-        experience: candidateExp,
-        linkedinUrl: `https://linkedin.com/in/${candidate.name.toLowerCase().replace(' ', '-')}`,
-        githubUrl: `https://github.com/${candidate.name.toLowerCase().replace(' ', '-')}`,
+        address: 'Bangalore, Karnataka, India',
+        experience: 2 + (i % 6),
+        linkedinUrl: `https://linkedin.com/in/${name.toLowerCase().replace(/ /g, '-')}`,
+        githubUrl: `https://github.com/${name.toLowerCase().replace(/ /g, '-')}`,
         termsAccepted: true,
+        createdAt: appDate,
+        updatedAt: new Date(appDate.getTime() + (i % 5) * 24 * 60 * 60 * 1000),
         rejectionReason: stage === 'rejected' ? 'skills_mismatch' : null,
-        rejectionNote: stage === 'rejected' ? 'Candidate lacked core distributed system design knowledge.' : null
+        rejectionNote: stage === 'rejected' ? 'Evaluation score below threshold for role seniority requirements.' : null
       });
 
-      // A. Create initial timeline ActivityLog for Application Submission
+      // Update applicant count on job
+      await Job.findByIdAndUpdate(job._id, { $inc: { applicantsCount: 1 } });
+
+      // Create activity log
       await ActivityLog.create({
         entityType: 'application',
         entityId: app._id,
         action: 'applied',
-        actor: candidate._id,
-        metadata: { stage: 'applied' }
+        actor: candidateUser._id,
+        metadata: { stage: 'applied', candidateName: name, jobTitle: job.title },
+        createdAt: appDate
       });
 
-      // B. Create activity logs representing progress history based on target stage
-      if (stage !== 'applied') {
-        await ActivityLog.create({
-          entityType: 'application',
-          entityId: app._id,
-          action: 'stage_changed',
-          actor: recruiters[i % recruiters.length]._id,
-          metadata: { from: 'applied', to: 'resume_screening' }
-        });
-      }
+      // Scheduled or Completed Interviews
+      if (
+        stage === 'technical_interview_scheduled' ||
+        stage === 'technical_interview_completed' ||
+        stage === 'hr_interview_scheduled' ||
+        stage === 'hr_interview_completed' ||
+        stage === 'offer' ||
+        stage === 'hired'
+      ) {
+        const interviewType = (stage.includes('hr') || stage === 'offer' || stage === 'hired') ? 'hr' : 'technical';
+        const isPast = stage.includes('completed') || stage === 'offer' || stage === 'hired';
 
-      // C. Handle Scheduled Interviews
-      if (stage === 'technical_interview_scheduled' || stage === 'hr_interview_scheduled') {
-        const interviewType = stage === 'technical_interview_scheduled' ? 'technical' : 'hr';
-        
-        const interview = await Interview.create({
+        const interviewDate = isPast 
+          ? new Date(appDate.getTime() + 3 * 24 * 60 * 60 * 1000)
+          : new Date(Date.now() + (i + 1) * 12 * 60 * 60 * 1000);
+
+        const iv = await Interview.create({
           application: app._id,
-          interviewer: admin._id, // Assign to Admin so they see it in their Dashboard
-          scheduledAt: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000), // scheduled in the future
-          status: 'scheduled',
+          interviewer: admin._id,
+          scheduledAt: interviewDate,
+          status: isPast ? 'completed' : 'scheduled',
           type: interviewType
         });
 
-        await ActivityLog.create({
-          entityType: 'application',
-          entityId: app._id,
-          action: 'interview_scheduled',
-          actor: recruiters[i % recruiters.length]._id,
-          metadata: { interviewId: interview._id, type: interviewType }
-        });
-      }
-
-      // D. Handle Completed Interviews / Offers / Hires
-      if (
-        stage === 'technical_interview_completed' || 
-        stage === 'hr_interview_completed' || 
-        stage === 'offer' || 
-        stage === 'hired'
-      ) {
-        // Technical completed interview
-        const techInterview = await Interview.create({
-          application: app._id,
-          interviewer: admin._id,
-          scheduledAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // in the past
-          status: 'completed',
-          type: 'technical'
-        });
-
-        const techScorecard = await Scorecard.create({
-          interview: techInterview._id,
-          recommendation: 'pass',
-          comments: 'Excellent coding round. Explained Big O complexity clearly and wrote highly modular clean code.',
-          ratings: { 'Problem Solving': 5, 'Coding Quality': 4, 'System Design': 4 },
-          communication: 5,
-          cultureFit: 4,
-          submittedBy: admin._id
-        });
-
-        await ActivityLog.create({
-          entityType: 'application',
-          entityId: app._id,
-          action: 'stage_changed',
-          actor: recruiters[i % recruiters.length]._id,
-          metadata: { from: 'resume_screening', to: 'technical_interview_scheduled' }
-        });
-
-        await ActivityLog.create({
-          entityType: 'application',
-          entityId: app._id,
-          action: 'scorecard_submitted',
-          actor: admin._id,
-          metadata: { interviewId: techInterview._id, scorecardId: techScorecard._id }
-        });
-
-        // HR interview completed for higher stages
-        if (stage === 'hr_interview_completed' || stage === 'offer' || stage === 'hired') {
-          const hrInterview = await Interview.create({
-            application: app._id,
-            interviewer: admin._id,
-            scheduledAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // yesterday
-            status: 'completed',
-            type: 'hr'
-          });
-
-          const hrScorecard = await Scorecard.create({
-            interview: hrInterview._id,
-            recommendation: 'hire',
-            comments: 'Cultural fit is outstanding. Highly collaborative and eager to study Spring Boot patterns.',
-            ratings: { 'Team Collaboration': 5, 'Values Alignment': 5 },
+        if (isPast) {
+          await Scorecard.create({
+            interview: iv._id,
+            recommendation: stage === 'hired' ? 'hire' : 'pass',
+            comments: 'Candidate demonstrated exceptional problem solving, strong system design concepts, and stellar communication.',
+            ratings: { 'Technical Ability': 5, 'Communication': 5, 'Problem Solving': 4 },
             communication: 5,
             cultureFit: 5,
             submittedBy: admin._id
           });
-
-          await ActivityLog.create({
-            entityType: 'application',
-            entityId: app._id,
-            action: 'stage_changed',
-            actor: recruiters[i % recruiters.length]._id,
-            metadata: { from: 'technical_interview_completed', to: 'hr_interview_scheduled' }
-          });
-
-          await ActivityLog.create({
-            entityType: 'application',
-            entityId: app._id,
-            action: 'scorecard_submitted',
-            actor: admin._id,
-            metadata: { interviewId: hrInterview._id, scorecardId: hrScorecard._id }
-          });
         }
-
-        // Final Offer/Hired logs
-        if (stage === 'offer') {
-          await ActivityLog.create({
-            entityType: 'application',
-            entityId: app._id,
-            action: 'stage_changed',
-            actor: admin._id,
-            metadata: { from: 'hr_interview_completed', to: 'offer' }
-          });
-        }
-
-        if (stage === 'hired') {
-          await ActivityLog.create({
-            entityType: 'application',
-            entityId: app._id,
-            action: 'stage_changed',
-            actor: admin._id,
-            metadata: { from: 'offer', to: 'hired' }
-          });
-        }
-      }
-
-      // E. Rejected Logs
-      if (stage === 'rejected') {
-        await ActivityLog.create({
-          entityType: 'application',
-          entityId: app._id,
-          action: 'rejected',
-          actor: recruiters[i % recruiters.length]._id,
-          metadata: { reason: 'skills_mismatch' }
-        });
       }
     }
 
+    console.log('Seeded 50 applications successfully!');
     console.log('Database seeding finished successfully.');
   } catch (error) {
     console.error(`Seeding failed: ${(error as Error).message}`);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { BarChart3, Briefcase, Building2, TrendingUp, Users } from 'lucide-react';
 import { useDashboard } from '../../hooks/useDashboard';
 import { DashboardSkeleton } from './DashboardSkeleton';
 import { DashboardErrorBoundary } from './DashboardErrorBoundary';
@@ -38,11 +39,11 @@ export const Dashboard: React.FC = () => {
       case 'overview':
         return <OverviewView user={user} data={data} />;
       case 'jobs':
-        return <JobsInsightsView jobs={data.jobHealth} />;
+        return <JobsInsightsView data={data} />;
       case 'departments':
-        return <DepartmentInsightsView />;
+        return <DepartmentInsightsView data={data} />;
       case 'trends':
-        return <ApplicationTrendsView />;
+        return <ApplicationTrendsView data={data} />;
       case 'recruiters':
         return <ManageRecruitersView />;
       default:
@@ -61,7 +62,7 @@ export const Dashboard: React.FC = () => {
           className={`${styles.sidebarNavItem} ${activeTab === 'overview' ? styles.sidebarNavItemActive : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          <span className={styles.navIcon}>📊</span>
+          <BarChart3 size={16} className={styles.navIcon} />
           <span>Overview</span>
         </button>
 
@@ -70,7 +71,7 @@ export const Dashboard: React.FC = () => {
           className={`${styles.sidebarNavItem} ${activeTab === 'jobs' ? styles.sidebarNavItemActive : ''}`}
           onClick={() => setActiveTab('jobs')}
         >
-          <span className={styles.navIcon}>💼</span>
+          <Briefcase size={16} className={styles.navIcon} />
           <span>Jobs Insights</span>
         </button>
 
@@ -79,7 +80,7 @@ export const Dashboard: React.FC = () => {
           className={`${styles.sidebarNavItem} ${activeTab === 'departments' ? styles.sidebarNavItemActive : ''}`}
           onClick={() => setActiveTab('departments')}
         >
-          <span className={styles.navIcon}>🏢</span>
+          <Building2 size={16} className={styles.navIcon} />
           <span>Department Insights</span>
         </button>
 
@@ -88,7 +89,7 @@ export const Dashboard: React.FC = () => {
           className={`${styles.sidebarNavItem} ${activeTab === 'trends' ? styles.sidebarNavItemActive : ''}`}
           onClick={() => setActiveTab('trends')}
         >
-          <span className={styles.navIcon}>📈</span>
+          <TrendingUp size={16} className={styles.navIcon} />
           <span>Application Trends</span>
         </button>
 
@@ -97,7 +98,7 @@ export const Dashboard: React.FC = () => {
           className={`${styles.sidebarNavItem} ${activeTab === 'recruiters' ? styles.sidebarNavItemActive : ''}`}
           onClick={() => setActiveTab('recruiters')}
         >
-          <span className={styles.navIcon}>👥</span>
+          <Users size={16} className={styles.navIcon} />
           <span>Manage Recruiters</span>
         </button>
       </aside>
