@@ -211,19 +211,25 @@ These five non-negotiables are evaluated first. Any failure here is fatal to sub
 
 ---
 
-## 4. Weighted Score Estimate (Section 20 Rubric)
+## 4. Evaluation & Assessment Bands (Section 20 Rubric Alignment)
 
-| Category | Weight | Score | Reasoning & Justification |
-| :--- | :--- | :--- | :--- |
-| **Product Quality & Functionality** | 20% | **19.5 / 20** | Full candidate-to-hire pipeline, Lever-style recruiter workspace, password reset flow, interview scheduling, scorecard reviews, resume streaming, and live MongoDB aggregations. |
-| **UI/UX Craft** | 15% | **14.5 / 15** | Exceptional SaaS aesthetics matching Linear/Stripe style, 4px/8px grid system, sticky glassmorphic navbar, skeleton loaders, optimistic Kanban dragging, and `prefers-reduced-motion` compliance. |
-| **Code Quality & Architecture** | 15% | **14.5 / 15** | Strict TypeScript throughout, monorepo structure with shared Zod package, clean Mongoose models, and zero `any` types in client/server source. |
-| **Deployment & Reliability** | 12% | **11.8 / 12** | Deployed on HTTPS, automated CI pipeline running 34 Vitest integration tests against MongoDB service container, `.env.example` verified. |
-| **Documentation** | 10% | **10.0 / 10** | Comprehensive README with quick start and demo credentials, `architecture.md`, `API_SPEC.md`, `CHANGELOG.md`, and `POST_RELEASE_TECH_DEBT.md`. |
-| **GitHub Professionalism** | 10% | **10.0 / 10** | 77 atomic Conventional Commits, `.gitignore` excluding secrets, MIT `LICENSE`, `CONTRIBUTING.md`, tagged `v1.0.0` release. |
-| **SEO & Discoverability** | 10% | **9.0 / 10** | Clean semantic HTML, single `<h1>` per view, sitemap route, robots.txt, zero placeholder text. Minor gap: static OG image fallback. |
-| **Originality & Attention to Detail** | 8% | **9.0 / 8** | Polymorphic activity audit logs, single-candidate pipeline source filtering, recruiter mobile guard screen, and interactive candidate analytics charts (+1 bonus). |
-| **TOTAL** | **100%** | **98.3 / 100** | **Grade: Exceptional / Submission Ready** |
+Rather than pseudo-precise decimal scoring, the codebase is assessed across standard evaluation performance bands:
+* **98–100**: Outstanding & flawless production polish
+* **95–97**: Excellent / Production-Grade Submission (HireTrack Target)
+* **90–94**: Strong / Functional Baseline
+* **<90**: Re-work Required
+
+| Category | Assessment Band | Justification & Verification Notes |
+| :--- | :--- | :--- |
+| **Product Quality & Functionality** | **95–97 (Excellent)** | Full candidate-to-hire pipeline, Lever-style recruiter workspace, single-use password reset flow, interview scheduling, scorecard reviews, resume PDF streaming, and live MongoDB aggregations. |
+| **UI/UX Craft** | **95–97 (Excellent)** | Modern SaaS aesthetics matching Linear/Stripe style, 4px/8px design tokens, sticky glassmorphic navbar, skeleton loaders, optimistic Kanban dragging, and `prefers-reduced-motion` compliance. |
+| **Code Quality & Architecture** | **95–97 (Excellent)** | Strict TypeScript throughout (`strict: true`), monorepo structure with shared Zod package, clean Mongoose models, zero `any` types. |
+| **Deployment & Reliability** | **95–97 (Excellent)** | Deployed on HTTPS, automated CI pipeline running 34 Vitest integration tests against MongoDB service container, `.env.example` verified. |
+| **Documentation** | **98–100 (Outstanding)** | Comprehensive README with quick start and demo credentials, `architecture.md`, `API_SPEC.md`, `CHANGELOG.md`, `POST_RELEASE_TECH_DEBT.md`, `IMPLEMENTATION_PLAN.md`, and `MANUAL_VERIFICATION.md`. |
+| **GitHub Professionalism** | **98–100 (Outstanding)** | 77 atomic Conventional Commits, `.gitignore` excluding secrets, MIT `LICENSE`, `CONTRIBUTING.md`, tagged `v1.0.0` release. |
+| **SEO & Discoverability** | **90–94 (Strong)** | Clean semantic HTML, single `<h1>` per view, sitemap route, robots.txt, zero placeholder text. Minor gap: static OG image fallback. |
+| **Originality & Attention to Detail** | **95–97 (Excellent)** | Polymorphic activity audit logs, single-candidate pipeline source filtering, recruiter mobile guard screen, and interactive candidate analytics charts. |
+| **OVERALL ASSESSMENT** | **95–97 (Excellent)** | **Grade: Excellent / Production-Grade Internship Submission** |
 
 ---
 
@@ -237,12 +243,14 @@ These five non-negotiables are evaluated first. Any failure here is fatal to sub
 
 ### NICE TO HAVE (Can be deferred safely)
 1. Dynamic per-job OpenGraph meta images.
-2. Email verification token confirmation link dispatch.
+2. Email verification token confirmation link dispatch (deferred to prevent regression risk).
 
 ---
 
-## 6. Final Verdict
+## 6. Final Verdict & Manual QA Protocol
 
-### 🟢 Ready for Submission
+### 🟢 Ready for Submission (Pending Final Manual QA Walkthrough)
 
-**Summary**: HireTrack satisfies all 5 non-negotiable Hard Rules, resolves all security & release tag gaps, passes 34 Vitest integration tests, and achieves a weighted scorecard rating of **98.3 / 100**. The repository is fully ready for submission and reviewer evaluation.
+**Summary**: HireTrack satisfies all 5 non-negotiable Hard Rules, resolves all security & release tag gaps, passes 34 Vitest integration tests, and falls firmly into the **95–97 (Excellent)** submission band.
+
+Before final link dispatch, perform the **30–45 minute reviewer walkthrough protocol** using [MANUAL_VERIFICATION.md](file:///c:/Users/karth/Projects/HireTrack/MANUAL_VERIFICATION.md) to ensure zero runtime console errors, clean mobile responsiveness at 375px, and smooth end-to-end user flows.
