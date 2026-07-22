@@ -2608,7 +2608,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .careers-nav {
-  position: sticky !important;
+  position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
@@ -2627,7 +2627,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .careers-nav--scrolled {
-  background-color: rgba(255, 255, 255, 0.88) !important;
+  background-color: rgba(255, 255, 255, 0.92) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border-bottom-color: rgba(226, 232, 240, 0.9) !important;
@@ -2645,7 +2645,7 @@ input:focus, select:focus, textarea:focus {
 
 /* Page Hero Section */
 .careers-hero {
-  padding-top: 60px;
+  padding-top: 132px;
   padding-bottom: 80px;
 }
 
@@ -2658,7 +2658,7 @@ input:focus, select:focus, textarea:focus {
 
 @media (max-width: 991px) {
   .careers-hero {
-    padding-top: 40px;
+    padding-top: 104px;
     padding-bottom: 60px;
   }
   .careers-hero__grid {
