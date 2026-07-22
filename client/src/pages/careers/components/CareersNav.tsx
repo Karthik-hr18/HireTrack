@@ -68,7 +68,23 @@ export const CareersNav: React.FC = () => {
   };
 
   return (
-    <header className={`careers-nav ${isScrolled ? 'careers-nav--scrolled' : ''}`}>
+    <header 
+      className={`careers-nav ${isScrolled ? 'careers-nav--scrolled' : ''}`}
+      style={{
+        position: 'sticky',
+        top: 0,
+        left: 0,
+        right: 0,
+        width: '100%',
+        zIndex: 99999,
+        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.94)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--gray-border)',
+        boxShadow: isScrolled ? '0 4px 24px rgba(15, 23, 42, 0.08)' : '0 1px 3px rgba(15, 23, 42, 0.04)',
+        transition: 'all 250ms ease'
+      }}
+    >
       <div className="careers-container">
         <div className="careers-nav__inner">
           <Link to="/" className="careers-nav__logo" aria-label="HireTrack Homepage">
