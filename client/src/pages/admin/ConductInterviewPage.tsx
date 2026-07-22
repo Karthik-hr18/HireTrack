@@ -36,6 +36,14 @@ export const ConductInterviewPage: React.FC = () => {
       return;
     }
 
+    const userJson = localStorage.getItem('user');
+    const user = userJson ? JSON.parse(userJson) : null;
+    if (user?.role === 'recruiter') {
+      setError('Recruiters manage candidate pipelines and scheduling. Conducting evaluation sessions is restricted to assigned Interviewers and Administrators.');
+      setLoading(false);
+      return;
+    }
+
     const fetchInterview = async () => {
       try {
         setLoading(true);

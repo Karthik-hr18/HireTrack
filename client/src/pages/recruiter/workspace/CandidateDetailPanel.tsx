@@ -117,14 +117,12 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
   hasNext = false,
   hasPrevious = false,
 }) => {
-  const token  = localStorage.getItem('token');
-  const apiUrl = import.meta.env.VITE_API_URL || '';
-
-  // ── User Identity ────────────────────────────────────────────────────────
+  const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
-  const user = userJson ? JSON.parse(userJson) : null;
-  const isRecruiter = user?.role === 'recruiter';
-  const isAdmin = user?.role === 'admin';
+  const currentUser = userJson ? JSON.parse(userJson) : null;
+  const isRecruiter = currentUser?.role === 'recruiter';
+  const isAdmin = currentUser?.role === 'admin';
+  const apiUrl = import.meta.env.VITE_API_URL || '';
 
   // ── State ────────────────────────────────────────────────────────────────
   const [detail,  setDetail]  = useState<ApplicationDetail | null>(null);
@@ -404,6 +402,9 @@ const TabContent: React.FC<TabContentProps> = ({
   onRefresh,
 }) => {
   const { application: app, timeline, interviews, scorecards } = detail;
+  const userJson = localStorage.getItem('user');
+  const currentUser = userJson ? JSON.parse(userJson) : null;
+  const canConductInterview = currentUser?.role === 'admin' || currentUser?.role === 'interviewer';
 
   // Derive active scheduled interview
   const activeInterview = interviews.find((i) => i.status === 'scheduled') ?? null;
@@ -633,13 +634,19 @@ const TabContent: React.FC<TabContentProps> = ({
                   </div>
 
                   {iv.status === 'scheduled' && (
-                    <Link
-                      to={`/admin/interviews/${iv._id}/conduct`}
-                      className="btn-primary-sm"
-                      style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px' }}
-                    >
-                      Conduct {iv.type === 'technical' ? 'Technical' : 'HR'} Interview &rarr;
-                    </Link>
+                    canConductInterview ? (
+                      <Link
+                        to={`/admin/interviews/${iv._id}/conduct`}
+                        className="btn-primary-sm"
+                        style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px' }}
+                      >
+                        Conduct {iv.type === 'technical' ? 'Technical' : 'HR'} Interview &rarr;
+                      </Link>
+                    ) : (
+                      <span className="badge badge-hired" style={{ fontSize: 11, padding: '4px 10px' }}>
+                        Interview Scheduled
+                      </span>
+                    )
                   )}
                 </div>
               ))}
@@ -666,16 +673,24 @@ const TabContent: React.FC<TabContentProps> = ({
                   {activeInterview.type === 'technical' ? 'Technical Interview Scheduled' : 'HR Interview Scheduled'}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--gray-text-muted)' }}>
-                  Evaluators can conduct the live evaluation and submit the scorecard on the dedicated workspace.
+                  {canConductInterview 
+                    ? 'Evaluators can conduct the live evaluation and submit the scorecard on the dedicated workspace.'
+                    : 'Awaiting assigned interviewer evaluation and scorecard submission.'}
                 </div>
               </div>
-              <Link 
-                to={`/admin/interviews/${activeInterview._id}/conduct`}
-                className="btn-primary-sm"
-                style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
-              >
-                Conduct Interview &rarr;
-              </Link>
+              {canConductInterview ? (
+                <Link 
+                  to={`/admin/interviews/${activeInterview._id}/conduct`}
+                  className="btn-primary-sm"
+                  style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
+                >
+                  Conduct Interview &rarr;
+                </Link>
+              ) : (
+                <span className="badge badge-hired" style={{ fontSize: 12, padding: '6px 12px' }}>
+                  Awaiting Scorecard
+                </span>
+              )}
             </div>
           )}
 
