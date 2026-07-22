@@ -12,7 +12,7 @@ export const CareersNav: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
+      if (window.scrollY > 30) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
@@ -20,6 +20,7 @@ export const CareersNav: React.FC = () => {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -68,23 +69,7 @@ export const CareersNav: React.FC = () => {
   };
 
   return (
-    <header 
-      className={`careers-nav ${isScrolled ? 'careers-nav--scrolled' : ''}`}
-      style={{
-        position: 'sticky',
-        top: 0,
-        left: 0,
-        right: 0,
-        width: '100%',
-        zIndex: 99999,
-        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.94)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid var(--gray-border)',
-        boxShadow: isScrolled ? '0 4px 24px rgba(15, 23, 42, 0.08)' : '0 1px 3px rgba(15, 23, 42, 0.04)',
-        transition: 'all 250ms ease'
-      }}
-    >
+    <header className={`careers-nav ${isScrolled ? 'careers-nav--scrolled' : ''}`}>
       <div className="careers-container">
         <div className="careers-nav__inner">
           <Link to="/" className="careers-nav__logo" aria-label="HireTrack Homepage">
