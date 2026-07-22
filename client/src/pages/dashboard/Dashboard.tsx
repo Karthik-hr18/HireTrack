@@ -17,6 +17,7 @@ export const Dashboard: React.FC = () => {
   const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : null;
+  const isAdmin = user?.role === 'admin';
 
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [timeframe] = useState('30d');
@@ -45,7 +46,7 @@ export const Dashboard: React.FC = () => {
       case 'trends':
         return <ApplicationTrendsView data={data} />;
       case 'recruiters':
-        return <ManageRecruitersView />;
+        return isAdmin ? <ManageRecruitersView /> : <OverviewView user={user} data={data} />;
       default:
         return <OverviewView user={user} data={data} />;
     }
@@ -93,14 +94,17 @@ export const Dashboard: React.FC = () => {
           <span>Application Trends</span>
         </button>
 
-        <button
-          type="button"
-          className={`${styles.sidebarNavItem} ${activeTab === 'recruiters' ? styles.sidebarNavItemActive : ''}`}
-          onClick={() => setActiveTab('recruiters')}
-        >
-          <Users size={16} className={styles.navIcon} />
-          <span>Manage Recruiters</span>
-        </button>
+        {/* ADMIN-ONLY NAVIGATION ITEM: MANAGE RECRUITERS */}
+        {isAdmin && (
+          <button
+            type="button"
+            className={`${styles.sidebarNavItem} ${activeTab === 'recruiters' ? styles.sidebarNavItemActive : ''}`}
+            onClick={() => setActiveTab('recruiters')}
+          >
+            <Users size={16} className={styles.navIcon} />
+            <span>Manage Recruiters</span>
+          </button>
+        )}
       </aside>
 
       {/* ── MAIN DASHBOARD VIEW CONTENT AREA ──────────────────────────────── */}
