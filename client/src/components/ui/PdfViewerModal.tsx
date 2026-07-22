@@ -25,7 +25,7 @@ export const PdfViewerModal: React.FC<Props> = ({
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 9999,
+        zIndex: 1000000,
         backgroundColor: 'rgba(15, 23, 42, 0.75)',
         backdropFilter: 'blur(6px)',
         display: 'flex',
