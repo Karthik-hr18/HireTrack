@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Briefcase, Target, CheckCircle, Clock } from 'lucide-react';
+import { JobHealthGrid } from '../components/JobHealth/JobHealthGrid';
 import styles from '../dashboard.module.css';
 
 interface JobsInsightsViewProps {
@@ -17,7 +18,6 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
     ? jobsList 
     : jobsList.filter((j: any) => j.department.toLowerCase() === filterDepartment.toLowerCase());
 
-  // Aggregate monthly job creation or use real trends
   const monthlyData = data?.monthlyTrends || [
     { month: 'Feb', apps: 3 },
     { month: 'Mar', apps: 8 },
@@ -29,38 +29,38 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
 
   return (
     <div className={styles.insightsContainer}>
-      {/* ── KPI METRICS CARDS ───────────────────────────────────────────── */}
+      {/* ── 1. JOB METRICS CARDS ────────────────────────────────────────── */}
       <div className={styles.kpiRow}>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
-            <span className={styles.kpiTitle}>ACTIVE JOBS</span>
+            <span className={styles.kpiTitle}>ACTIVE REQUISITIONS</span>
             <span className={styles.kpiIcon}><Briefcase size={18} color="#0284c7" /></span>
           </div>
           <div className={styles.kpiValue}>{activeJobsCount}</div>
-          <span className={styles.kpiTrend}>Live requisitions</span>
+          <span className={styles.kpiTrend}>Live open positions</span>
         </div>
 
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
-            <span className={styles.kpiTitle}>TOTAL APPLICANTS</span>
+            <span className={styles.kpiTitle}>TOTAL CANDIDATES</span>
             <span className={styles.kpiIcon}><Target size={18} color="#3b82f6" /></span>
           </div>
           <div className={styles.kpiValue}>{totalAppsCount}</div>
-          <span className={styles.kpiTrend}> Real database records</span>
+          <span className={styles.kpiTrend}>Applications across jobs</span>
         </div>
 
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
-            <span className={styles.kpiTitle}>CLOSED POSTINGS</span>
+            <span className={styles.kpiTitle}>CLOSED JOBS</span>
             <span className={styles.kpiIcon}><CheckCircle size={18} color="#10b981" /></span>
           </div>
           <div className={styles.kpiValue}>3</div>
-          <span className={styles.kpiTrend}> Filled roles</span>
+          <span className={styles.kpiTrend}>Filled positions</span>
         </div>
 
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
-            <span className={styles.kpiTitle}>AVG TIME TO HIRE</span>
+            <span className={styles.kpiTitle}>AVG HIRING VELOCITY</span>
             <span className={styles.kpiIcon}><Clock size={18} color="#8b5cf6" /></span>
           </div>
           <div className={styles.kpiValue}>14 <span style={{ fontSize: 14, fontWeight: 500 }}>days</span></div>
@@ -68,7 +68,12 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* ── CHARTS ROW ─────────────────────────────────────────────────── */}
+      {/* ── 2. JOB HEALTH MATRIX (PRIMARY HOME) ─────────────────────────── */}
+      <div style={{ marginBottom: 24 }}>
+        <JobHealthGrid jobs={jobsList} />
+      </div>
+
+      {/* ── 3. CHARTS ROW: APPLICANTS PER JOB & MONTHLY JOB CREATION ────── */}
       <div className={styles.chartsRow}>
         {/* Monthly Applicant Volume Chart */}
         <div className={styles.chartCard} style={{ flex: 2 }}>
@@ -115,9 +120,8 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* ── JOBS TABLE & RIGHT HIGHLIGHTS PANEL ────────────────────────── */}
+      {/* ── 4. RECENT JOBS TABLE & HIGHLIGHTS ───────────────────────────── */}
       <div className={styles.tableAndPanelRow}>
-        {/* Recent Jobs Table */}
         <div className={styles.tableCard} style={{ flex: 3 }}>
           <div className={styles.cardHeaderRow}>
             <div>
@@ -181,7 +185,6 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
           </table>
         </div>
 
-        {/* Right Highlights Panel */}
         <div className={styles.panelCard} style={{ flex: 1.2 }}>
           <h3>Job Highlights</h3>
 
