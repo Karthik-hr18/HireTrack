@@ -255,13 +255,6 @@ export const getApplicationById = async (req: Request, res: Response, next: Next
  * Preserves accurate HTTP status codes (200, 404, 401, 502) and diagnostic server logging.
  */
 export const streamApplicationResume = async (req: Request, res: Response, next: NextFunction) => {
-  if (process.env.NODE_ENV !== "production") {
-    console.log('=== RESUME STREAM DEBUG ===');
-    console.log('Method:', req.method);
-    console.log('Path:', req.originalUrl);
-    console.log('Authorization:', req.headers.authorization);
-    console.log('User:', req.user ? { userId: req.user.id, role: req.user.role } : 'Unauthenticated');
-  }
   try {
     const { id } = req.params;
 

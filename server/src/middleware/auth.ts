@@ -7,12 +7,6 @@ import { UserSession } from '../types';
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
-if (process.env.NODE_ENV !== "production") {
-  console.log('=== AUTH DEBUG ===');
-  console.log('Method:', req.method);
-  console.log('Path:', req.originalUrl);
-  console.log('Authorization:', authHeader);
-}
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         message: 'Authentication token is missing or invalid',

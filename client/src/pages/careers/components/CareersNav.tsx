@@ -100,10 +100,10 @@ export const CareersNav: React.FC = () => {
             Hire<span style={{ color: 'var(--accent)' }}>Track</span>
             <span
               className="careers-nav__mobile-badge"
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
                 e.preventDefault();
                 e.stopPropagation();
-                handleNavClick(e as any, 'open-positions');
+                handleNavClick(e as unknown as React.MouseEvent<HTMLAnchorElement>, 'open-positions');
               }}
             >
               Careers →
