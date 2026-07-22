@@ -208,7 +208,7 @@ export const CandidateWorkspacePage: React.FC = () => {
   };
 
   return (
-    <div className="workspace-container" style={{ display: 'flex', flexDirection: 'row', height: 'calc(100vh - 56px)', width: '100%', overflow: 'hidden', backgroundColor: '#f8fafc' }}>
+    <div className="workspace-container">
       {/* ── LEFT SIDEBAR (Lever Jobs Column) ── */}
       <JobGroupSidebar
         groups={groups}
@@ -220,8 +220,8 @@ export const CandidateWorkspacePage: React.FC = () => {
         empty={groups.length === 0 && !loadingJobs}
       />
 
-      {/* ── MAIN CONTENT AREA (Fixed zero-shift width flex: 1) ── */}
-      <div className="workspace-main-area" style={{ flex: 1, minWidth: 0, height: '100%', overflowY: 'auto', padding: '24px 32px 60px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
+      {/* ── MAIN CONTENT AREA ── */}
+      <div className="workspace-main-area" style={{ padding: '24px 32px 60px' }}>
         {/* ── TOP HEADER BAR (Title, Search & View Switcher) ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -49,6 +49,12 @@
   padding: 0;
 }
 
+html {
+  scrollbar-gutter: stable;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--gray-bg);
@@ -59,6 +65,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 #root {
@@ -387,18 +394,8 @@ input:focus, select:focus, textarea:focus {
 
 /* ─────────────────────────────────────────────
    WORKSPACE LAYOUT PRIMITIVES
-   Used by CandidateWorkspacePage (Phase 2+)
+   Defined below in the Lever ATS Sidebar section
    ───────────────────────────────────────────── */
-.workspace-root,
-.workspace-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  max-width: 100%;
-  overflow: hidden;
-  background-color: var(--gray-bg);
-}
 
 .workspace-header {
   height: 54px;
@@ -4116,40 +4113,30 @@ input:focus, select:focus, textarea:focus {
    LEVER ATS SIDEBAR — EXACT REFERENCE UI SPECIFICATIONS
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* ── Workspace Layout: fixed row layout, sidebar + main area ──────── */
+/* Sidebar (JobGroupSidebar) uses CSS modules at 310px fixed width.     */
+/* This class provides the stable outer shell.                          */
 .workspace-container {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: stretch !important;
-  width: 100% !important;
-  min-height: calc(100vh - 52px) !important;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+  background-color: #f8fafc;
 }
 
 .workspace-main-area {
-  flex: 1 !important;
-  min-width: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  background-color: #ffffff;
-  padding: 16px 24px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f8fafc;
 }
 
-.lever-sidebar {
-  display: flex !important;
-  flex-direction: column !important;
-  background-color: #f3f4f6 !important;
-  border-right: 1px solid #e5e7eb !important;
-  padding: 10px 8px !important;
-  width: 220px !important;
-  min-width: 220px !important;
-  max-width: 220px !important;
-  flex-shrink: 0 !important;
-  height: calc(100vh - 52px) !important;
-  position: sticky !important;
-  top: 52px !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
+/* .lever-sidebar class removed — sidebar now uses JobGroupSidebar.module.css */
 
 /* Sidebar Top Header */
 .lever-sidebar__header {

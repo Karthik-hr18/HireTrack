@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
 
 export const RecruiterNavbar: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +22,6 @@ export const RecruiterNavbar: React.FC = () => {
         });
         if (response.ok) {
           const freshData = await response.json();
-          // /api/auth/me returns { user: { id, name, email, role, ... } }
           const userData = freshData.user || freshData;
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
@@ -50,10 +50,11 @@ export const RecruiterNavbar: React.FC = () => {
       style={{ 
         height: 52, 
         minHeight: 52, 
+        maxHeight: 52,
         flexShrink: 0,
         width: '100%', 
         backgroundColor: '#ffffff', 
-        borderBottom: '1px solid var(--gray-border)', 
+        borderBottom: '1px solid #e2e8f0', 
         position: 'sticky',
         top: 0,
         zIndex: 500, 
@@ -62,9 +63,8 @@ export const RecruiterNavbar: React.FC = () => {
     >
       <div 
         style={{
-          maxWidth: 1400,
-          margin: '0 auto',
-          padding: '0 32px',
+          width: '100%',
+          padding: '0 24px',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
@@ -73,7 +73,7 @@ export const RecruiterNavbar: React.FC = () => {
           boxSizing: 'border-box'
         }}
       >
-        {/* LEFTMOST — Logo linking to root '/' */}
+        {/* LEFTMOST — Logo */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Link 
             to="/" 
@@ -87,15 +87,15 @@ export const RecruiterNavbar: React.FC = () => {
               width: 32, 
               height: 32, 
               borderRadius: 8, 
-              backgroundColor: 'var(--accent)', 
+              backgroundColor: '#0284c7', 
               color: '#fff', 
               fontWeight: 800, 
               fontSize: 16 
             }}>
               H
             </span>
-            <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em' }}>
-              Hire<span style={{ color: 'var(--accent)' }}>Track</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Hire<span style={{ color: '#0284c7' }}>Track</span>
             </span>
           </Link>
         </div>
@@ -106,21 +106,21 @@ export const RecruiterNavbar: React.FC = () => {
             <Link 
               to="/dashboard" 
               style={{
-                height: isActive('/dashboard') ? 36 : 32,
+                height: 34,
                 padding: '0 18px',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 13,
                 fontWeight: isActive('/dashboard') ? 700 : 500,
-                color: isActive('/dashboard') ? 'var(--gray-text-primary)' : 'var(--gray-text-muted)',
-                backgroundColor: isActive('/dashboard') ? 'var(--gray-bg)' : 'transparent',
+                color: isActive('/dashboard') ? '#0f172a' : '#64748b',
+                backgroundColor: isActive('/dashboard') ? '#f8fafc' : 'transparent',
                 borderRadius: '8px 8px 0 0',
                 textDecoration: 'none',
-                borderTop: isActive('/dashboard') ? '2px solid var(--accent)' : '2px solid transparent',
-                borderLeft: isActive('/dashboard') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                borderRight: isActive('/dashboard') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                borderBottom: isActive('/dashboard') ? '1px solid var(--gray-bg)' : '1px solid transparent',
+                borderTop: isActive('/dashboard') ? '2px solid #0284c7' : '2px solid transparent',
+                borderLeft: isActive('/dashboard') ? '1px solid #e2e8f0' : '1px solid transparent',
+                borderRight: isActive('/dashboard') ? '1px solid #e2e8f0' : '1px solid transparent',
+                borderBottom: isActive('/dashboard') ? '1px solid #f8fafc' : '1px solid transparent',
                 marginBottom: -1,
                 transition: 'all 0.15s ease',
                 zIndex: isActive('/dashboard') ? 2 : 1
@@ -131,21 +131,21 @@ export const RecruiterNavbar: React.FC = () => {
             <Link 
               to="/recruiter/candidates" 
               style={{
-                height: isActive('/recruiter/candidates') ? 36 : 32,
+                height: 34,
                 padding: '0 18px',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 13,
                 fontWeight: isActive('/recruiter/candidates') ? 700 : 500,
-                color: isActive('/recruiter/candidates') ? 'var(--gray-text-primary)' : 'var(--gray-text-muted)',
-                backgroundColor: isActive('/recruiter/candidates') ? 'var(--gray-bg)' : 'transparent',
+                color: isActive('/recruiter/candidates') ? '#0f172a' : '#64748b',
+                backgroundColor: isActive('/recruiter/candidates') ? '#f8fafc' : 'transparent',
                 borderRadius: '8px 8px 0 0',
                 textDecoration: 'none',
-                borderTop: isActive('/recruiter/candidates') ? '2px solid var(--accent)' : '2px solid transparent',
-                borderLeft: isActive('/recruiter/candidates') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                borderRight: isActive('/recruiter/candidates') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                borderBottom: isActive('/recruiter/candidates') ? '1px solid var(--gray-bg)' : '1px solid transparent',
+                borderTop: isActive('/recruiter/candidates') ? '2px solid #0284c7' : '2px solid transparent',
+                borderLeft: isActive('/recruiter/candidates') ? '1px solid #e2e8f0' : '1px solid transparent',
+                borderRight: isActive('/recruiter/candidates') ? '1px solid #e2e8f0' : '1px solid transparent',
+                borderBottom: isActive('/recruiter/candidates') ? '1px solid #f8fafc' : '1px solid transparent',
                 marginBottom: -1,
                 transition: 'all 0.15s ease',
                 zIndex: isActive('/recruiter/candidates') ? 2 : 1
@@ -156,21 +156,21 @@ export const RecruiterNavbar: React.FC = () => {
             <Link 
               to="/recruiter/jobs" 
               style={{
-                height: isActive('/recruiter/jobs') ? 36 : 32,
+                height: 34,
                 padding: '0 18px',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 13,
                 fontWeight: isActive('/recruiter/jobs') ? 700 : 500,
-                color: isActive('/recruiter/jobs') ? 'var(--gray-text-primary)' : 'var(--gray-text-muted)',
-                backgroundColor: isActive('/recruiter/jobs') ? 'var(--gray-bg)' : 'transparent',
+                color: isActive('/recruiter/jobs') ? '#0f172a' : '#64748b',
+                backgroundColor: isActive('/recruiter/jobs') ? '#f8fafc' : 'transparent',
                 borderRadius: '8px 8px 0 0',
                 textDecoration: 'none',
-                borderTop: isActive('/recruiter/jobs') ? '2px solid var(--accent)' : '2px solid transparent',
-                borderLeft: isActive('/recruiter/jobs') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                borderRight: isActive('/recruiter/jobs') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                borderBottom: isActive('/recruiter/jobs') ? '1px solid var(--gray-bg)' : '1px solid transparent',
+                borderTop: isActive('/recruiter/jobs') ? '2px solid #0284c7' : '2px solid transparent',
+                borderLeft: isActive('/recruiter/jobs') ? '1px solid #e2e8f0' : '1px solid transparent',
+                borderRight: isActive('/recruiter/jobs') ? '1px solid #e2e8f0' : '1px solid transparent',
+                borderBottom: isActive('/recruiter/jobs') ? '1px solid #f8fafc' : '1px solid transparent',
                 marginBottom: -1,
                 transition: 'all 0.15s ease',
                 zIndex: isActive('/recruiter/jobs') ? 2 : 1
@@ -182,21 +182,21 @@ export const RecruiterNavbar: React.FC = () => {
               <Link 
                 to="/admin/interviews" 
                 style={{
-                  height: isActive('/admin/interviews') ? 36 : 32,
+                  height: 34,
                   padding: '0 18px',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 13,
                   fontWeight: isActive('/admin/interviews') ? 700 : 500,
-                  color: isActive('/admin/interviews') ? 'var(--gray-text-primary)' : 'var(--gray-text-muted)',
-                  backgroundColor: isActive('/admin/interviews') ? 'var(--gray-bg)' : 'transparent',
+                  color: isActive('/admin/interviews') ? '#0f172a' : '#64748b',
+                  backgroundColor: isActive('/admin/interviews') ? '#f8fafc' : 'transparent',
                   borderRadius: '8px 8px 0 0',
                   textDecoration: 'none',
-                  borderTop: isActive('/admin/interviews') ? '2px solid var(--accent)' : '2px solid transparent',
-                  borderLeft: isActive('/admin/interviews') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                  borderRight: isActive('/admin/interviews') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                  borderBottom: isActive('/admin/interviews') ? '1px solid var(--gray-bg)' : '1px solid transparent',
+                  borderTop: isActive('/admin/interviews') ? '2px solid #0284c7' : '2px solid transparent',
+                  borderLeft: isActive('/admin/interviews') ? '1px solid #e2e8f0' : '1px solid transparent',
+                  borderRight: isActive('/admin/interviews') ? '1px solid #e2e8f0' : '1px solid transparent',
+                  borderBottom: isActive('/admin/interviews') ? '1px solid #f8fafc' : '1px solid transparent',
                   marginBottom: -1,
                   transition: 'all 0.15s ease',
                   zIndex: isActive('/admin/interviews') ? 2 : 1
@@ -209,21 +209,21 @@ export const RecruiterNavbar: React.FC = () => {
               <Link 
                 to="/admin/recruiters" 
                 style={{
-                  height: isActive('/admin/recruiters') ? 36 : 32,
+                  height: 34,
                   padding: '0 18px',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 13,
                   fontWeight: isActive('/admin/recruiters') ? 700 : 500,
-                  color: isActive('/admin/recruiters') ? 'var(--gray-text-primary)' : 'var(--gray-text-muted)',
-                  backgroundColor: isActive('/admin/recruiters') ? 'var(--gray-bg)' : 'transparent',
+                  color: isActive('/admin/recruiters') ? '#0f172a' : '#64748b',
+                  backgroundColor: isActive('/admin/recruiters') ? '#f8fafc' : 'transparent',
                   borderRadius: '8px 8px 0 0',
                   textDecoration: 'none',
-                  borderTop: isActive('/admin/recruiters') ? '2px solid var(--accent)' : '2px solid transparent',
-                  borderLeft: isActive('/admin/recruiters') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                  borderRight: isActive('/admin/recruiters') ? '1px solid var(--gray-border)' : '1px solid transparent',
-                  borderBottom: isActive('/admin/recruiters') ? '1px solid var(--gray-bg)' : '1px solid transparent',
+                  borderTop: isActive('/admin/recruiters') ? '2px solid #0284c7' : '2px solid transparent',
+                  borderLeft: isActive('/admin/recruiters') ? '1px solid #e2e8f0' : '1px solid transparent',
+                  borderRight: isActive('/admin/recruiters') ? '1px solid #e2e8f0' : '1px solid transparent',
+                  borderBottom: isActive('/admin/recruiters') ? '1px solid #f8fafc' : '1px solid transparent',
                   marginBottom: -1,
                   transition: 'all 0.15s ease',
                   zIndex: isActive('/admin/recruiters') ? 2 : 1
@@ -241,10 +241,10 @@ export const RecruiterNavbar: React.FC = () => {
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1.2 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--gray-text-primary)' }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>
                   {displayName}
                 </span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#0284c7', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   {user?.role || 'user'}
                 </span>
               </div>
@@ -257,15 +257,16 @@ export const RecruiterNavbar: React.FC = () => {
                   gap: 6,
                   fontSize: 12,
                   fontWeight: 600,
-                  color: 'var(--gray-text-muted)',
+                  color: '#64748b',
                   cursor: 'pointer',
-                  padding: '4px 10px',
-                  borderRadius: 'var(--radius-default)',
-                  border: '1px solid var(--gray-border)',
-                  backgroundColor: 'transparent'
+                  padding: '6px 12px',
+                  borderRadius: 6,
+                  border: '1px solid #cbd5e1',
+                  backgroundColor: '#ffffff',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                Sign Out
+                <LogOut size={13} /> Sign Out
               </button>
             </div>
           );
