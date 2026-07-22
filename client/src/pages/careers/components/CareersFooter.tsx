@@ -17,7 +17,7 @@ export const CareersFooter: React.FC = () => {
   return (
     <footer style={{ backgroundColor: '#0b0f19', color: '#94a3b8', padding: '80px 0 40px', borderTop: '1px solid #1e293b' }}>
       <div className="careers-container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1.5fr', gap: 48, marginBottom: 60 }}>
+        <div className="careers-footer-grid">
           {/* Brand Col */}
           <div>
             <Link to="/" style={{ fontSize: 22, fontWeight: 800, color: '#ffffff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>

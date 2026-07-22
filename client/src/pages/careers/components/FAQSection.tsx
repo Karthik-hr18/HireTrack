@@ -32,19 +32,21 @@ export const FAQSection: React.FC = () => {
     <section id="faq" style={{ padding: '80px 0', backgroundColor: 'var(--gray-bg)', borderTop: '1px solid var(--gray-border)' }}>
       <div className="careers-container">
         <ScrollReveal>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 48, alignItems: 'flex-start' }}>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)', marginBottom: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 40, maxWidth: 840, margin: '0 auto' }}>
+            {/* Section Header at Top */}
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)', marginBottom: 10 }}>
                 Questions & Answers
               </p>
-              <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 16 }}>
+              <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 14 }}>
                 We're glad you asked...
               </h2>
-              <p style={{ fontSize: 15, color: 'var(--gray-text-muted)', lineHeight: 1.6 }}>
-                Everything you need to know about joining our team, our hiring culture, and what to expect during the evaluation.
+              <p style={{ fontSize: 15, color: 'var(--gray-text-muted)', lineHeight: 1.6, maxWidth: 580, margin: '0 auto' }}>
+                Everything you need to know about joining our team, our hiring culture, and what to expect during evaluation.
               </p>
             </div>
 
+            {/* Questions Below Header */}
             <div>
               {FAQS.map((faq, idx) => {
                 const isOpen = openIndex === idx;

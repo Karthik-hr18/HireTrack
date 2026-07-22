@@ -358,7 +358,7 @@ export const JobDetailPage: React.FC = () => {
                   )}
 
                   <form onSubmit={handleApplySubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="form-grid-2col">
                       <div>
                         <label style={labelStyle}>Full Name</label>
                         <input type="text" value={user.name} disabled style={disabledInputStyle} />
@@ -369,7 +369,7 @@ export const JobDetailPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="form-grid-2col">
                       <div>
                         <label style={labelStyle}>Phone Number *</label>
                         <input 
@@ -395,7 +395,7 @@ export const JobDetailPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="form-grid-2col">
                       <div>
                         <label style={labelStyle}>Country *</label>
                         <input 
@@ -431,7 +431,7 @@ export const JobDetailPage: React.FC = () => {
                       />
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="form-grid-2col">
                       <div>
                         <label style={labelStyle}>GitHub Profile (Optional)</label>
                         <input 
@@ -454,7 +454,7 @@ export const JobDetailPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="form-grid-2col">
                       <div>
                         <label style={labelStyle}>Current Employer</label>
                         <input 

@@ -18,16 +18,16 @@ export const CompanyStory: React.FC = () => {
           </div>
 
           {/* Grid Block 1: Story & Photo */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 48, alignItems: 'center', marginBottom: 80 }}>
-            <div style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid var(--gray-border)', boxShadow: 'var(--shadow-card-subtle)' }}>
+          <div className="company-story-grid">
+            <div className="company-story-img-wrapper">
               <img 
                 src="/assets/careers_culture.png" 
                 alt="Engineering team collaboration" 
-                style={{ width: '100%', height: 400, objectFit: 'cover', display: 'block', transition: 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1)' }}
+                className="company-story-img"
               />
             </div>
 
-            <div>
+            <div className="company-story-text">
               <h3 style={{ fontSize: 24, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 16 }}>
                 Crafted for high impact and zero fluff
               </h3>

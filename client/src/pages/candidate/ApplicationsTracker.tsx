@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { CareersNav } from '../careers/components/CareersNav';
 import { CareersFooter } from '../careers/components/CareersFooter';
 import { 
   FileText, 
   MapPin, 
   Calendar, 
   ExternalLink, 
-  LogOut, 
-  User, 
   Sparkles, 
   CheckCircle2, 
   Clock, 
@@ -62,21 +61,10 @@ export const ApplicationsTracker: React.FC = () => {
     fetchApplications();
   }, [token, navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
-
   const getStageBadgeStyle = (stage: string) => {
-    switch (stage) {
-      case 'applied':
-        return { backgroundColor: 'rgba(79, 70, 229, 0.1)', color: 'var(--accent)', border: '1px solid rgba(79, 70, 229, 0.2)' };
-      case 'technical':
-      case 'behavioral':
-        return { backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#b45309', border: '1px solid rgba(245, 158, 11, 0.25)' };
+    switch (stage.toLowerCase()) {
       case 'offer':
-        return { backgroundColor: 'rgba(167, 139, 250, 0.15)', color: '#7c3aed', border: '1px solid rgba(167, 139, 250, 0.3)' };
+        return { backgroundColor: 'rgba(79, 70, 229, 0.1)', color: 'var(--accent)', border: '1px solid rgba(79, 70, 229, 0.25)' };
       case 'hired':
         return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#047857', border: '1px solid rgba(16, 185, 129, 0.25)' };
       case 'rejected':
@@ -93,78 +81,8 @@ export const ApplicationsTracker: React.FC = () => {
   return (
     <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* DEDICATED STICKY CANDIDATE NAVBAR */}
-      <header className="careers-nav">
-        <div className="careers-container">
-          <div className="careers-nav__inner">
-            <Link to="/" className="careers-nav__logo" aria-label="HireTrack Homepage">
-              <span style={{ 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                width: 32, 
-                height: 32, 
-                borderRadius: 8, 
-                backgroundColor: 'var(--accent)', 
-                color: '#fff', 
-                fontWeight: 800, 
-                fontSize: 16 
-              }}>
-                H
-              </span>
-              Hire<span style={{ color: 'var(--accent)' }}>Track</span>
-            </Link>
-
-            {/* NAV ITEMS: Careers | Candidate Name | Sign Out */}
-            <nav className="careers-nav__links" aria-label="Candidate Navigation">
-              <a href="/#open-positions" className="careers-nav__link" style={{ fontWeight: 600 }}>
-                Careers
-              </a>
-
-              {/* Candidate Name Pill */}
-              <div 
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '6px 14px',
-                  borderRadius: 'var(--radius-pill)',
-                  backgroundColor: 'var(--gray-surface)',
-                  border: '1px solid var(--gray-border)',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: 'var(--gray-text-primary)',
-                  boxShadow: 'var(--shadow-card-subtle)',
-                }}
-              >
-                <User size={14} style={{ color: 'var(--accent)' }} />
-                <span>{user?.name || 'Candidate'}</span>
-              </div>
-
-              {/* Sign Out Button */}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="careers-nav__cta"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                  color: 'var(--error)',
-                  border: '1px solid rgba(239, 68, 68, 0.2)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
-                <LogOut size={14} />
-                <span>Sign Out</span>
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {/* STICKY CAREERS & CANDIDATE NAVBAR WITH MOBILE DRAWER */}
+      <CareersNav />
 
       {/* MAIN CONTAINER */}
       <main className="careers-container" style={{ flex: 1, padding: '40px 24px 80px' }}>

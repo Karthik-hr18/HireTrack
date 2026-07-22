@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { RecruiterNavbar } from './RecruiterNavbar';
+import { RecruiterMobileGuard } from './RecruiterMobileGuard';
 
 export const RecruiterLayout: React.FC = () => {
   const location = useLocation();
   const [fade, setFade] = useState(true);
+  const [isMobileScreen, setIsMobileScreen] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileScreen(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Trigger 150ms content fade transition on route change
   useEffect(() => {
@@ -12,6 +23,10 @@ export const RecruiterLayout: React.FC = () => {
     const timer = setTimeout(() => setFade(true), 50);
     return () => clearTimeout(timer);
   }, [location.pathname]);
+
+  if (isMobileScreen) {
+    return <RecruiterMobileGuard />;
+  }
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--gray-bg)', display: 'flex', flexDirection: 'column' }}>
