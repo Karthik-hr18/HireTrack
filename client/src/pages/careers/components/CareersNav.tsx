@@ -87,8 +87,15 @@ export const CareersNav: React.FC = () => {
               H
             </span>
             Hire<span style={{ color: 'var(--accent)' }}>Track</span>
-            <span className="careers-nav__mobile-badge">
-              Careers
+            <span
+              className="careers-nav__mobile-badge"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleNavClick(e as any, 'open-positions');
+              }}
+            >
+              Careers →
             </span>
           </Link>
 

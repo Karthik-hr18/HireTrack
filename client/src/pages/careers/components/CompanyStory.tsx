@@ -19,7 +19,7 @@ export const CompanyStory: React.FC = () => {
 
           {/* Grid Block 1: Story & Photo */}
           <div className="company-story-grid">
-            <div className="company-story-img-wrapper">
+            <div className="careers-hero__image-wrapper animate-hero-image">
               <img 
                 src="/assets/careers_culture.png" 
                 alt="Engineering team collaboration" 
