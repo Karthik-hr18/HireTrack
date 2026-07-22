@@ -1,25 +1,101 @@
 /* Modular Dashboard CSS Token System */
 
-.dashboardContainer {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 24px 32px 60px;
-  background-color: var(--gray-bg);
+.dashboardLayout {
+  display: flex;
   min-height: calc(100vh - 52px);
+  background-color: #f8fafc;
+  width: 100%;
+}
+
+/* ── PERSISTENT INNER LEFT NAVIGATION SIDEBAR ──────────────────────── */
+.dashboardSidebar {
+  width: 230px;
+  min-width: 230px;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   box-sizing: border-box;
 }
 
-.workspaceHeader {
-  background-color: #ffffff;
-  border-radius: 16px;
-  border: 1px solid var(--gray-border);
-  padding: 24px 28px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+.sidebarHeader {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 12px 12px;
+}
+
+.sidebarNavItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  outline: none;
+}
+
+.sidebarNavItem:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.sidebarNavItemActive {
+  background-color: #e0f2fe;
+  color: #0284c7;
+  font-weight: 700;
+  border-left: 3px solid #0284c7;
+}
+
+.navIcon {
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboardContentArea {
+  flex: 1;
+  padding: 24px 32px 60px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  max-width: calc(100% - 230px);
+}
+
+.overviewViewContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.insightsContainer {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+/* ── WORKSPACE HEADER ─────────────────────────────────────────────── */
+.workspaceHeader {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .headerTopRow {
@@ -31,23 +107,23 @@
 }
 
 .greetingTitle {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
-  color: var(--gray-text-primary);
-  margin: 0 0 6px 0;
+  color: #0f172a;
+  margin: 0 0 4px 0;
   letter-spacing: -0.02em;
 }
 
 .greetingSubtitle {
-  font-size: 14px;
-  color: var(--gray-text-muted);
+  font-size: 13px;
+  color: #64748b;
   margin: 0;
 }
 
 .summaryPillBar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -59,47 +135,15 @@
   border-radius: 99px;
   font-size: 12px;
   font-weight: 700;
-  background-color: rgba(79, 70, 229, 0.08);
-  color: var(--accent);
-  border: 1px solid rgba(79, 70, 229, 0.2);
+  background-color: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
 }
 
-.searchBarWrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: var(--gray-bg);
-  border: 1px solid var(--gray-border);
-  border-radius: 12px;
-  padding: 10px 16px;
-  width: 100%;
-  max-width: 440px;
-}
-
-.searchInput {
-  border: none;
-  background: none;
-  outline: none;
-  font-size: 14px;
-  color: var(--gray-text-primary);
-  width: 100%;
-}
-
-.shortcutKbd {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 6px;
-  background-color: #ffffff;
-  border: 1px solid var(--gray-border);
-  color: var(--gray-text-muted);
-}
-
-/* Quick Actions Toolbar */
 .quickActionsRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -107,241 +151,712 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
-  border-radius: 10px;
+  padding: 8px 16px;
+  border-radius: 8px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
-  border: 1px solid var(--gray-border);
+  border: 1px solid #cbd5e1;
   background-color: #ffffff;
-  color: var(--gray-text-primary);
+  color: #334155;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .quickActionBtn:hover {
-  background-color: var(--gray-bg);
-  border-color: var(--gray-text-muted);
+  background-color: #f8fafc;
+  border-color: #94a3b8;
 }
 
 .quickActionPrimary {
-  background-color: var(--accent) !important;
+  background-color: #0284c7 !important;
   color: #ffffff !important;
-  border-color: var(--accent) !important;
+  border-color: #0284c7 !important;
 }
 
 .quickActionPrimary:hover {
-  background-color: var(--accent-hover) !important;
+  background-color: #0369a1 !important;
 }
 
-/* Executive KPI Grid - Responsive Breakdown */
-.kpiGrid {
+/* ── KPI GRID & CARDS ─────────────────────────────────────────────── */
+.kpiGrid, .kpiRow {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin-bottom: 24px;
 }
 
-@media (max-width: 1100px) {
-  .kpiGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 800px) {
-  .kpiGrid {
+@media (max-width: 1024px) {
+  .kpiGrid, .kpiRow {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 480px) {
-  .kpiGrid {
+@media (max-width: 580px) {
+  .kpiGrid, .kpiRow {
     grid-template-columns: 1fr;
   }
 }
 
-/* KPI Card Component */
 .kpiCard {
   background-color: #ffffff;
-  border-radius: 14px;
-  border: 1px solid var(--gray-border);
-  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .kpiCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
 .kpiHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.kpiLabel {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gray-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.kpiValue {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--gray-text-primary);
-  line-height: 1.1;
   margin-bottom: 8px;
 }
 
-.kpiMetaRow {
+.kpiTitle, .kpiLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpiIcon {
+  font-size: 18px;
+}
+
+.kpiValue {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.kpiTrend {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.kpiTrendGood {
+  font-size: 12px;
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* ── CHARTS ROW ─────────────────────────────────────────────────── */
+.chartsRow {
+  display: flex;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .chartsRow {
+    flex-direction: column;
+  }
+}
+
+.chartCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeader, .cardHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.cardHeader h3, .cardHeaderRow h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
+
+.subtext {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Bar Chart */
+.barChartContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 180px;
+  padding-top: 20px;
+}
+
+.barCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.barTooltip {
+  position: absolute;
+  top: -22px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #0284c7;
+}
+
+.barFill {
+  width: 28px;
+  background: linear-gradient(180deg, #0284c7 0%, #38bdf8 100%);
+  border-radius: 6px 6px 0 0;
+  transition: height 0.3s ease;
+}
+
+.barLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 8px;
+}
+
+/* Horizontal Bar List */
+.horizBarList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.horizBarRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.horizBarLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.horizBarTrack {
+  height: 8px;
+  background-color: #f1f5f9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.horizBarFill {
+  height: 100%;
+  background-color: #0284c7;
+  border-radius: 99px;
+}
+
+/* SVG Line Chart */
+.svgChartContainer {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.svgChart {
+  width: 100%;
+  height: 200px;
+}
+
+.timeframeToggle {
+  display: flex;
+  gap: 4px;
+  background-color: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.toggleBtn {
+  border: none;
+  background: transparent;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.toggleBtnActive {
+  background-color: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Pipeline Stage Funnel (Ref Image 1) */
+.pipelineFunnelList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pipelineFunnelRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stageMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.stageBarTrack {
+  height: 8px;
+  background-color: #f1f5f9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.stageBarFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+/* Donut & Department Bars */
+.donutContainer {
+  padding-top: 8px;
+}
+
+.donutProgressList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.donutRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.donutLabelRow {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 12px;
 }
 
-.kpiTrendBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.donutDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.donutDeptName {
+  font-weight: 600;
+  color: #334155;
+  flex: 1;
+}
+
+.donutCount {
   font-weight: 700;
-  padding: 2px 6px;
+  color: #0f172a;
+}
+
+.donutBarTrack {
+  height: 6px;
+  background-color: #f1f5f9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.donutBarFill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+.funnelChartBox {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.funnelBarItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.funnelBarHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #334155;
+}
+
+.stackedBarTrack {
+  display: flex;
+  height: 10px;
+  background-color: #f1f5f9;
+  border-radius: 99px;
+  overflow: hidden;
+  gap: 2px;
+}
+
+.stackedSegmentScreen { background-color: #0284c7; height: 100%; }
+.stackedSegmentInterview { background-color: #8b5cf6; height: 100%; }
+.stackedSegmentHired { background-color: #10b981; height: 100%; }
+
+/* Source List */
+.sourceList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sourceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sourceLabelRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.sourceDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.sourceName {
+  font-weight: 600;
+  color: #334155;
+  flex: 1;
+}
+
+.sourceValue {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sourceTrack {
+  height: 6px;
+  background-color: #f1f5f9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.sourceFill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+/* ── TABLE & RIGHT HIGHLIGHTS PANEL ───────────────────────────────── */
+.tableAndPanelRow {
+  display: flex;
+  gap: 20px;
+}
+
+@media (max-width: 980px) {
+  .tableAndPanelRow {
+    flex-direction: column;
+  }
+}
+
+.tableCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.customTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.customTable th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: #f8fafc;
+}
+
+.customTable td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  color: #334155;
+}
+
+.deptBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
   border-radius: 6px;
+  background-color: #f1f5f9;
+  color: #475569;
 }
 
-.kpiTrendPositive {
-  background-color: #ecfdf5;
-  color: #047857;
+.selectFilter {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 12px;
+  color: #334155;
+  outline: none;
+  background-color: #ffffff;
 }
 
-.kpiTrendSubtext {
-  color: var(--gray-text-muted);
+/* Panel Card */
+.panelCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* Layer 2: Funnel & Distribution Split Layout */
+.panelCard h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.highlightSection {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid #f1f5f9;
+}
+
+.highlightSection h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 6px 0 4px 0;
+}
+
+.highlightSection p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.highlightBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0284c7;
+}
+
+.highlightBadgeWarning {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.highlightBadgeSuccess {
+  font-size: 11px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+/* ── TOOLBAR CARD & MANAGE RECRUITERS ──────────────────────────────── */
+.toolbarCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.toolbarSearchInput {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  width: 260px;
+  outline: none;
+}
+
+.primaryAddBtn {
+  background-color: #0284c7;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.primaryAddBtn:hover {
+  background-color: #0369a1;
+}
+
+.rowActionsGroup {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.actionBtnEdit {
+  background-color: #e0f2fe;
+  color: #0284c7;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actionBtnToggle {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actionBtnDelete {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.modalContent {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 420px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalContent h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.formGroup label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.formGroup input, .formGroup select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  outline: none;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.modalCancelBtn {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 .layerGrid2 {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 @media (max-width: 960px) {
   .layerGrid2 {
     grid-template-columns: 1fr;
   }
-}
-
-/* Card Container */
-.widgetCard {
-  background-color: #ffffff;
-  border-radius: 16px;
-  border: 1px solid var(--gray-border);
-  padding: 24px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
-}
-
-.widgetTitle {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--gray-text-primary);
-  margin: 0 0 6px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.widgetSubtitle {
-  font-size: 13px;
-  color: var(--gray-text-muted);
-  margin: 0 0 20px 0;
-}
-
-/* Recruitment Funnel Stage Bars */
-.funnelList {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.funnelRow {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.funnelLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-}
-
-.funnelStageName {
-  font-weight: 700;
-  color: var(--gray-text-primary);
-}
-
-.funnelMeta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-}
-
-.funnelCount {
-  font-weight: 800;
-  color: var(--gray-text-primary);
-}
-
-.funnelConversion {
-  color: #047857;
-  font-weight: 700;
-}
-
-.funnelDropoff {
-  color: var(--error);
-  font-weight: 600;
-}
-
-.funnelTrack {
-  height: 10px;
-  width: 100%;
-  background-color: var(--gray-surface);
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-.funnelFill {
-  height: 100%;
-  background-color: var(--accent);
-  border-radius: 99px;
-  transition: width 0.4s ease-out;
-}
-
-/* Restrained Status Color Palette */
-.statusHealthy { color: #047857; background-color: #ecfdf5; border-color: #a7f3d0; }
-.statusAttention { color: #b45309; background-color: #fffbeb; border-color: #fde68a; }
-.statusCritical { color: #b91c1c; background-color: #fef2f2; border-color: #fca5a5; }
-.statusInfo { color: #1d4ed8; background-color: #eff6ff; border-color: #bfdbfe; }
-
-/* Skeleton Shimmer */
-.skeletonBox {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 10px;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }

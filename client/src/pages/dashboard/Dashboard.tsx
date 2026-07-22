@@ -3,24 +3,21 @@ import { Navigate } from 'react-router-dom';
 import { useDashboard } from '../../hooks/useDashboard';
 import { DashboardSkeleton } from './DashboardSkeleton';
 import { DashboardErrorBoundary } from './DashboardErrorBoundary';
-import { WorkspaceHeader } from './components/WorkspaceHeader/WorkspaceHeader';
-import { KpiGrid } from './components/KPIs/KpiGrid';
-import { RecruitmentFunnel } from './components/RecruitmentFunnel/RecruitmentFunnel';
-import { CandidatePipelineDistribution } from './components/CandidatePipeline/CandidatePipelineDistribution';
-import { NeedsAttention } from './components/NeedsAttention/NeedsAttention';
-import { UpcomingInterviews } from './components/UpcomingInterviews/UpcomingInterviews';
-import { JobHealthGrid } from './components/JobHealth/JobHealthGrid';
-import { ActivityFeed } from './components/ActivityFeed/ActivityFeed';
-import { HiringInsights } from './components/HiringInsights/HiringInsights';
-import { SourcingChannels } from './components/SourcingChannels/SourcingChannels';
-import { PageContainer } from '../../components/layout/PageContainer';
+import { OverviewView } from './views/OverviewView';
+import { JobsInsightsView } from './views/JobsInsightsView';
+import { DepartmentInsightsView } from './views/DepartmentInsightsView';
+import { ApplicationTrendsView } from './views/ApplicationTrendsView';
+import { ManageRecruitersView } from './views/ManageRecruitersView';
 import styles from './dashboard.module.css';
+
+type DashboardTab = 'overview' | 'jobs' | 'departments' | 'trends' | 'recruiters';
 
 export const Dashboard: React.FC = () => {
   const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : null;
 
+  const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [timeframe] = useState('30d');
   const { data, loading, error, refetch } = useDashboard(timeframe);
 
@@ -36,42 +33,79 @@ export const Dashboard: React.FC = () => {
     return <DashboardErrorBoundary error={error || 'Failed to sync dashboard'} onRetry={refetch} />;
   }
 
+  const renderActiveView = () => {
+    switch (activeTab) {
+      case 'overview':
+        return <OverviewView user={user} data={data} />;
+      case 'jobs':
+        return <JobsInsightsView jobs={data.jobHealth} />;
+      case 'departments':
+        return <DepartmentInsightsView />;
+      case 'trends':
+        return <ApplicationTrendsView />;
+      case 'recruiters':
+        return <ManageRecruitersView />;
+      default:
+        return <OverviewView user={user} data={data} />;
+    }
+  };
+
   return (
-    <PageContainer>
-      {/* ── WORKSPACE HEADER & QUICK ACTIONS ───────────────────────────────── */}
-      <WorkspaceHeader
-        userName={user.name || 'User'}
-        userRole={user.role}
-        summary={data.todaySummary}
-        quickActions={data.quickActions}
-      />
+    <div className={styles.dashboardLayout}>
+      {/* ── PERSISTENT INNER LEFT NAVIGATION SIDEBAR ──────────────────────── */}
+      <aside className={styles.dashboardSidebar}>
+        <div className={styles.sidebarHeader}>DASHBOARD VIEWS</div>
 
-      {/* ── LAYER 1: EXECUTIVE KPIS (8 Stripe-Style Metric Cards) ────────────── */}
-      <KpiGrid kpis={data.kpis} />
+        <button
+          type="button"
+          className={`${styles.sidebarNavItem} ${activeTab === 'overview' ? styles.sidebarNavItemActive : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          <span className={styles.navIcon}>📊</span>
+          <span>Overview</span>
+        </button>
 
-      {/* ── LAYER 2: RECRUITMENT FUNNEL & CANDIDATE DISTRIBUTION ──────────── */}
-      <div className={styles.layerGrid2}>
-        <RecruitmentFunnel funnel={data.funnel} />
-        <CandidatePipelineDistribution distribution={data.pipelineDistribution} />
-      </div>
+        <button
+          type="button"
+          className={`${styles.sidebarNavItem} ${activeTab === 'jobs' ? styles.sidebarNavItemActive : ''}`}
+          onClick={() => setActiveTab('jobs')}
+        >
+          <span className={styles.navIcon}>💼</span>
+          <span>Jobs Insights</span>
+        </button>
 
-      {/* ── LAYER 3: ACTION CENTER & UPCOMING SCHEDULE WORKSPACE ───────────── */}
-      <div className={styles.layerGrid2}>
-        <NeedsAttention items={data.attentionItems} />
-        <UpcomingInterviews interviews={data.upcomingInterviews} />
-      </div>
+        <button
+          type="button"
+          className={`${styles.sidebarNavItem} ${activeTab === 'departments' ? styles.sidebarNavItemActive : ''}`}
+          onClick={() => setActiveTab('departments')}
+        >
+          <span className={styles.navIcon}>🏢</span>
+          <span>Department Insights</span>
+        </button>
 
-      {/* ── LAYER 4: JOB HEALTH MATRIX & LIVE ACTIVITY AUDIT STREAM ────────── */}
-      <div className={styles.layerGrid2}>
-        <JobHealthGrid jobs={data.jobHealth} />
-        <ActivityFeed activities={data.activities} />
-      </div>
+        <button
+          type="button"
+          className={`${styles.sidebarNavItem} ${activeTab === 'trends' ? styles.sidebarNavItemActive : ''}`}
+          onClick={() => setActiveTab('trends')}
+        >
+          <span className={styles.navIcon}>📈</span>
+          <span>Application Trends</span>
+        </button>
 
-      {/* ── LAYER 5: OPERATIONAL INSIGHTS & SOURCING CHANNELS ──────────────── */}
-      <div className={styles.layerGrid2}>
-        <HiringInsights insights={data.insights} />
-        <SourcingChannels channels={data.sourcingChannels} />
-      </div>
-    </PageContainer>
+        <button
+          type="button"
+          className={`${styles.sidebarNavItem} ${activeTab === 'recruiters' ? styles.sidebarNavItemActive : ''}`}
+          onClick={() => setActiveTab('recruiters')}
+        >
+          <span className={styles.navIcon}>👥</span>
+          <span>Manage Recruiters</span>
+        </button>
+      </aside>
+
+      {/* ── MAIN DASHBOARD VIEW CONTENT AREA ──────────────────────────────── */}
+      <main className={styles.dashboardContentArea}>
+        {renderActiveView()}
+      </main>
+    </div>
   );
 };
