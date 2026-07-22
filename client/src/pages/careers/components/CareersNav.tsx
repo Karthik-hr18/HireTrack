@@ -131,51 +131,47 @@ export const CareersNav: React.FC = () => {
             </a>
 
             {token ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                {user?.role === 'recruiter' || user?.role === 'admin' ? (
-                  <>
-                    <Link to="/dashboard" className="careers-nav__cta" style={{ backgroundColor: 'var(--accent)' }}>
-                      Dashboard
-                    </Link>
-                    <Link to="/recruiter/candidates" className="careers-nav__cta" style={{ backgroundColor: 'var(--gray-surface)', color: 'var(--gray-text-primary)', border: '1px solid var(--gray-border)' }}>
-                      Candidate Pipeline
-                    </Link>
-                  </>
-                ) : (
-                  <Link to="/candidate/applications" className="careers-nav__cta">
+              user?.role === 'recruiter' || user?.role === 'admin' ? (
+                <>
+                  <Link to="/dashboard" className="careers-nav__btn-primary">
+                    Dashboard
+                  </Link>
+                  <Link to="/recruiter/candidates" className="careers-nav__btn-secondary">
+                    Candidate Pipeline
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="careers-nav__btn-secondary"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/candidate/applications" className="careers-nav__btn-primary">
                     My Applications
                   </Link>
-                )}
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="btn-ghost"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'var(--gray-text-muted)',
-                    cursor: 'pointer',
-                    padding: '6px 14px',
-                    borderRadius: 'var(--radius-pill)',
-                    border: '1px solid var(--gray-border)',
-                    height: 36
-                  }}
-                >
-                  <span>Sign Out</span>
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="careers-nav__btn-secondary"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    Sign Out
+                  </button>
+                </>
+              )
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Link to="/login" className="careers-nav__link" style={{ fontWeight: 600, padding: '6px 12px' }}>
+              <>
+                <Link to="/login" className="careers-nav__btn-secondary">
                   Sign In
                 </Link>
-                <Link to="/register" className="careers-nav__cta">
+                <Link to="/register" className="careers-nav__btn-primary">
                   Get Started →
                 </Link>
-              </div>
+              </>
             )}
           </nav>
 
