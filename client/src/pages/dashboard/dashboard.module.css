@@ -1,50 +1,55 @@
-/* Modular Dashboard CSS Token System */
+/* Enterprise B2B SaaS ATS Dashboard Design System */
 
 .dashboardLayout {
   display: flex;
   min-height: calc(100vh - 52px);
   background-color: #f8fafc;
   width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* ── PERSISTENT INNER LEFT NAVIGATION SIDEBAR ──────────────────────── */
+/* ── PERSISTENT INNER LEFT NAVIGATION SIDEBAR (Lever / Greenhouse Style) ── */
 .dashboardSidebar {
-  width: 230px;
-  min-width: 230px;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
   background-color: #ffffff;
   border-right: 1px solid #e2e8f0;
-  padding: 20px 12px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   box-sizing: border-box;
 }
 
 .sidebarHeader {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 8px 12px 12px;
+  letter-spacing: 0.06em;
+  padding: 4px 12px 12px 12px;
 }
 
 .sidebarNavItem {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 12px;
+  height: 40px;
+  padding: 0 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.15s ease-in-out;
   border: none;
   background: transparent;
   width: 100%;
   text-align: left;
   outline: none;
+  box-sizing: border-box;
 }
 
 .sidebarNavItem:hover {
@@ -53,10 +58,10 @@
 }
 
 .sidebarNavItemActive {
-  background-color: #e0f2fe;
+  background-color: #f0f9ff;
   color: #0284c7;
   font-weight: 700;
-  border-left: 3px solid #0284c7;
+  border-left: 3.5px solid #0284c7;
 }
 
 .navIcon {
@@ -64,38 +69,42 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
+/* ── MAIN DASHBOARD CONTENT AREA ─────────────────────────────────── */
 .dashboardContentArea {
   flex: 1;
   padding: 24px 32px 60px;
   overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
-  max-width: calc(100% - 230px);
+  max-width: calc(100% - 240px);
 }
 
 .overviewViewContainer {
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
 
 .insightsContainer {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
-/* ── WORKSPACE HEADER ─────────────────────────────────────────────── */
+/* ── HERO WORKSPACE HEADER ────────────────────────────────────────── */
 .workspaceHeader {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
-  padding: 20px 24px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  box-sizing: border-box;
 }
 
 .headerTopRow {
@@ -111,13 +120,46 @@
   font-weight: 800;
   color: #0f172a;
   margin: 0 0 4px 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .greetingSubtitle {
   font-size: 13px;
   color: #64748b;
   margin: 0;
+  font-weight: 500;
+}
+
+.searchBarWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.searchInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: #0f172a;
+  width: 100%;
+}
+
+.shortcutKbd {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
 }
 
 .summaryPillBar {
@@ -178,21 +220,20 @@
   background-color: #0369a1 !important;
 }
 
-/* ── KPI GRID & CARDS ─────────────────────────────────────────────── */
+/* ── STANDARDIZED EXECUTIVE KPI GRID ──────────────────────────────── */
 .kpiGrid, .kpiRow {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 20px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   .kpiGrid, .kpiRow {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 580px) {
+@media (max-width: 640px) {
   .kpiGrid, .kpiRow {
     grid-template-columns: 1fr;
   }
@@ -200,25 +241,27 @@
 
 .kpiCard {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
-  padding: 18px 20px;
+  padding: 20px;
+  height: 124px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
 }
 
 .kpiCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
 .kpiHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
 }
 
 .kpiTitle, .kpiLabel {
@@ -230,46 +273,91 @@
 }
 
 .kpiIcon {
-  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .kpiValue {
   font-size: 28px;
   font-weight: 800;
   color: #0f172a;
-  line-height: 1.1;
-  margin-bottom: 6px;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
-.kpiTrend {
+.kpiMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 12px;
+}
+
+.kpiTrendBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.kpiTrendPositive {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+
+.kpiTrendSubtext {
   color: #64748b;
   font-weight: 500;
 }
 
-.kpiTrendGood {
-  font-size: 12px;
-  color: #10b981;
-  font-weight: 700;
-}
-
-/* ── CHARTS ROW & EQUAL 2-COLUMN LAYOUT ───────────────────────────── */
+/* ── EQUAL 2-COLUMN SECTION GRID ──────────────────────────────────── */
 .layerGrid2Equal {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
   align-items: start;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1024px) {
   .layerGrid2Equal {
     grid-template-columns: 1fr;
   }
 }
 
+/* Standardized Card Container */
+.widgetCard {
+  background-color: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.widgetTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.widgetSubtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px 0;
+}
+
+/* ── CHARTS ROW ─────────────────────────────────────────────────── */
 .chartsRow {
   display: flex;
-  gap: 20px;
+  gap: 24px;
 }
 
 @media (max-width: 900px) {
@@ -280,12 +368,13 @@
 
 .chartCard {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .cardHeader, .cardHeaderRow {
@@ -553,7 +642,7 @@
 /* ── TABLE & RIGHT HIGHLIGHTS PANEL ───────────────────────────────── */
 .tableAndPanelRow {
   display: flex;
-  gap: 20px;
+  gap: 24px;
 }
 
 @media (max-width: 980px) {
@@ -564,10 +653,10 @@
 
 .tableCard {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .customTable {
@@ -618,10 +707,10 @@
 /* Panel Card */
 .panelCard {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -675,13 +764,13 @@
 /* ── TOOLBAR CARD & MANAGE RECRUITERS ──────────────────────────────── */
 .toolbarCard {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
-  padding: 14px 20px;
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -775,7 +864,7 @@
 
 .modalContent {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 24px;
   width: 420px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
