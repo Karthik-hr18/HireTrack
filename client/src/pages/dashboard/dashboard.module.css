@@ -183,6 +183,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  margin-bottom: 20px;
 }
 
 @media (max-width: 1024px) {
@@ -252,7 +253,20 @@
   font-weight: 700;
 }
 
-/* ── CHARTS ROW ─────────────────────────────────────────────────── */
+/* ── CHARTS ROW & EQUAL 2-COLUMN LAYOUT ───────────────────────────── */
+.layerGrid2Equal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .layerGrid2Equal {
+    grid-template-columns: 1fr;
+  }
+}
+
 .chartsRow {
   display: flex;
   gap: 20px;
@@ -400,40 +414,6 @@
   background-color: #ffffff;
   color: #0f172a;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* Pipeline Stage Funnel (Ref Image 1) */
-.pipelineFunnelList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.pipelineFunnelRow {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stageMeta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.stageBarTrack {
-  height: 8px;
-  background-color: #f1f5f9;
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-.stageBarFill {
-  height: 100%;
-  border-radius: 99px;
-  transition: width 0.3s ease;
 }
 
 /* Donut & Department Bars */
@@ -846,17 +826,4 @@
   padding: 8px 14px;
   border-radius: 6px;
   cursor: pointer;
-}
-
-.layerGrid2 {
-  display: grid;
-  grid-template-columns: 1.6fr 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-@media (max-width: 960px) {
-  .layerGrid2 {
-    grid-template-columns: 1fr;
-  }
 }

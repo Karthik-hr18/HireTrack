@@ -1,13 +1,11 @@
 import React from 'react';
 import { WorkspaceHeader } from '../components/WorkspaceHeader/WorkspaceHeader';
 import { KpiGrid } from '../components/KPIs/KpiGrid';
-import { RecruitmentFunnel } from '../components/RecruitmentFunnel/RecruitmentFunnel';
 import { CandidatePipelineDistribution } from '../components/CandidatePipeline/CandidatePipelineDistribution';
 import { NeedsAttention } from '../components/NeedsAttention/NeedsAttention';
 import { UpcomingInterviews } from '../components/UpcomingInterviews/UpcomingInterviews';
 import { JobHealthGrid } from '../components/JobHealth/JobHealthGrid';
 import { ActivityFeed } from '../components/ActivityFeed/ActivityFeed';
-import { HiringInsights } from '../components/HiringInsights/HiringInsights';
 import { SourcingChannels } from '../components/SourcingChannels/SourcingChannels';
 import styles from '../dashboard.module.css';
 
@@ -19,7 +17,7 @@ interface OverviewViewProps {
 export const OverviewView: React.FC<OverviewViewProps> = ({ user, data }) => {
   return (
     <div className={styles.overviewViewContainer}>
-      {/* Workspace Header & Quick Actions */}
+      {/* ── WORKSPACE HEADER & QUICK ACTIONS ────────────────────────────── */}
       <WorkspaceHeader
         userName={user?.name || 'Recruiter'}
         userRole={user?.role || 'recruiter'}
@@ -27,31 +25,27 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ user, data }) => {
         quickActions={data.quickActions}
       />
 
-      {/* Layer 1: KPI Grid */}
+      {/* ── KPI GRID ────────────────────────────────────────────────────── */}
       <KpiGrid kpis={data.kpis} />
 
-      {/* Layer 2: Recruitment Funnel & Candidate Distribution */}
-      <div className={styles.layerGrid2}>
-        <RecruitmentFunnel funnel={data.funnel} />
+      {/* ── ROW 2: CANDIDATE PIPELINE DONUT & PRIORITY ACTIONS ───────────── */}
+      <div className={styles.layerGrid2Equal} style={{ marginBottom: 20 }}>
         <CandidatePipelineDistribution distribution={data.pipelineDistribution} />
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <NeedsAttention items={data.attentionItems} />
+          <UpcomingInterviews interviews={data.upcomingInterviews} />
+        </div>
       </div>
 
-      {/* Layer 3: Needs Attention & Upcoming Interviews */}
-      <div className={styles.layerGrid2}>
-        <NeedsAttention items={data.attentionItems} />
-        <UpcomingInterviews interviews={data.upcomingInterviews} />
-      </div>
-
-      {/* Layer 4: Job Health & Activity Feed */}
-      <div className={styles.layerGrid2}>
+      {/* ── ROW 3: JOB HEALTH MATRIX & AUDIT STREAM + CHANNELS ───────────── */}
+      <div className={styles.layerGrid2Equal}>
         <JobHealthGrid jobs={data.jobHealth} />
-        <ActivityFeed activities={data.activities} />
-      </div>
 
-      {/* Layer 5: Operational Insights & Sourcing Channels */}
-      <div className={styles.layerGrid2}>
-        <HiringInsights insights={data.insights} />
-        <SourcingChannels channels={data.sourcingChannels} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <ActivityFeed activities={data.activities} />
+          <SourcingChannels channels={data.sourcingChannels} />
+        </div>
       </div>
     </div>
   );
