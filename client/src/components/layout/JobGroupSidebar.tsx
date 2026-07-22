@@ -1,5 +1,7 @@
 // Lever ATS-Style JobGroupSidebar Component (UI/UX Polish matching Lever reference image)
 import React, { useState } from 'react';
+import { Search, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
+import styles from './JobGroupSidebar.module.css';
 
 export interface JobGroupSidebarProps {
   groups: Array<{
@@ -30,10 +32,14 @@ export const JobGroupSidebar: React.FC<JobGroupSidebarProps> = ({
   const [jobSearch, setJobSearch] = useState('');
   const [showSearchInput, setShowSearchInput] = useState(false);
 
+  // Bottom Accordion state
+  const [originOpen, setOriginOpen] = useState(false);
+  const [tagsOpen, setTagsOpen] = useState(false);
+
   if (loading) {
     return (
-      <aside className="lever-sidebar lever-sidebar--loading" aria-label="Jobs loading">
-        <div className="lever-sidebar__spinner">Loading jobs…</div>
+      <aside className={styles.sidebarContainer} aria-label="Jobs loading">
+        <div className={styles.sidebarLoading}>Loading requisitions…</div>
       </aside>
     );
   }
@@ -49,14 +55,14 @@ export const JobGroupSidebar: React.FC<JobGroupSidebarProps> = ({
     .filter((g) => g.jobs.length > 0 || !jobSearch);
 
   return (
-    <aside className="lever-sidebar" aria-label="Job postings sidebar">
-      {/* ── SIDEBAR HEADER (My jobs | Show all  Q Search  ↑↓) ── */}
-      <div className="lever-sidebar__header">
-        <span className="lever-sidebar__title">My jobs</span>
-        <div className="lever-sidebar__header-actions">
+    <aside className={styles.sidebarContainer} aria-label="Job postings sidebar">
+      {/* ── SIDEBAR HEADER (My jobs | Show all  Q Search) ── */}
+      <div className={styles.sidebarHeader}>
+        <span className={styles.sidebarTitle}>My Jobs</span>
+        <div className={styles.headerActions}>
           <button
             type="button"
-            className="lever-sidebar__action-btn"
+            className={styles.actionBtn}
             onClick={() => {
               setJobSearch('');
               onSelectJob(undefined);
@@ -64,81 +70,82 @@ export const JobGroupSidebar: React.FC<JobGroupSidebarProps> = ({
           >
             Show all
           </button>
+
           <button
             type="button"
-            className="lever-sidebar__action-btn"
+            className={styles.actionBtn}
             onClick={() => setShowSearchInput((prev) => !prev)}
             title="Search jobs"
           >
-            🔍 Search
+            <Search size={13} /> Search
           </button>
-          <span className="lever-sidebar__sort-icon" title="Sort">↑↓</span>
         </div>
       </div>
 
-      <div className="lever-sidebar__divider" />
-
       {/* Expandable Quick Search Input */}
       {(showSearchInput || jobSearch) && (
-        <div className="lever-sidebar__search-box">
+        <div className={styles.searchBox}>
           <input
             type="text"
-            placeholder="Filter jobs…"
+            placeholder="Search job requisitions…"
             value={jobSearch}
             onChange={(e) => setJobSearch(e.target.value)}
-            className="lever-sidebar__search-input"
+            className={styles.searchInput}
             autoFocus
           />
         </div>
       )}
 
-      {/* ── ALL JOBS OPTION (When job filter active) ── */}
+      {/* ── ALL JOBS OPTION (When job filter is active) ── */}
       {selectedJobId && (
         <button
           type="button"
-          className="lever-sidebar__all-item"
+          className={styles.allJobsItem}
           onClick={() => onSelectJob(undefined)}
         >
-          <span className="lever-sidebar__all-name">‹ All Jobs</span>
-          <span className="lever-sidebar__count-num">{allJobsCount}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <ArrowLeft size={14} /> All Jobs
+          </span>
+          <span className={styles.countBadge}>{allJobsCount}</span>
         </button>
       )}
 
       {/* ── GROUPS & JOB LISTINGS (Compact Lever Style) ── */}
-      <div className="lever-sidebar__groups">
+      <div className={styles.groupsScrollArea}>
         {filteredGroups.map((group) => {
           const isCollapsed = expandedGroups.includes(group.name);
           return (
-            <div key={group.name} className="lever-sidebar__group">
+            <div key={group.name} className={styles.groupBlock}>
               {/* Category Header with thin underline matching reference */}
-              <div className="lever-sidebar__group-header-wrap">
+              <div className={styles.groupHeaderWrap}>
                 <button
                   type="button"
-                  className="lever-sidebar__group-header"
+                  className={styles.groupHeaderBtn}
                   onClick={() => onToggleGroup(group.name)}
                   aria-expanded={!isCollapsed}
                 >
-                  <span className="lever-sidebar__group-title">{group.name.toUpperCase()}</span>
+                  <span className={styles.groupTitle}>{group.name.toUpperCase()}</span>
+                  {isCollapsed ? <ChevronDown size={14} color="#94a3b8" /> : <ChevronUp size={14} color="#94a3b8" />}
                 </button>
-                <div className="lever-sidebar__group-line" />
+                <div className={styles.groupLine} />
               </div>
 
               {!isCollapsed && (
-                <ul className="lever-sidebar__job-list">
+                <ul className={styles.jobList}>
                   {group.jobs.map((job) => {
                     const isSelected = selectedJobId === job.id;
                     return (
-                      <li key={job.id} className="lever-sidebar__job-item">
+                      <li key={job.id} className={styles.jobItem}>
                         <button
                           type="button"
-                          className={`lever-sidebar__job-btn ${isSelected ? 'is-active' : ''}`}
+                          className={`${styles.jobBtn} ${isSelected ? styles.jobBtnActive : ''}`}
                           onClick={() => onSelectJob(job.id)}
                         >
-                          <span className={`lever-sidebar__dot ${isSelected ? 'lever-sidebar__dot--active' : ''}`} />
-                          <span className="lever-sidebar__job-name" title={job.title}>
+                          <span className={`${styles.statusDot} ${isSelected ? styles.statusDotActive : styles.statusDotActive}`} />
+                          <span className={styles.jobName} title={job.title}>
                             {job.title}
                           </span>
-                          <span className="lever-sidebar__count-num">{job.candidateCount}</span>
+                          <span className={styles.countBadge}>{job.candidateCount}</span>
                         </button>
                       </li>
                     );
@@ -150,24 +157,31 @@ export const JobGroupSidebar: React.FC<JobGroupSidebarProps> = ({
         })}
 
         {/* Muted "Show closed" link matching reference image */}
-        <div className="lever-sidebar__show-closed-wrap">
-          <button type="button" className="lever-sidebar__show-closed-btn">
-            Show closed
+        <div className={styles.showClosedWrap}>
+          <button type="button" className={styles.showClosedBtn}>
+            Show closed requisitions
           </button>
         </div>
       </div>
 
-      {/* ── BOTTOM ACCORDIONS (Origin ˅, Tags ˅) ── */}
-      <div className="lever-sidebar__filters">
-        <div className="lever-sidebar__filter-divider" />
-        <div className="lever-sidebar__filter-row">
+      {/* ── BOTTOM ACCORDIONS (Origin & Tags) ── */}
+      <div className={styles.bottomFilters}>
+        <div 
+          className={styles.accordionRow}
+          onClick={() => setOriginOpen((prev) => !prev)}
+        >
           <span>Origin</span>
-          <span className="lever-sidebar__chevron">˅</span>
+          {originOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </div>
-        <div className="lever-sidebar__filter-divider" />
-        <div className="lever-sidebar__filter-row">
+        
+        <div className={styles.accordionDivider} />
+        
+        <div 
+          className={styles.accordionRow}
+          onClick={() => setTagsOpen((prev) => !prev)}
+        >
           <span>Tags</span>
-          <span className="lever-sidebar__chevron">˅</span>
+          {tagsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </div>
       </div>
     </aside>

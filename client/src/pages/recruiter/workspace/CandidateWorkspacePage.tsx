@@ -208,7 +208,7 @@ export const CandidateWorkspacePage: React.FC = () => {
   };
 
   return (
-    <div className="workspace-container">
+    <div className="workspace-container" style={{ display: 'flex', flexDirection: 'row', height: 'calc(100vh - 56px)', width: '100%', overflow: 'hidden', backgroundColor: '#f8fafc' }}>
       {/* ── LEFT SIDEBAR (Lever Jobs Column) ── */}
       <JobGroupSidebar
         groups={groups}
@@ -220,14 +220,14 @@ export const CandidateWorkspacePage: React.FC = () => {
         empty={groups.length === 0 && !loadingJobs}
       />
 
-      {/* ── MAIN CONTENT AREA ── */}
-      <div className="workspace-main-area">
+      {/* ── MAIN CONTENT AREA (Fixed zero-shift width flex: 1) ── */}
+      <div className="workspace-main-area" style={{ flex: 1, minWidth: 0, height: '100%', overflowY: 'auto', padding: '24px 32px 60px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
         {/* ── TOP HEADER BAR (Title, Search & View Switcher) ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Candidates Pipeline</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>Candidates Pipeline</h2>
             {selectedJobId && (
-              <span className="badge badge-success" style={{ fontSize: 11 }}>Filtered by Job</span>
+              <span className="badge badge-success" style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 99 }}>Filtered by Job</span>
             )}
           </div>
 
@@ -239,11 +239,13 @@ export const CandidateWorkspacePage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="workspace-search-input"
               style={{
-                padding: '6px 12px',
-                borderRadius: 6,
+                padding: '8px 14px',
+                borderRadius: 8,
                 border: '1px solid #cbd5e1',
                 fontSize: 13,
-                width: 240,
+                width: 260,
+                outline: 'none',
+                backgroundColor: '#ffffff'
               }}
             />
             <div className="view-switcher" role="group" aria-label="Pipeline View Mode" style={{ flexShrink: 0 }}>
@@ -268,7 +270,7 @@ export const CandidateWorkspacePage: React.FC = () => {
         </div>
 
         {/* ── STAGE TABS BAR ── */}
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 16 }}>
           <StageTabBar
             activeStage={activeStage}
             counts={stageCounts}
@@ -277,7 +279,7 @@ export const CandidateWorkspacePage: React.FC = () => {
         </div>
 
         {/* ── PIPELINE FUNNEL METRICS BAR (Matching Lever Design) ── */}
-        <div className="lever-funnel-bar">
+        <div className="lever-funnel-bar" style={{ marginBottom: 20 }}>
           {FUNNEL_STAGES.map((s) => {
             const count = stageCounts[s.key] || 0;
             const isActive = activeStage === s.key;
@@ -295,9 +297,9 @@ export const CandidateWorkspacePage: React.FC = () => {
           })}
         </div>
 
-        {/* ── WORKSPACE BODY CONTENT ───────────────────────────── */}
+        {/* ── WORKSPACE BODY CONTENT (Smooth Data Update with Zero Layout Shift) ── */}
         {viewMode === 'list' ? (
-          <div className="workspace-body" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+          <div className="workspace-body" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <WorkspaceSectionErrorBoundary fallbackTitle="Candidate List Error">
               <CandidateList
                 applications={applications}
