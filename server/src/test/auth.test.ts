@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { User } from '../models/User';
-import { register, login } from '../controllers/authController';
+import { register, login, forgotPassword, resetPassword } from '../controllers/authController';
 import { authenticate, authorize } from '../middleware/auth';
 import { connectDB } from '../config/db';
 
@@ -199,5 +199,42 @@ describe('Auth & RBAC Integration Tests', () => {
     expect(adminAuthCalled).toBe(false);
     expect(authErrorStatus).toBe(403);
     expect(authErrorData.code).toBe('FORBIDDEN');
+  });
+
+  it('5. Password Reset Flow - Should generate token, reset password, and enforce single-use TTL', async () => {
+    let forgotData: any = null;
+    const forgotReq = { body: { email: testCandidate.email } } as any;
+    const forgotRes = {
+      status: (s: number) => ({ json: (d: any) => { forgotData = d; } })
+    } as any;
+
+    await forgotPassword(forgotReq, forgotRes, () => {});
+    expect(forgotData).toHaveProperty('resetToken');
+    const token = forgotData.resetToken;
+
+    // Reset password with token
+    let resetStatus = 0;
+    const resetReq = { body: { token, newPassword: 'newpassword123' } } as any;
+    const resetRes = {
+      status: (s: number) => {
+        resetStatus = s;
+        return { json: (d: any) => {} };
+      }
+    } as any;
+
+    await resetPassword(resetReq, resetRes, () => {});
+    expect(resetStatus).toBe(200);
+
+    // Single-use check: reusing same token must fail
+    let reuseStatus = 0;
+    const reuseRes = {
+      status: (s: number) => {
+        reuseStatus = s;
+        return { json: (d: any) => {} };
+      }
+    } as any;
+
+    await resetPassword(resetReq, reuseRes, () => {});
+    expect(reuseStatus).toBe(400);
   });
 });

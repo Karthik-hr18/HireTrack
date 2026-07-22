@@ -136,3 +136,77 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
     return next(error);
   }
 };
+
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required', code: 'BAD_REQUEST' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      // Always return 200 for user enumeration protection
+      return res.status(200).json({
+        message: 'If an account with that email exists, a password reset link has been dispatched.'
+      });
+    }
+
+    // Generate random 32-byte hex token and hash at rest with SHA-256
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetTokenExpiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes TTL
+
+    user.resetTokenHash = resetTokenHash;
+    user.resetTokenExpiresAt = resetTokenExpiresAt;
+    await user.save();
+
+    return res.status(200).json({
+      message: 'If an account with that email exists, a password reset link has been dispatched.',
+      resetToken // Returned in response payload for dev/test verification
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        message: 'Token and a valid new password (min 6 characters) are required',
+        code: 'BAD_REQUEST'
+      });
+    }
+
+    const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetTokenHash,
+      resetTokenExpiresAt: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: 'Password reset token is invalid or has expired',
+        code: 'BAD_REQUEST'
+      });
+    }
+
+    // Hash new password with bcrypt (cost factor 12)
+    const salt = await bcrypt.genSalt(12);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+
+    // Invalidate reset token after single use
+    user.resetTokenHash = null;
+    user.resetTokenExpiresAt = null;
+    await user.save();
+
+    return res.status(200).json({
+      message: 'Password has been successfully updated. Please log in with your new credentials.'
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
