@@ -37,7 +37,9 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
             <span className={styles.kpiIcon}><Briefcase size={18} color="#0284c7" /></span>
           </div>
           <div className={styles.kpiValue}>{activeJobsCount}</div>
-          <span className={styles.kpiTrend}>Live open positions</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrend}>Currently accepting applications</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -46,7 +48,9 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
             <span className={styles.kpiIcon}><Target size={18} color="#3b82f6" /></span>
           </div>
           <div className={styles.kpiValue}>{totalAppsCount}</div>
-          <span className={styles.kpiTrend}>Applications across jobs</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrend}>Submissions across all roles</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -55,7 +59,9 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
             <span className={styles.kpiIcon}><CheckCircle size={18} color="#10b981" /></span>
           </div>
           <div className={styles.kpiValue}>3</div>
-          <span className={styles.kpiTrend}>Filled positions</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrend}>Roles successfully filled</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -64,7 +70,9 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
             <span className={styles.kpiIcon}><Clock size={18} color="#8b5cf6" /></span>
           </div>
           <div className={styles.kpiValue}>14 <span style={{ fontSize: 14, fontWeight: 500 }}>days</span></div>
-          <span className={styles.kpiTrendGood}>Target: 20d (Faster)</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrendGood}>Beat 20-day target</span>
+          </div>
         </div>
       </div>
 
@@ -126,7 +134,7 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
           <div className={styles.cardHeaderRow}>
             <div>
               <h3>Active Job Requisitions</h3>
-              <p className={styles.subtext}>Real-time application throughput & hiring metrics per position</p>
+              <p className={styles.subtext}>Candidate volume, interview progress, and hire status per role</p>
             </div>
             <select 
               value={filterDepartment} 
@@ -191,7 +199,7 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
           <div className={styles.highlightSection}>
             <span className={styles.highlightBadge}>Highest Volume</span>
             <h4>Senior Backend Engineer</h4>
-            <p>{jobsList[0]?.applicantsCount || 8} active applicants • Real MongoDB Data</p>
+            <p>{jobsList[0]?.applicantsCount || 8} active applicants in pipeline</p>
           </div>
 
           <div className={styles.highlightSection}>

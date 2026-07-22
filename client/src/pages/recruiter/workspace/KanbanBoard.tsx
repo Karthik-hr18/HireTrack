@@ -1,5 +1,6 @@
 import React from 'react';
 import { AvatarInitials } from '../../../components/ui/AvatarInitials';
+import { renderSourceBadge } from './CandidateRow';
 
 // The pipeline stages that make up Kanban columns
 const KANBAN_STAGES = [
@@ -17,6 +18,7 @@ const KANBAN_STAGES = [
 export interface KanbanApplication {
   _id: string;
   stage: string;
+  source?: string;
   updatedAt: string;
   candidate: { name: string; email: string } | null;
   job: { title: string } | null;
@@ -76,7 +78,10 @@ export const KanbanBoard: React.FC<KanBoardProps> = ({
                     <span className="kanban-card__name">{name}</span>
                     {isStale && <span className="kanban-card__stale-warning" title="Stale Profile">⚠️</span>}
                   </div>
-                  <div className="kanban-card__subtitle">{jobTitle}</div>
+                  <div className="kanban-card__subtitle" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{jobTitle}</span>
+                    {renderSourceBadge(app.source)}
+                  </div>
                   <div className="kanban-card__footer">
                     <AvatarInitials name={name} size={22} className="kanban-card__avatar" />
                     <span className="kanban-card__time">

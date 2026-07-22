@@ -21,6 +21,68 @@ interface CandidateRowProps {
   onClick: (id: string) => void;
 }
 
+export const renderSourceBadge = (source?: string) => {
+  const src = (source || 'careers_page').toLowerCase();
+  let bg = '#f8fafc';
+  let border = '#e2e8f0';
+  let color = '#475569';
+  let label = 'Careers Page';
+
+  if (src === 'referral') {
+    bg = '#f0f9ff';
+    border = '#bae6fd';
+    color = '#0284c7';
+    label = 'Referral';
+  } else if (src === 'linkedin') {
+    bg = '#eff6ff';
+    border = '#bfdbfe';
+    color = '#1d4ed8';
+    label = 'LinkedIn';
+  } else if (src === 'agency') {
+    bg = '#faf5ff';
+    border = '#e9d5ff';
+    color = '#7e22ce';
+    label = 'Agency';
+  } else if (src === 'campus') {
+    bg = '#ecfdf5';
+    border = '#a7f3d0';
+    color = '#047857';
+    label = 'Campus';
+  } else if (src === 'direct' || src === 'recruiter_added') {
+    bg = '#fff7ed';
+    border = '#fed7aa';
+    color = '#c2410c';
+    label = 'Direct';
+  } else if (src === 'naukri') {
+    bg = '#f0fdf4';
+    border = '#bbf7d0';
+    color = '#15803d';
+    label = 'Naukri';
+  } else if (src === 'indeed') {
+    bg = '#eef2ff';
+    border = '#c7d2fe';
+    color = '#4338ca';
+    label = 'Indeed';
+  }
+
+  return (
+    <span style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '2px 8px',
+      borderRadius: 99,
+      backgroundColor: bg,
+      border: `1px solid ${border}`,
+      color: color,
+      fontSize: 10.5,
+      fontWeight: 700,
+      whiteSpace: 'nowrap'
+    }}>
+      {label}
+    </span>
+  );
+};
+
 export const CandidateRow: React.FC<CandidateRowProps> = ({
   application,
   isSelected,
@@ -77,8 +139,9 @@ export const CandidateRow: React.FC<CandidateRowProps> = ({
         </div>
       </div>
 
-      <div className="lever-candidate-row__role" style={{ flex: '1 1 200px', fontSize: 13, fontWeight: 600, color: '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: '0 12px' }}>
+      <div className="lever-candidate-row__role" style={{ flex: '1 1 200px', fontSize: 13, fontWeight: 600, color: '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: '0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
         <span>{jobTitle}</span>
+        {renderSourceBadge(application.source)}
       </div>
 
       <div className="lever-candidate-row__location" style={{ flex: '0 0 160px', fontSize: 12, color: '#64748b' }}>

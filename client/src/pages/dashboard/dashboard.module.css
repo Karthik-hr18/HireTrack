@@ -313,7 +313,21 @@
 
 .kpiTrendSubtext {
   color: #64748b;
+  font-size: 12px;
   font-weight: 500;
+}
+
+/* Aliases used by Insight views — same visual as kpiTrendSubtext */
+.kpiTrend {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.kpiTrendGood {
+  font-size: 12px;
+  font-weight: 600;
+  color: #047857;
 }
 
 /* ── EQUAL 2-COLUMN SECTION GRID ──────────────────────────────────── */

@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { UserPlus } from 'lucide-react';
 import { CandidateList } from './CandidateList';
 import { StageTabBar } from './StageTabBar';
 import { CandidateDetailModal } from '../../../components/modal/CandidateDetailModal';
+import { AddCandidateModal } from '../../../components/modal/AddCandidateModal';
 import { KanbanBoard } from './KanbanBoard';
 import { JobGroupSidebar } from '../../../components/layout/JobGroupSidebar';
 import { useCandidateWorkspace } from '../../../hooks/useCandidateWorkspace';
@@ -89,9 +91,12 @@ export const CandidateWorkspacePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const token    = localStorage.getItem('token');
 
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   // Derive parameters directly from searchParams (clean SPA sync)
   const activeStage = searchParams.get('stage') || '';
   const selectedJobId = searchParams.get('job') || undefined;
+  const selectedSource = searchParams.get('source') || undefined;
 
   // Workspace state via hook
   const {
@@ -105,8 +110,9 @@ export const CandidateWorkspacePage: React.FC = () => {
     searchTerm,
     setSearchTerm,
     stageCounts,
+    sourceCounts,
     refreshApplications,
-  } = useCandidateWorkspace({ activeStage, selectedJobId });
+  } = useCandidateWorkspace({ activeStage, selectedJobId, selectedSource });
 
   const selectedId = searchParams.get('candidate');
   const storedView = sessionStorage.getItem('candidate_view_mode') as 'list' | 'kanban' | null;
@@ -178,6 +184,19 @@ export const CandidateWorkspacePage: React.FC = () => {
     }, { replace: false });
   };
 
+  const handleSelectSource = (src?: string) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (src) {
+        next.set('source', src);
+      } else {
+        next.delete('source');
+      }
+      next.delete('candidate');
+      return next;
+    }, { replace: false });
+  };
+
   const handleViewModeChange = (mode: 'list' | 'kanban') => {
     sessionStorage.setItem('candidate_view_mode', mode);
     setSearchParams((prev) => {
@@ -207,27 +226,40 @@ export const CandidateWorkspacePage: React.FC = () => {
     }
   };
 
+  // Flatten jobs from groups for Add Candidate modal dropdown
+  const flatJobsList = groups.flatMap((g) =>
+    g.jobs.map((j) => ({ id: j.id, title: j.title, department: g.name }))
+  );
+
   return (
     <div className="workspace-container">
       {/* ── LEFT SIDEBAR (Lever Jobs Column) ── */}
       <JobGroupSidebar
         groups={groups}
         selectedJobId={selectedJobId}
+        selectedSource={selectedSource}
         expandedGroups={expandedGroups}
         onToggleGroup={toggleGroup}
         onSelectJob={handleSelectJob}
+        onSelectSource={handleSelectSource}
+        sourceCounts={sourceCounts}
         loading={loadingJobs}
         empty={groups.length === 0 && !loadingJobs}
       />
 
       {/* ── MAIN CONTENT AREA ── */}
       <div className="workspace-main-area" style={{ padding: '24px 32px 60px' }}>
-        {/* ── TOP HEADER BAR (Title, Search & View Switcher) ── */}
+        {/* ── TOP HEADER BAR (Title, Search, Add Candidate & View Switcher) ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>Candidates Pipeline</h2>
             {selectedJobId && (
               <span className="badge badge-success" style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 99 }}>Filtered by Job</span>
+            )}
+            {selectedSource && (
+              <span className="badge badge-info" style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 99, textTransform: 'capitalize', backgroundColor: '#e0f2fe', color: '#0284c7', border: '1px solid #bae6fd' }}>
+                Source: {selectedSource.replace(/_/g, ' ')}
+              </span>
             )}
           </div>
 
@@ -243,11 +275,35 @@ export const CandidateWorkspacePage: React.FC = () => {
                 borderRadius: 8,
                 border: '1px solid #cbd5e1',
                 fontSize: 13,
-                width: 260,
+                width: 240,
                 outline: 'none',
                 backgroundColor: '#ffffff'
               }}
             />
+
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(true)}
+              style={{
+                height: 36,
+                padding: '0 14px',
+                borderRadius: 8,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 13,
+                fontWeight: 700,
+                backgroundColor: '#0284c7',
+                color: '#ffffff',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 1px 2px rgba(2, 132, 199, 0.2)',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <UserPlus size={15} /> + Add Candidate
+            </button>
+
             <div className="view-switcher" role="group" aria-label="Pipeline View Mode" style={{ flexShrink: 0 }}>
               <button
                 type="button"
@@ -336,6 +392,17 @@ export const CandidateWorkspacePage: React.FC = () => {
             hasPrevious={hasPrevious}
           />
         )}
+
+        {/* Add Candidate / Referrals Modal */}
+        <AddCandidateModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSuccess={() => {
+            refreshApplications();
+          }}
+          selectedJobId={selectedJobId}
+          jobs={flatJobsList}
+        />
       </div>
     </div>
   );

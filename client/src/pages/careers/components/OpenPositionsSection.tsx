@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { JobCard, JobItem } from './JobCard';
 import { JobFilters, FilterState } from './JobFilters';
 import { Frown } from 'lucide-react';
+import { ScrollReveal } from '../../../components/ui/ScrollReveal';
 
 interface OpenPositionsSectionProps {
   jobs: JobItem[];
@@ -95,77 +96,79 @@ export const OpenPositionsSection: React.FC<OpenPositionsSectionProps> = ({ jobs
   return (
     <section id="open-positions" style={{ padding: '80px 0', borderTop: '1px solid var(--gray-border)' }}>
       <div className="careers-container">
-        {/* Section Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 24, marginBottom: 40 }}>
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)', marginBottom: 10 }}>
-              Available Opportunities
-            </p>
-            <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
-              Open Positions ({filteredJobs.length})
-            </h2>
-          </div>
-          <p style={{ fontSize: 15, color: 'var(--gray-text-muted)', maxWidth: 460, margin: 0 }}>
-            Explore opportunities across engineering, design, and operations. All roles include remote flexibility.
-          </p>
-        </div>
-
-        {/* Filter Controls */}
-        <JobFilters
-          filters={filters}
-          onChange={setFilters}
-          onClear={handleClearFilters}
-          departments={departments}
-          locations={locations}
-          totalResults={filteredJobs.length}
-        />
-
-        {/* Job Grid or Empty State */}
-        {filteredJobs.length > 0 ? (
-          <div className="careers-job-grid">
-            {filteredJobs.map((job) => (
-              <JobCard key={job._id} job={job} />
-            ))}
-          </div>
-        ) : (
-          <div 
-            className="careers-card"
-            style={{
-              padding: '60px 24px',
-              textAlign: 'center',
-              maxWidth: 540,
-              margin: '40px auto',
-            }}
-          >
-            <div style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              backgroundColor: 'rgba(239, 68, 68, 0.08)',
-              color: 'var(--error)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 20px',
-            }}>
-              <Frown size={28} />
+        <ScrollReveal>
+          {/* Section Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 24, marginBottom: 40 }}>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)', marginBottom: 10 }}>
+                Available Opportunities
+              </p>
+              <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
+                Open Positions ({filteredJobs.length})
+              </h2>
             </div>
-            <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 10 }}>
-              No roles match your filters
-            </h3>
-            <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 24 }}>
-              Try loosening your search keywords or resetting active department and location filters.
+            <p style={{ fontSize: 15, color: 'var(--gray-text-muted)', maxWidth: 460, margin: 0 }}>
+              Explore opportunities across engineering, design, and operations. All roles include remote flexibility.
             </p>
-            <button
-              type="button"
-              className="btn-secondary-lg"
-              onClick={handleClearFilters}
-              style={{ padding: '10px 24px', fontSize: 14 }}
-            >
-              Reset Filters
-            </button>
           </div>
-        )}
+
+          {/* Filter Controls */}
+          <JobFilters
+            filters={filters}
+            onChange={setFilters}
+            onClear={handleClearFilters}
+            departments={departments}
+            locations={locations}
+            totalResults={filteredJobs.length}
+          />
+
+          {/* Job Grid or Empty State */}
+          {filteredJobs.length > 0 ? (
+            <div className="careers-job-grid">
+              {filteredJobs.map((job) => (
+                <JobCard key={job._id} job={job} />
+              ))}
+            </div>
+          ) : (
+            <div 
+              className="careers-card"
+              style={{
+                padding: '60px 24px',
+                textAlign: 'center',
+                maxWidth: 540,
+                margin: '40px auto',
+              }}
+            >
+              <div style={{
+                width: 56,
+                height: 56,
+                borderRadius: 16,
+                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                color: 'var(--error)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+              }}>
+                <Frown size={28} />
+              </div>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 10 }}>
+                No roles match your filters
+              </h3>
+              <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 24 }}>
+                Try loosening your search keywords or resetting active department and location filters.
+              </p>
+              <button
+                type="button"
+                className="btn-secondary-lg"
+                onClick={handleClearFilters}
+                style={{ padding: '10px 24px', fontSize: 14 }}
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
+        </ScrollReveal>
       </div>
     </section>
   );

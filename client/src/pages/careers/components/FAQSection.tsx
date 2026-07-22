@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { ScrollReveal } from '../../../components/ui/ScrollReveal';
 
 const FAQS = [
   {
@@ -30,53 +31,57 @@ export const FAQSection: React.FC = () => {
   return (
     <section id="faq" style={{ padding: '80px 0', backgroundColor: 'var(--gray-bg)', borderTop: '1px solid var(--gray-border)' }}>
       <div className="careers-container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 48, alignItems: 'flex-start' }}>
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)', marginBottom: 12 }}>
-              Questions & Answers
-            </p>
-            <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 16 }}>
-              We're glad you asked...
-            </h2>
-            <p style={{ fontSize: 15, color: 'var(--gray-text-muted)', lineHeight: 1.6 }}>
-              Everything you need to know about joining our team, our hiring culture, and what to expect during the evaluation.
-            </p>
-          </div>
+        <ScrollReveal>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 48, alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)', marginBottom: 12 }}>
+                Questions & Answers
+              </p>
+              <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 16 }}>
+                We're glad you asked...
+              </h2>
+              <p style={{ fontSize: 15, color: 'var(--gray-text-muted)', lineHeight: 1.6 }}>
+                Everything you need to know about joining our team, our hiring culture, and what to expect during the evaluation.
+              </p>
+            </div>
 
-          <div>
-            {FAQS.map((faq, idx) => {
-              const isOpen = openIndex === idx;
-              return (
-                <div key={idx} className="careers-faq-item">
-                  <button
-                    type="button"
-                    className="careers-faq-trigger"
-                    onClick={() => toggle(idx)}
-                    aria-expanded={isOpen}
-                  >
-                    <span>{faq.question}</span>
-                    <ChevronDown
-                      size={20}
-                      style={{
-                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 200ms ease',
-                        color: 'var(--gray-text-muted)',
-                        flexShrink: 0,
-                        marginLeft: 12,
-                      }}
-                    />
-                  </button>
+            <div>
+              {FAQS.map((faq, idx) => {
+                const isOpen = openIndex === idx;
+                return (
+                  <div key={idx} className="careers-faq-item">
+                    <button
+                      type="button"
+                      className="careers-faq-trigger"
+                      onClick={() => toggle(idx)}
+                      aria-expanded={isOpen}
+                    >
+                      <span>{faq.question}</span>
+                      <ChevronDown
+                        size={20}
+                        style={{
+                          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)',
+                          color: isOpen ? 'var(--accent)' : 'var(--gray-text-muted)',
+                          flexShrink: 0,
+                          marginLeft: 12,
+                        }}
+                      />
+                    </button>
 
-                  {isOpen && (
-                    <div className="careers-faq-content">
-                      {faq.answer}
+                    <div className={`careers-faq-content-wrapper ${isOpen ? 'is-open' : ''}`}>
+                      <div className="careers-faq-content-inner">
+                        <div className="careers-faq-content">
+                          {faq.answer}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

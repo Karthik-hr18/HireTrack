@@ -9,6 +9,7 @@ import { SchedulingCard } from './SchedulingCard';
 import { RejectionCard } from './RejectionCard';
 import { getNormalizedPdfUrl } from '../../../utils/pdfUtils';
 import { PdfViewer } from '../../../components/ui/PdfViewer';
+import { renderSourceBadge } from './CandidateRow';
 
 // ─── Tab configuration ────────────────────────────────────────────────────────
 export type DetailTab =
@@ -44,6 +45,9 @@ export interface DetailApplication {
   coverLetter?: string;
   currentCompany?: string;
   currentTitle?: string;
+  referrerName?: string;
+  referrerEmail?: string;
+  referralNotes?: string;
   rejectionReason?: string;
   rejectionNote?: string;
   createdAt: string;
@@ -319,6 +323,7 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
             {jobLoc && <span className="detail-panel__subtitle-loc"> · {jobLoc}</span>}
           </div>
           <div className="detail-panel__meta-row">
+            {app?.source && renderSourceBadge(app.source)}
             {appliedDate && <span className="detail-panel__meta-item">📅 {appliedDate}</span>}
             {app?.experience !== undefined && (
               <span className="detail-panel__meta-item">
@@ -489,6 +494,25 @@ const TabContent: React.FC<TabContentProps> = ({
                 {app.experience === 0 ? 'Fresher' : `${app.experience} years`}
               </span>
             </div>
+
+            {/* Referrer Details Block if present */}
+            {(app.referrerName || app.referrerEmail || app.referralNotes) && (
+              <div style={{ marginTop: 14, padding: 14, borderRadius: 10, backgroundColor: '#f0f9ff', border: '1px solid #bae6fd' }}>
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+                  ✨ Employee Referral Endorsement
+                </div>
+                {app.referrerName && (
+                  <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 600, marginBottom: 4 }}>
+                    Referred by: {app.referrerName} {app.referrerEmail ? `(${app.referrerEmail})` : ''}
+                  </div>
+                )}
+                {app.referralNotes && (
+                  <div style={{ fontSize: 12.5, color: '#334155', fontStyle: 'italic', backgroundColor: '#ffffff', padding: '8px 12px', borderRadius: 6, border: '1px solid #e0f2fe', marginTop: 6 }}>
+                    "{app.referralNotes}"
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Social links */}
             {(app.linkedinUrl || app.githubUrl || app.portfolioUrl) && (

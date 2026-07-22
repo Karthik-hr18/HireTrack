@@ -289,7 +289,16 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
       userName,
       totalActiveJobs,
       totalApplications,
-      stageDistribution: { applied: cApplied, screening: cScreening, technical: cTechnical, hr: cHR, offer: cOffer, hired: cHired, rejected: cRejected },
+      stageDistribution: {
+        applied: cApplied,
+        resume_screening: cScreening,
+        screening: cScreening,
+        technical: cTechnical,
+        hr: cHR,
+        offer: cOffer,
+        hired: cHired,
+        rejected: cRejected
+      },
       needsAttention: attentionItems,
       todaySummary: {
         interviewsTodayCount,

@@ -31,7 +31,7 @@ export const WorkspaceHeader: React.FC<Props> = ({
             Good Morning, {userName}
           </h1>
           <p className={styles.greetingSubtitle}>
-            Role: <strong style={{ textTransform: 'uppercase', color: 'var(--accent)' }}>{userRole}</strong> | Real-time ATS Operational Intelligence
+            <strong style={{ textTransform: 'capitalize', color: 'var(--accent)' }}>{userRole}</strong>
           </p>
         </div>
 

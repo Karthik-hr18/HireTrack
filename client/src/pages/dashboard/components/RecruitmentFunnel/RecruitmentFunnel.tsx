@@ -42,7 +42,6 @@ export const RecruitmentFunnel: React.FC<Props> = ({ funnel }) => {
         <div>
           <div className={styles.badgeRow}>
             <span className={styles.headerTag}>PIPELINE ANALYTICS</span>
-            <span className={styles.headerSubBadge}>Real Database Metrics</span>
           </div>
           <h3 className={styles.funnelTitle}>Recruitment Pipeline & Conversion Stream</h3>
           <p className={styles.funnelSubtitle}>

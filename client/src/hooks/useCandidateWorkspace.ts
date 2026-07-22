@@ -35,10 +35,11 @@ export interface JobGroup {
 interface UseCandidateWorkspaceOptions {
   activeStage: string;
   selectedJobId?: string;
+  selectedSource?: string;
 }
 
 /** Hook that loads jobs, applications and provides UI state */
-export const useCandidateWorkspace = ({ activeStage, selectedJobId }: UseCandidateWorkspaceOptions) => {
+export const useCandidateWorkspace = ({ activeStage, selectedJobId, selectedSource }: UseCandidateWorkspaceOptions) => {
   // ── Job groups ────────────────────────────────────────
   const [groups, setGroups] = useState<JobGroup[]>([]);
   const [loadingJobs, setLoadingJobs] = useState<boolean>(true);
@@ -148,7 +149,7 @@ export const useCandidateWorkspace = ({ activeStage, selectedJobId }: UseCandida
   // Expose refresh function
   const refreshApplications = fetchApplications;
 
-  // ---- Apply client‑side filtering (job, stage, search) -----------------------
+  // ---- Apply client‑side filtering (job, stage, source, search) -----------------------
   const filteredApplications = useMemo(() => {
     let list = allApplications;
     if (activeStage) {
@@ -160,6 +161,9 @@ export const useCandidateWorkspace = ({ activeStage, selectedJobId }: UseCandida
         return s === activeStage;
       });
     }
+    if (selectedSource) {
+      list = list.filter((a) => (a.source || 'careers_page') === selectedSource);
+    }
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       list = list.filter(
@@ -170,7 +174,7 @@ export const useCandidateWorkspace = ({ activeStage, selectedJobId }: UseCandida
       );
     }
     return list;
-  }, [allApplications, activeStage, searchTerm]);
+  }, [allApplications, activeStage, selectedSource, searchTerm]);
 
   // ---- Stage counts for the current scope ---------------------------
   const stageCounts = useMemo(() => {
@@ -186,6 +190,16 @@ export const useCandidateWorkspace = ({ activeStage, selectedJobId }: UseCandida
       } else {
         map[s] = (map[s] || 0) + 1;
       }
+    });
+    return map;
+  }, [allApplications]);
+
+  // ---- Source counts ------------------------------------------------
+  const sourceCounts = useMemo(() => {
+    const map: Record<string, number> = { '': allApplications.length };
+    allApplications.forEach((app) => {
+      const src = app.source || 'careers_page';
+      map[src] = (map[src] || 0) + 1;
     });
     return map;
   }, [allApplications]);
@@ -206,6 +220,7 @@ export const useCandidateWorkspace = ({ activeStage, selectedJobId }: UseCandida
     searchTerm,
     setSearchTerm,
     stageCounts,
+    sourceCounts,
     refreshApplications,
   };
 };

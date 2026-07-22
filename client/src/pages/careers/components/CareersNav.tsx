@@ -1,10 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export const CareersNav: React.FC = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
   const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : null;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    if (window.location.pathname === '/' || window.location.pathname === '') {
+      e.preventDefault();
+      const el = document.getElementById(targetId);
+      if (el) {
+        const navHeight = 72;
+        const targetPos = el.getBoundingClientRect().top + window.pageYOffset - navHeight;
+        window.scrollTo({
+          top: targetPos,
+          behavior: 'smooth'
+        });
+        window.history.pushState(null, '', `#${targetId}`);
+      }
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -13,7 +44,7 @@ export const CareersNav: React.FC = () => {
   };
 
   return (
-    <header className="careers-nav">
+    <header className={`careers-nav ${isScrolled ? 'careers-nav--scrolled' : ''}`}>
       <div className="careers-container">
         <div className="careers-nav__inner">
           <Link to="/" className="careers-nav__logo" aria-label="HireTrack Homepage">
@@ -35,16 +66,32 @@ export const CareersNav: React.FC = () => {
           </Link>
 
           <nav className="careers-nav__links" aria-label="Main navigation">
-            <a href="/#open-positions" className="careers-nav__link">
+            <a
+              href="/#open-positions"
+              className="careers-nav__link"
+              onClick={(e) => handleNavClick(e, 'open-positions')}
+            >
               Careers
             </a>
-            <a href="/#company-story" className="careers-nav__link">
+            <a
+              href="/#company-story"
+              className="careers-nav__link"
+              onClick={(e) => handleNavClick(e, 'company-story')}
+            >
               Company
             </a>
-            <a href="/#why-join" className="careers-nav__link">
+            <a
+              href="/#why-join"
+              className="careers-nav__link"
+              onClick={(e) => handleNavClick(e, 'why-join')}
+            >
               Benefits
             </a>
-            <a href="/#faq" className="careers-nav__link">
+            <a
+              href="/#faq"
+              className="careers-nav__link"
+              onClick={(e) => handleNavClick(e, 'faq')}
+            >
               FAQ
             </a>
 

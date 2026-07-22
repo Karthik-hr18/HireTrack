@@ -36,7 +36,9 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiIcon}><Building2 size={18} color="#0284c7" /></span>
           </div>
           <div className={styles.kpiValue}>{departmentData.length || 6}</div>
-          <span className={styles.kpiTrend}>Active hiring units</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrend}>With open requisitions</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -45,7 +47,9 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiIcon}><BarChart3 size={18} color="#3b82f6" /></span>
           </div>
           <div className={styles.kpiValue}>{data?.totalActiveJobs || 12}</div>
-          <span className={styles.kpiTrend}>Distributed headcount</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrend}>Open roles across all teams</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -54,7 +58,9 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiIcon}><Award size={18} color="#10b981" /></span>
           </div>
           <div className={styles.kpiValue}>{data?.stageDistribution?.hired || 3}</div>
-          <span className={styles.kpiTrendGood}>Successful hires</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrendGood}>Placements this period</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -63,7 +69,9 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiIcon}><Zap size={18} color="#8b5cf6" /></span>
           </div>
           <div className={styles.kpiValue}>14.2 <span style={{ fontSize: 14, fontWeight: 500 }}>days</span></div>
-          <span className={styles.kpiTrendGood}>Product department is fastest</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrendGood}>Avg. days from apply to offer</span>
+          </div>
         </div>
       </div>
 
@@ -132,7 +140,7 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
           <div className={styles.cardHeaderRow}>
             <div>
               <h3>Department Breakdown</h3>
-              <p className={styles.subtext}>Real-time MongoDB department requisitions and candidate metrics</p>
+              <p className={styles.subtext}>Open roles, candidate pipeline, and hire count by department</p>
             </div>
           </div>
 

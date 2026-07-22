@@ -14,26 +14,43 @@ export interface JobGroupSidebarProps {
     }>;
   }>;
   selectedJobId?: string;
+  selectedSource?: string;
   expandedGroups: string[];
   onToggleGroup: (groupName: string) => void;
   onSelectJob: (jobId?: string) => void;
+  onSelectSource?: (sourceKey?: string) => void;
+  sourceCounts?: Record<string, number>;
   loading: boolean;
   empty?: boolean;
 }
 
+const ORIGIN_SOURCES = [
+  { key: '',               label: 'All Sources' },
+  { key: 'referral',       label: 'Referral' },
+  { key: 'careers_page',   label: 'Careers Page' },
+  { key: 'linkedin',       label: 'LinkedIn' },
+  { key: 'agency',         label: 'Agency' },
+  { key: 'campus',         label: 'Campus' },
+  { key: 'direct',         label: 'Direct Sourcing' },
+  { key: 'other',          label: 'Other' },
+];
+
 export const JobGroupSidebar: React.FC<JobGroupSidebarProps> = ({
   groups,
   selectedJobId,
+  selectedSource,
   expandedGroups,
   onToggleGroup,
   onSelectJob,
+  onSelectSource,
+  sourceCounts = {},
   loading,
 }) => {
   const [jobSearch, setJobSearch] = useState('');
   const [showSearchInput, setShowSearchInput] = useState(false);
 
   // Bottom Accordion state
-  const [originOpen, setOriginOpen] = useState(false);
+  const [originOpen, setOriginOpen] = useState(true);
   const [tagsOpen, setTagsOpen] = useState(false);
 
   if (loading) {
@@ -169,18 +186,58 @@ export const JobGroupSidebar: React.FC<JobGroupSidebarProps> = ({
         <div 
           className={styles.accordionRow}
           onClick={() => setOriginOpen((prev) => !prev)}
+          style={{ cursor: 'pointer' }}
         >
-          <span>Origin</span>
+          <span style={{ fontWeight: 700, fontSize: 13, color: '#334155' }}>Origin</span>
           {originOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </div>
-        
+
+        {originOpen && (
+          <div style={{ padding: '6px 0 10px 0', display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {ORIGIN_SOURCES.map((src) => {
+              const count = sourceCounts[src.key] ?? (src.key === '' ? sourceCounts[''] ?? 0 : 0);
+              const isSelected = (selectedSource || '') === src.key;
+              return (
+                <button
+                  key={src.key}
+                  type="button"
+                  onClick={() => onSelectSource?.(src.key || undefined)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '5px 10px',
+                    borderRadius: 6,
+                    border: 'none',
+                    backgroundColor: isSelected ? '#e0f2fe' : 'transparent',
+                    color: isSelected ? '#0284c7' : '#475569',
+                    fontSize: 12,
+                    fontWeight: isSelected ? 700 : 500,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 120ms ease',
+                  }}
+                >
+                  <span>{src.label}</span>
+                  {count > 0 && (
+                    <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 99, backgroundColor: isSelected ? '#0284c7' : '#f1f5f9', color: isSelected ? '#ffffff' : '#64748b' }}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className={styles.accordionDivider} />
-        
+
         <div 
           className={styles.accordionRow}
           onClick={() => setTagsOpen((prev) => !prev)}
+          style={{ cursor: 'pointer' }}
         >
-          <span>Tags</span>
+          <span style={{ fontWeight: 700, fontSize: 13, color: '#334155' }}>Tags</span>
           {tagsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </div>
       </div>

@@ -12,6 +12,8 @@ export const ApplicationSource = z.enum([
   'indeed',
   'referral',
   'campus',
+  'agency',
+  'direct',
   'recruiter_added',
   'other'
 ]);
@@ -116,6 +118,27 @@ export const ApplySchema = z.object({
   termsAccepted: z.boolean().refine(val => val === true, 'You must accept the terms and conditions')
 });
 export type ApplyInput = z.infer<typeof ApplySchema>;
+
+export const RecruiterAddCandidateSchema = z.object({
+  jobId: z.string().min(1, 'Job selection is required'),
+  name: z.string().trim().min(2, 'Candidate name must be at least 2 characters'),
+  email: z.string().trim().email('Invalid candidate email address'),
+  source: ApplicationSource.default('referral'),
+  phone: z.string().trim().min(10, 'Phone number must be at least 10 digits'),
+  country: z.string().trim().min(2, 'Country must be at least 2 characters'),
+  address: z.string().trim().min(5, 'Address must be at least 5 characters'),
+  experience: z.number().nonnegative('Years of experience cannot be negative'),
+  linkedinUrl: z.string().trim().url('Invalid LinkedIn Profile URL'),
+  githubUrl: z.string().trim().url('Invalid GitHub URL').optional().or(z.literal('')),
+  portfolioUrl: z.string().trim().url('Invalid Portfolio URL').optional().or(z.literal('')),
+  coverLetter: z.string().trim().optional(),
+  currentCompany: z.string().trim().optional(),
+  currentTitle: z.string().trim().optional(),
+  referrerName: z.string().trim().optional(),
+  referrerEmail: z.string().trim().email('Invalid referrer email address').optional().or(z.literal('')),
+  referralNotes: z.string().trim().optional()
+});
+export type RecruiterAddCandidateInput = z.infer<typeof RecruiterAddCandidateSchema>;
 
 export const RejectApplicationSchema = z.object({
   rejectionReason: RejectionReason,

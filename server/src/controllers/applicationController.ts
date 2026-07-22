@@ -6,7 +6,7 @@ import { ActivityLog } from '../models/ActivityLog';
 import { Interview } from '../models/Interview';
 import { Scorecard } from '../models/Scorecard';
 import { uploadToCloudinary, performCloudinaryUpload, getCloudinaryAssetInfo } from '../config/cloudinary';
-import { ApplySchema, RejectApplicationSchema, PipelineStage } from '@hiretrack/shared';
+import { ApplySchema, RecruiterAddCandidateSchema, RejectApplicationSchema, PipelineStage } from '@hiretrack/shared';
 import mongoose from 'mongoose';
 
 export const applyToJob = async (req: Request, res: Response, next: NextFunction) => {
@@ -592,6 +592,144 @@ export const addApplicationNote = async (req: Request, res: Response, next: Next
 
     return res.status(200).json(updatedApp);
   } catch (error) {
+    return next(error);
+  }
+};
+
+export const recruiterAddCandidate = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user || !['recruiter', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Only recruiters or admins can manually add candidates', code: 'FORBIDDEN' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Resume PDF file is required', code: 'BAD_REQUEST' });
+    }
+
+    const rawExperience = req.body.experience;
+    const bodyData = {
+      ...req.body,
+      experience: rawExperience !== undefined ? Number(rawExperience) : undefined
+    };
+
+    const validatedData = RecruiterAddCandidateSchema.parse(bodyData);
+    const {
+      jobId,
+      name,
+      email,
+      source,
+      phone,
+      country,
+      address,
+      experience,
+      linkedinUrl,
+      githubUrl,
+      portfolioUrl,
+      coverLetter,
+      currentCompany,
+      currentTitle,
+      referrerName,
+      referrerEmail,
+      referralNotes
+    } = validatedData;
+
+    // Check if Job exists and is open
+    const job = await Job.findOne({ _id: jobId, deletedAt: null });
+    if (!job) {
+      return res.status(404).json({ message: 'Job posting not found', code: 'NOT_FOUND' });
+    }
+
+    if (job.status !== 'open') {
+      return res.status(400).json({ message: 'This job posting is closed', code: 'BAD_REQUEST' });
+    }
+
+    // Find candidate user or create new candidate user
+    let candidateUser = await User.findOne({ email: email.toLowerCase() });
+    if (!candidateUser) {
+      candidateUser = await User.create({
+        name,
+        email: email.toLowerCase(),
+        passwordHash: '$2a$10$e7xN98Z/Jz86d8oK.y/6y.k7L06xM9o9o9o9o9o9o9o9o9o9o9o9o',
+        role: 'candidate',
+        isActive: true,
+        isEmailVerified: true
+      });
+    }
+
+    // Check for existing active application for this candidate + job
+    const existingActiveApp = await Application.findOne({
+      candidate: candidateUser._id,
+      job: new mongoose.Types.ObjectId(jobId),
+      stage: { $nin: ['hired', 'rejected'] }
+    });
+
+    if (existingActiveApp) {
+      return res.status(400).json({
+        message: 'This candidate already has an active application for this position.',
+        code: 'ACTIVE_APPLICATION_EXISTS'
+      });
+    }
+
+    // Upload resume to Cloudinary
+    const uploadResult = await performCloudinaryUpload(req.file.buffer, req.file.originalname);
+    const resumeUrl = uploadResult.secure_url;
+
+    // Create Application
+    const application = await Application.create({
+      candidate: candidateUser._id,
+      job: new mongoose.Types.ObjectId(jobId),
+      source: source || 'referral',
+      stage: 'applied',
+      resumeUrl,
+      cloudinaryPublicId: uploadResult.public_id || '',
+      cloudinaryAssetId: uploadResult.asset_id || '',
+      cloudinaryResourceType: uploadResult.resource_type || 'raw',
+      cloudinaryType: uploadResult.type || 'upload',
+      resumeSnapshotAt: new Date(),
+      phone,
+      country,
+      address,
+      experience,
+      linkedinUrl,
+      githubUrl: githubUrl || '',
+      portfolioUrl: portfolioUrl || '',
+      coverLetter: coverLetter || '',
+      currentCompany: currentCompany || '',
+      currentTitle: currentTitle || '',
+      termsAccepted: true,
+      referrerName: referrerName || '',
+      referrerEmail: referrerEmail || '',
+      referralNotes: referralNotes || '',
+      notes: []
+    });
+
+    // Write to ActivityLog
+    await ActivityLog.create({
+      actor: new mongoose.Types.ObjectId(req.user.id),
+      action: 'candidate_added_by_recruiter',
+      entityType: 'application',
+      entityId: application._id,
+      metadata: {
+        candidateName: name,
+        jobTitle: job.title,
+        source: source || 'referral',
+        referrerName: referrerName || undefined
+      }
+    });
+
+    const populatedApp = await Application.findById(application._id)
+      .populate('candidate', 'name email')
+      .populate('job', 'title location status department');
+
+    return res.status(201).json(populatedApp);
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: error.errors,
+        code: 'VALIDATION_ERROR'
+      });
+    }
     return next(error);
   }
 };

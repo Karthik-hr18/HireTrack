@@ -36,7 +36,9 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiIcon}><TrendingUp size={18} color="#0284c7" /></span>
           </div>
           <div className={styles.kpiValue}>{totalApps}</div>
-          <span className={styles.kpiTrendGood}>Real MongoDB Database Records</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrendGood}>Across all open positions</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -45,7 +47,9 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiIcon}><Users size={18} color="#3b82f6" /></span>
           </div>
           <div className={styles.kpiValue}>{totalApps - (data?.stageDistribution?.hired || 0) - (data?.stageDistribution?.rejected || 0)}</div>
-          <span className={styles.kpiTrend}>Currently in hiring pipeline</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrend}>Actively moving through stages</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -54,7 +58,9 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiIcon}><AlertCircle size={18} color="#ef4444" /></span>
           </div>
           <div className={styles.kpiValue}>{data?.stageDistribution?.rejected || 2}</div>
-          <span className={styles.kpiTrend}>Low attrition rate</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrend}>Not progressed further</span>
+          </div>
         </div>
 
         <div className={styles.kpiCard}>
@@ -63,7 +69,9 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiIcon}><Award size={18} color="#10b981" /></span>
           </div>
           <div className={styles.kpiValue}>85%</div>
-          <span className={styles.kpiTrendGood}>Above benchmark</span>
+          <div className={styles.kpiMetaRow}>
+            <span className={styles.kpiTrendGood}>Offer accepted rate</span>
+          </div>
         </div>
       </div>
 
@@ -72,7 +80,7 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
         <div className={styles.cardHeaderRow}>
           <div>
             <h3>Monthly Application Volume Trends</h3>
-            <p className={styles.subtext}>Inbound applicant flow aggregated from MongoDB timestamps</p>
+            <p className={styles.subtext}>Application volume per month across all job positions</p>
           </div>
 
           <div className={styles.timeframeToggle}>

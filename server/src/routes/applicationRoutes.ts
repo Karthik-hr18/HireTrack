@@ -7,7 +7,8 @@ import {
   streamApplicationResume,
   advanceApplication,
   rejectApplication,
-  addApplicationNote
+  addApplicationNote,
+  recruiterAddCandidate
 } from '../controllers/applicationController';
 import { authenticate, authorize } from '../middleware/auth';
 import { uploadResume } from '../middleware/upload';
@@ -22,6 +23,7 @@ router.post('/', authenticate, authorize('candidate'), uploadResume, applyToJob)
 router.get('/me', authenticate, authorize('candidate'), getCandidateApplications);
 
 // 2. Recruiter & Admin management routes
+router.post('/manual', authenticate, authorize('recruiter', 'admin'), uploadResume, recruiterAddCandidate);
 router.get('/', authenticate, authorize('recruiter', 'admin'), getManageApplications);
 router.get('/:id/resume', authenticate, authorize('candidate', 'recruiter', 'admin'), streamApplicationResume);
 router.get('/:id', authenticate, authorize('recruiter', 'admin'), getApplicationById);

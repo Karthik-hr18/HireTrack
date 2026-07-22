@@ -29,6 +29,9 @@ export interface IApplication extends Document {
   currentCompany?: string;
   currentTitle?: string;
   termsAccepted: boolean;
+  referrerName?: string;
+  referrerEmail?: string;
+  referralNotes?: string;
   rejectionReason?: RejectionReasonType | null;
   rejectionNote?: string | null;
   notes: IApplicationNote[];
@@ -49,7 +52,7 @@ const ApplicationSchema: Schema = new Schema(
     source: {
       type: String,
       required: true,
-      enum: ['careers_page', 'linkedin', 'naukri', 'indeed', 'referral', 'campus', 'recruiter_added', 'other'],
+      enum: ['careers_page', 'linkedin', 'naukri', 'indeed', 'referral', 'campus', 'agency', 'direct', 'recruiter_added', 'other'],
       index: true
     },
     stage: {
@@ -88,6 +91,9 @@ const ApplicationSchema: Schema = new Schema(
     currentCompany: { type: String, default: '' },
     currentTitle: { type: String, default: '' },
     termsAccepted: { type: Boolean, required: true },
+    referrerName: { type: String, default: '' },
+    referrerEmail: { type: String, default: '' },
+    referralNotes: { type: String, default: '' },
     rejectionReason: {
       type: String,
       enum: ['skills_mismatch', 'experience_mismatch', 'withdrew', 'salary_expectations', 'other'],
