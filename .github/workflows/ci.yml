@@ -36,7 +36,7 @@ jobs:
     # Note: Unit tests require a MongoDB connection. 
     # GitHub Actions provides a services container to run MongoDB locally in CI.
     - name: Start MongoDB Service
-      uses: supercharge/mongodb-github-action@1.10.0
+      uses: supercharge/mongodb-github-action@v1.10.0
       with:
         mongodb-version: '6.0'
 
