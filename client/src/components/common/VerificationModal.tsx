@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { sendEmailVerification } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 
 interface VerificationModalProps {
@@ -13,7 +14,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
   isOpen,
   onClose,
   userEmail,
-  token,
+  token: _token,
   customMessage
 }) => {
   const [sending, setSending] = useState(false);
@@ -32,27 +33,11 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
             const currentUser = userJson ? JSON.parse(userJson) : {};
             localStorage.setItem('user', JSON.stringify({ ...currentUser, isEmailVerified: true }));
             onClose();
-            return;
           }
         }
-
-        if (token) {
-          const apiUrl = import.meta.env.VITE_API_URL || '';
-          const res = await fetch(`${apiUrl}/api/auth/me`, {
-            headers: { 'Authorization': `Bearer ${token}` },
-            credentials: 'include'
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data?.user?.isEmailVerified) {
-              const userJson = localStorage.getItem('user');
-              const currentUser = userJson ? JSON.parse(userJson) : {};
-              localStorage.setItem('user', JSON.stringify({ ...currentUser, isEmailVerified: true }));
-              onClose();
-            }
-          }
-        }
-      } catch (err) {}
+      } catch (e) {
+        // Silent catch for reload errors
+      }
     };
 
     const interval = setInterval(checkStatus, 3000);
@@ -66,7 +51,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);
     };
-  }, [isOpen, token, onClose]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -75,23 +60,11 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
       setSending(true);
       setNotice(null);
 
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const authToken = localStorage.getItem('token') || token;
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-
-      const res = await fetch(`${apiUrl}/api/auth/resend-verification`, {
-        method: 'POST',
-        headers,
-        credentials: 'include',
-        body: JSON.stringify({ email: userEmail || auth.currentUser?.email })
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setNotice(data.message || 'Custom verification email dispatched to your inbox!');
+      if (auth.currentUser) {
+        await sendEmailVerification(auth.currentUser);
+        setNotice('Verification link sent to your email inbox!');
       } else {
-        setNotice(data.message || 'Failed to dispatch verification email.');
+        setNotice('Please sign in to resend email verification.');
       }
     } catch (err: any) {
       setNotice(err.message || 'Failed to dispatch verification email. Please try again.');

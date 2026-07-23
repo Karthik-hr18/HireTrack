@@ -39,39 +39,6 @@ const createTransporter = () => {
   return null;
 };
 
-const sendViaResend = async (to: string, subject: string, html: string): Promise<boolean> => {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return false;
-
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM || 'HireTrack Careers <onboarding@resend.dev>',
-        to: [to],
-        subject,
-        html
-      })
-    });
-
-    if (res.ok) {
-      console.log(`✉️ Custom HTML email successfully dispatched via Resend HTTPS API to ${to}!`);
-      return true;
-    } else {
-      const errText = await res.text();
-      console.warn(`⚠️ Resend HTTPS API returned ${res.status}: ${errText}`);
-      return false;
-    }
-  } catch (err: any) {
-    console.warn('⚠️ Resend HTTPS API dispatch failed:', err.message || err);
-    return false;
-  }
-};
-
 export const sendVerificationEmail = async (email: string, name: string, verificationLink: string): Promise<boolean> => {
   const recipientName = name || email.split('@')[0];
 
@@ -142,11 +109,6 @@ export const sendVerificationEmail = async (email: string, name: string, verific
     </html>
   `;
 
-  // 1. Try Resend HTTPS REST API (Preferred on cloud hosts like Render)
-  const sentViaResend = await sendViaResend(email, 'Verify your HireTrack candidate account', htmlContent);
-  if (sentViaResend) return true;
-
-  // 2. Fallback to Nodemailer SMTP
   const transporter = createTransporter();
   if (transporter) {
     try {
@@ -237,11 +199,6 @@ export const sendPasswordResetEmail = async (email: string, name: string, resetL
     </html>
   `;
 
-  // 1. Try Resend HTTPS REST API (Preferred on cloud hosts like Render)
-  const sentViaResend = await sendViaResend(email, 'Reset your HireTrack password', htmlContent);
-  if (sentViaResend) return true;
-
-  // 2. Fallback to Nodemailer SMTP
   const transporter = createTransporter();
   if (transporter) {
     try {
