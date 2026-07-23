@@ -28,8 +28,25 @@ export const FAQSection: React.FC = () => {
     setOpenIndex(openIndex === idx ? null : idx);
   };
 
+  // Structured JSON-LD Schema for Search Engines
+  const jsonLdData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': FAQS.map(item => ({
+      '@type': 'Question',
+      'name': item.question,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': item.answer
+      }
+    }))
+  };
+
   return (
     <section id="faq" style={{ padding: '80px 0', backgroundColor: 'var(--gray-bg)', borderTop: '1px solid var(--gray-border)' }}>
+      <script type="application/ld+json">
+        {JSON.stringify(jsonLdData)}
+      </script>
       <div className="careers-container">
         <ScrollReveal>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 40, maxWidth: 840, margin: '0 auto' }}>

@@ -38,5 +38,6 @@ const JobSchema: Schema = new Schema(
 
 // Compound index for status/deletedAt to optimize job searches
 JobSchema.index({ status: 1, deletedAt: 1 });
+JobSchema.index({ title: 'text', description: 'text', location: 'text', department: 'text' });
 
 export const Job = mongoose.model<IJob>('Job', JobSchema);

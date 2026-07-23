@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 export interface FilterState {
   search: string;
@@ -27,6 +28,19 @@ export const JobFilters: React.FC<JobFiltersProps> = ({
   locations,
   totalResults,
 }) => {
+  const [searchInput, setSearchInput] = useState(filters.search);
+  const debouncedSearch = useDebounce(searchInput, 300);
+
+  useEffect(() => {
+    setSearchInput(filters.search);
+  }, [filters.search]);
+
+  useEffect(() => {
+    if (debouncedSearch !== filters.search) {
+      onChange({ ...filters, search: debouncedSearch });
+    }
+  }, [debouncedSearch]);
+
   const hasActiveFilters = 
     filters.search || 
     filters.department || 
@@ -38,16 +52,15 @@ export const JobFilters: React.FC<JobFiltersProps> = ({
   return (
     <div className="careers-filter-bar">
       <div className="careers-filter-grid">
-        {/* Search Input */}
-        <div style={{ position: 'relative', flex: 2, minWidth: 240 }}>
-          <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-text-muted)' }} />
+        {/* Search Input with 300ms Debounce */}
+        <div className="careers-search-wrapper">
+          <Search size={18} className="careers-search-icon" />
           <input
             type="text"
-            className="careers-filter-input"
-            style={{ paddingLeft: 40 }}
-            placeholder="Search roles, skills, titles..."
-            value={filters.search}
-            onChange={(e) => onChange({ ...filters, search: e.target.value })}
+            className="careers-search-input"
+            placeholder="Search roles, skills, keywords..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
 

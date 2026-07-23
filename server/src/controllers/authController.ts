@@ -14,6 +14,14 @@ const generateToken = (userId: string, email: string, role: string): string => {
   return jwt.sign({ id: userId, email, role }, jwtSecret, { expiresIn: '24h' });
 };
 
+// Cookie options for secure session handling
+const getCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+});
+
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Validate request body
@@ -31,20 +39,32 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(validatedData.password, salt);
 
+    // Generate email verification token (32-byte hex)
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const emailVerificationTokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
+    const emailVerificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours TTL
+
     const newUser = await User.create({
       name: validatedData.name,
       email: validatedData.email.toLowerCase(),
       passwordHash,
       role: 'candidate', // Only candidates can self-register
       isActive: true,
-      isEmailVerified: true,
-      emailVerificationToken: null
+      isEmailVerified: false,
+      emailVerificationTokenHash,
+      emailVerificationExpiresAt
     });
 
     const token = generateToken(newUser._id.toString(), newUser.email, newUser.role);
 
+    // Set httpOnly, Secure, SameSite cookie if res.cookie function is available
+    if (typeof res.cookie === 'function') {
+      res.cookie('token', token, getCookieOptions());
+    }
+
     return res.status(201).json({
       token,
+      verificationToken, // Returned for dev/test verification
       user: {
         id: newUser._id,
         name: newUser.name,
@@ -90,6 +110,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
     const token = generateToken(user._id.toString(), user.email, user.role);
 
+    // Set httpOnly, Secure, SameSite cookie if res.cookie function is available
+    if (typeof res.cookie === 'function') {
+      res.cookie('token', token, getCookieOptions());
+    }
+
     return res.status(200).json({
       token,
       user: {
@@ -97,6 +122,59 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         name: user.name,
         email: user.email,
         role: user.role,
+        isEmailVerified: user.isEmailVerified
+      }
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (typeof res.clearCookie === 'function') {
+      res.clearCookie('token', getCookieOptions());
+    }
+    return res.status(200).json({ message: 'Successfully logged out' });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = (req.body.token || req.query.token) as string;
+    if (!token) {
+      return res.status(400).json({
+        message: 'Verification token is required',
+        code: 'BAD_REQUEST'
+      });
+    }
+
+    const emailVerificationTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      emailVerificationTokenHash,
+      emailVerificationExpiresAt: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: 'Verification token is invalid or has expired',
+        code: 'BAD_REQUEST'
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationTokenHash = null;
+    user.emailVerificationExpiresAt = null;
+    await user.save();
+
+    return res.status(200).json({
+      message: 'Email address has been successfully verified',
+      user: {
+        id: user._id,
+        email: user.email,
         isEmailVerified: user.isEmailVerified
       }
     });

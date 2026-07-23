@@ -109,5 +109,6 @@ const ApplicationSchema: Schema = new Schema(
 
 // Indexes
 ApplicationSchema.index({ job: 1, stage: 1 });
+ApplicationSchema.index({ currentCompany: 'text', currentTitle: 'text', coverLetter: 'text' });
 
 export const Application = mongoose.model<IApplication>('Application', ApplicationSchema);

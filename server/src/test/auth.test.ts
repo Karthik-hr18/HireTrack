@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { User } from '../models/User';
-import { register, login, forgotPassword, resetPassword } from '../controllers/authController';
+import { register, login, verifyEmail, forgotPassword, resetPassword } from '../controllers/authController';
 import { authenticate, authorize } from '../middleware/auth';
 import { connectDB } from '../config/db';
 
@@ -236,5 +236,41 @@ describe('Auth & RBAC Integration Tests', () => {
 
     await resetPassword(resetReq, reuseRes, () => {});
     expect(reuseStatus).toBe(400);
+  });
+
+  it('6. Email Verification Flow - Should verify candidate email with single-use token', async () => {
+    // Create candidate user
+    const candidateEmail = 'verify-test@test-hiretrack.com';
+    await User.deleteOne({ email: candidateEmail });
+
+    let regData: any = null;
+    const regReq = {
+      body: { name: 'Verify Test', email: candidateEmail, password: 'password123' }
+    } as any;
+    const regRes = {
+      status: (s: number) => ({ json: (d: any) => { regData = d; } })
+    } as any;
+
+    await register(regReq, regRes, () => {});
+    expect(regData).toHaveProperty('verificationToken');
+    expect(regData.user.isEmailVerified).toBe(false);
+
+    // Verify email with token
+    let verifyStatus = 0;
+    let verifyData: any = null;
+    const verifyReq = { body: { token: regData.verificationToken } } as any;
+    const verifyRes = {
+      status: (s: number) => {
+        verifyStatus = s;
+        return { json: (d: any) => { verifyData = d; } };
+      }
+    } as any;
+
+    await verifyEmail(verifyReq, verifyRes, () => {});
+    expect(verifyStatus).toBe(200);
+    expect(verifyData.user.isEmailVerified).toBe(true);
+
+    // Cleanup
+    await User.deleteOne({ email: candidateEmail });
   });
 });

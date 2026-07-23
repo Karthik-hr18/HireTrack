@@ -6,15 +6,21 @@ import { UserSession } from '../types';
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    let token: string | undefined;
+
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
       return res.status(401).json({
         message: 'Authentication token is missing or invalid',
         code: 'UNAUTHORIZED'
       });
     }
 
-    const token = authHeader.split(' ')[1];
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error('JWT_SECRET environment variable is missing.');
@@ -50,7 +56,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     req.user = {
       id: decoded.id,
       email: decoded.email,
-      role: decoded.role
+      role: decoded.role,
+      isEmailVerified: user.isEmailVerified
     };
 
     return next();
@@ -70,12 +77,18 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
 export const optionalAuthenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    let token: string | undefined;
+
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
       return next();
     }
 
-    const token = authHeader.split(' ')[1];
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       return next();
@@ -92,7 +105,8 @@ export const optionalAuthenticate = async (req: Request, res: Response, next: Ne
       req.user = {
         id: decoded.id,
         email: decoded.email,
-        role: decoded.role
+        role: decoded.role,
+        isEmailVerified: user.isEmailVerified
       };
     }
     return next();
@@ -120,5 +134,23 @@ export const authorize = (...roles: UserRoleType[]) => {
 
     return next();
   };
+};
+
+export const requireVerifiedEmail = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      message: 'Authentication required',
+      code: 'UNAUTHORIZED'
+    });
+  }
+
+  if (!req.user.isEmailVerified) {
+    return res.status(403).json({
+      message: 'Email verification is required before completing this action. Please verify your email address.',
+      code: 'EMAIL_UNVERIFIED'
+    });
+  }
+
+  return next();
 };
 

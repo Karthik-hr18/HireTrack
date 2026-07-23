@@ -7,6 +7,7 @@ import { CompanyStats } from './components/CompanyStats';
 import { OpenPositionsSection } from './components/OpenPositionsSection';
 import { FAQSection } from './components/FAQSection';
 import { CareersFooter } from './components/CareersFooter';
+import { SEOMeta } from '../../components/common/SEOMeta';
 
 export const CareersPage: React.FC = () => {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -14,7 +15,6 @@ export const CareersPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Careers at HireTrack — Build Products That Matter";
     const fetchJobs = async () => {
       try {
         setLoading(true);
@@ -38,18 +38,21 @@ export const CareersPage: React.FC = () => {
 
   useEffect(() => {
     if (!loading && window.location.hash) {
-      const id = window.location.hash.replace('#', '');
+      const id = window.location.hash.substring(1);
       const element = document.getElementById(id);
       if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        element.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [loading]);
 
   return (
     <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <SEOMeta 
+        title="Careers at HireTrack — Build Products That Matter"
+        description="Explore open software engineering, product design, and talent management roles at HireTrack. Apply online in under 60 seconds."
+        canonicalUrl="https://hiretrack-client.vercel.app/"
+      />
       {/* Navigation */}
       <CareersNav />
 

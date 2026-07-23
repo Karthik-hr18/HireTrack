@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { CareersNav } from './components/CareersNav';
 import { CareersFooter } from './components/CareersFooter';
+import { SEOMeta } from '../../components/common/SEOMeta';
 import { 
   MapPin, 
   Briefcase, 
@@ -219,6 +220,11 @@ export const JobDetailPage: React.FC = () => {
 
   return (
     <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <SEOMeta 
+        title={`${job.title} — HireTrack Careers`}
+        description={job.description.slice(0, 155)}
+        canonicalUrl={`https://hiretrack-client.vercel.app/jobs/${job._id || id}`}
+      />
       <CareersNav />
 
       {/* OVERLAPPING HERO SECTION */}

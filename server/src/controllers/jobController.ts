@@ -38,17 +38,21 @@ export const createJob = async (req: Request, res: Response, next: NextFunction)
 export const getPublicJobs = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = Math.min(parseInt(req.query.limit as string) || 200, 200);
+    const limit = Math.min(parseInt(req.query.limit as string) || 100, 100);
     const skip = (page - 1) * limit;
 
-    const query = {
+    const query: Record<string, unknown> = {
       status: 'open',
       deletedAt: null
     };
 
+    if (req.query.search && typeof req.query.search === 'string' && req.query.search.trim()) {
+      query.$text = { $search: req.query.search.trim() };
+    }
+
     const [jobs, total] = await Promise.all([
       Job.find(query)
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, _id: -1 }) // Stable secondary sort on _id prevents page jitter
         .skip(skip)
         .limit(limit)
         .populate('createdBy', 'name email role'),
@@ -85,7 +89,7 @@ export const getManageJobs = async (req: Request, res: Response, next: NextFunct
     const limit = Math.min(parseInt(req.query.limit as string) || 25, 100);
     const skip = (page - 1) * limit;
 
-    const query: any = {
+    const query: Record<string, unknown> = {
       deletedAt: null
     };
 
@@ -93,9 +97,13 @@ export const getManageJobs = async (req: Request, res: Response, next: NextFunct
       query.status = req.query.status;
     }
 
+    if (req.query.search && typeof req.query.search === 'string' && req.query.search.trim()) {
+      query.$text = { $search: req.query.search.trim() };
+    }
+
     const [jobs, total] = await Promise.all([
       Job.find(query)
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, _id: -1 }) // Stable secondary sort on _id prevents page jitter
         .skip(skip)
         .limit(limit)
         .populate('createdBy', 'name email role'),
@@ -159,6 +167,16 @@ export const updateJob = async (req: Request, res: Response, next: NextFunction)
       return res.status(404).json({ message: 'Job posting not found', code: 'NOT_FOUND' });
     }
 
+    // Row-level ownership check (IDOR protection): non-admin recruiters can only modify their own job postings
+    const isOwner = job.createdBy && job.createdBy.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        message: 'You are not authorized to modify job postings owned by other recruiters',
+        code: 'FORBIDDEN_OWNERSHIP'
+      });
+    }
+
     const previousStatus = job.status;
 
     // Apply updates
@@ -200,6 +218,16 @@ export const deleteJob = async (req: Request, res: Response, next: NextFunction)
     const job = await Job.findOne({ _id: id, deletedAt: null });
     if (!job) {
       return res.status(404).json({ message: 'Job posting not found', code: 'NOT_FOUND' });
+    }
+
+    // Row-level ownership check (IDOR protection): non-admin recruiters can only delete their own job postings
+    const isOwner = job.createdBy && job.createdBy.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        message: 'You are not authorized to delete job postings owned by other recruiters',
+        code: 'FORBIDDEN_OWNERSHIP'
+      });
     }
 
     job.deletedAt = new Date();

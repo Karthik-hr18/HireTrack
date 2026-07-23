@@ -1,307 +1,228 @@
-# HireTrack — Modern B2B Applicant Tracking System (ATS)
-### Digital Heroes Full-Stack Developer Trial — v1.0.0 Production Release
+# HireTrack
 
-[![CI Pipeline](https://github.com/Karthik-hr18/HireTrack/actions/workflows/ci.yml/badge.svg)](https://github.com/Karthik-hr18/HireTrack/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-1.0.0-indigo.svg)](https://github.com/Karthik-hr18/HireTrack/releases/tag/v1.0.0)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](file:///c:/Users/karth/Projects/HireTrack/LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Mode-brightgreen.svg)](file:///c:/Users/karth/Projects/HireTrack/client/tsconfig.json)
-
-**HireTrack** is a high-performance, enterprise-grade B2B Applicant Tracking System (ATS) engineered for modern talent acquisition teams. Built inspired by industry standards like Lever, Greenhouse, Linear, and Stripe, HireTrack simplifies candidate sourcing, job distribution, technical interview scheduling, collaborative scorecard evaluations, and hiring pipeline analytics.
+HireTrack is a modern, enterprise-grade B2B Applicant Tracking System (ATS) designed to streamline talent acquisition for growing organizations. It unifies public candidate sourcing, multi-stage pipeline management, interview scheduling, evaluator scorecards, and hiring analytics into a single responsive control tower.
 
 ---
 
-## 📋 Table of Contents
+## Features
 
-1. [Project Overview](#-project-overview)
-2. [Key Features](#-key-features)
-3. [Tech Stack](#-tech-stack)
-4. [Architecture](#-architecture)
-5. [Screenshots & UI Showcase](#-screenshots--ui-showcase)
-6. [Demo & Credentials](#-demo--credentials)
-7. [Getting Started](#-getting-started)
-8. [API Overview](#-api-overview)
-9. [Security Architecture](#-security-architecture)
-10. [Testing & Quality Assurance](#-testing--quality-assurance)
-11. [Deployment & Infrastructure](#-deployment--infrastructure)
-12. [Performance & UX Engineering](#-performance--ux-engineering)
-13. [Project Structure](#-project-structure)
-14. [Engineering Decisions & Trade-Offs](#-engineering-decisions--trade-offs)
-15. [Future Roadmap](#-future-roadmap)
-16. [Documentation Directory](#-documentation-directory)
+### Candidate
+- **Public Careers Portal:** Clean, searchable job board with real-time department, location, experience, and employment type filtering.
+- **Fast Application Process:** Submit resume attachments, portfolio URLs, current employment details, and referral notes in seconds.
+- **Candidate Portal & Tracking:** Real-time visibility into application stage progress, scheduled interviews, and offer updates.
+- **Instant Search:** 300ms debounced search bar querying indexed job postings instantly.
 
----
+### Recruiter
+- **Pipeline Kanban & Table View:** Move candidates seamlessly across recruitment stages (`Applied`, `Screening`, `Interview Scheduled`, `Offer`, `Hired`, `Rejected`).
+- **Interview Scheduler:** Schedule technical and HR panel interviews with automated notification dispatches.
+- **Structured Scorecards:** Capture multi-evaluator feedback, ratings, and collapsed hiring recommendations.
+- **Rejection Tracking:** Standardized rejection reason categorizations with structured feedback notes.
 
-## 🎯 Project Overview
+### Authentication
+- **Secure Sessions:** `httpOnly`, `Secure`, `SameSite=Lax` cookie session management with JWT bearer header fallback.
+- **Email Verification:** Account verification pipeline for self-registered candidate accounts.
+- **Password Reset:** Single-use SHA-256 hashed password reset token workflow with automatic expiration.
 
-### Product Vision & Problem Statement
-Traditional hiring workflows are plagued by scattered candidate communications, slow candidate screening cycles, opaque referral pipelines, and fragmented interview feedback. Talent acquisition teams require a centralized, lightning-fast operational control center that unifies public job distribution, resume processing, multi-interviewer feedback aggregation, and talent analytics.
+### Analytics
+- **Executive Dashboard:** Live metrics for total active job requisitions, total inbound applications, active candidate pipelines, and offer acceptance rates.
+- **Recruitment Funnel:** Stage-by-stage conversion and drop-off analytics.
+- **Department Insights:** Aggregated requisitions, candidate volume, and hiring health per business unit.
+- **Sourcing Channels:** Breakdown of applicant acquisition sources.
 
-### Why HireTrack Exists
-HireTrack bridges the gap between public candidate engagement and internal hiring operations:
-- **For Candidates**: Provides an ultra-frictionless application experience with native PDF resume previews, mobile-responsive job tracking, and transparent status updates.
-- **For Recruiters & Admins**: Delivers a Lever-style multi-stage Kanban workspace with 0ms visual drag-and-drop feedback, automated candidate sourcing tags, integrated technical interview scheduling, and structured scorecard evaluations.
-
----
-
-## ✨ Key Features
-
-### 👤 Candidate Experience
-- **Public Careers Portal (`/careers`)**: Searchable, filterable open job directory with responsive salary ranges, department tags, and location filters.
-- **Instant Application Flow (`/jobs/:id`)**: Single-page candidate submission with PDF resume attachment upload (up to 5MB limit).
-- **Candidate Portal & Resume Preview**: In-app native PDF viewer with full-screen preview and downloadable portfolio links.
-- **Duplicate Application Prevention**: Server-enforced duplicate application checks per candidate email per job opening.
-
-### 💼 Recruiter & Talent Operations
-- **Lever-Style Recruiter Workspace (`/dashboard`)**: Persistent sidebar grouping jobs by department, active stage counts, and active status indicators.
-- **Optimistic Kanban Pipeline**: Drag-and-drop candidate stage transitions (*New Applied*, *Resume Screening*, *Phone Screen*, *Technical Interview*, *Offer*, *Hired*, *Rejected*).
-- **Candidate Slide-Out Detail Panel**: 6-tab operational view (*Overview*, *Resume*, *Timeline*, *Notes*, *Interviews*, *Scorecards*).
-- **Manual Sourcing & Referrals**: Sourced candidate creation modal supporting *Referral*, *LinkedIn*, and *Direct Outreach* tracking.
-
-### 📅 Technical Interviews & Scorecard Reviews
-- **Interview Scheduling**: Book interviewers, set dates/times, and trigger automated candidate email notifications.
-- **Structured Scorecards**: 4-point rating system (*Overall Rating*, *Technical Skills*, *Communication*, *Problem Solving*) with structured recommendations (*Strong Hire*, *Hire*, *No Hire*, *Strong No Hire*).
-
-### 📊 Analytics & Operational Metrics
-- **Interactive KPI Dashboard (`/dashboard`)**: Candidate pipeline metrics, interview conversion rates, stage distribution breakdown, and sourcing channel funnels computed using MongoDB aggregation pipelines.
+### Security
+- **Strict Role-Based Access Control (RBAC):** Access control enforcing route authorization across `candidate`, `recruiter`, and `admin` roles.
+- **Row-Level IDOR Protection:** Object ownership verification ensuring non-admin recruiters can only modify their own job requisitions.
+- **HTTP Header Hardening:** `helmet()` integration for `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Strict-Transport-Security`.
+- **API Rate Limiting:** Brute-force protection on authentication endpoints.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-| Layer | Technology | Purpose & Rationale |
-| :--- | :--- | :--- |
-| **Frontend Core** | React 18 + Vite | Lightning-fast HMR and optimized JSX rendering bundle. |
-| **Styling** | Vanilla CSS3 + Modern Tokens | 4px/8px design grid system, glassmorphism UI, smooth 250ms transitions. |
-| **Backend API** | Node.js + Express + TypeScript | Strongly typed REST API server with custom RBAC middleware. |
-| **Database** | MongoDB Atlas + Mongoose ODM | Document store supporting aggregation pipelines for hiring analytics. |
-| **Validation** | Zod (Shared Monorepo Package) | Single source of truth for request body validation on client & server. |
-| **Authentication**| JWT + bcryptjs (Cost 12) | In-memory token storage with bcrypt password hashing & SHA-256 reset tokens. |
-| **Cloud Storage** | Cloudinary API | Resume PDF upload streaming and asset delivery. |
-| **Testing** | Vitest + Supertest | Unit & integration test suite executing 34 passing tests against MongoDB. |
-| **Deployment** | Vercel (Client) + Render (Server) | Global CDN frontend distribution paired with containerized backend service. |
+- **Frontend:** React 18, Vite, React Router DOM, React Helmet Async, Lucide Icons
+- **Backend:** Node.js, Express, TypeScript (`strict: true`)
+- **Database:** MongoDB Atlas, Mongoose ODM with compound `$text` search indexes
+- **Authentication:** JWT, Cookie-Parser, Bcrypt (cost factor 12)
+- **Validation:** Zod schemas shared across client and server workspaces (`@hiretrack/shared`)
+- **Testing:** Vitest, Supertest
+- **Security:** Helmet, Express Rate Limit
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-HireTrack is structured as a monorepo leveraging `npm workspaces` to enforce type safety and code reuse across the stack:
+HireTrack is built as an `npm workspaces` monorepo containing three core packages:
 
 ```
-                          ┌──────────────────────────┐
-                          │    @hiretrack/shared     │
-                          │ (Zod Schemas & TS Types) │
-                          └─────────────┬────────────┘
-                                        │
-                    ┌───────────────────┴───────────────────┐
-                    ▼                                       ▼
-        ┌──────────────────────┐                ┌──────────────────────┐
-        │   hiretrack-client   │                │   hiretrack-server   │
-        │    (Vite / React)    │  ── HTTP/JWT ──►   (Node / Express)   │
-        └──────────────────────┘                └──────────┬───────────┘
-                                                           │
-                                                           ▼
-                                                ┌──────────────────────┐
-                                                │    MongoDB Atlas     │
-                                                └──────────────────────┘
+                      ┌─────────────────────────┐
+                      │    @hiretrack/shared    │
+                      │ (Zod Schemas & Types)   │
+                      └────────────┬────────────┘
+                                   │
+              ┌────────────────────┴────────────────────┐
+              ▼                                         ▼
+   ┌──────────────────────┐                  ┌──────────────────────┐
+   │   hiretrack-client   │ ────── HTTP ───► │   hiretrack-server   │
+   │    (Vite / React)    │                  │   (Node / Express)   │
+   └──────────────────────┘                  └──────────┬───────────┘
+                                                        │
+                                                        ▼
+                                             ┌──────────────────────┐
+                                             │    MongoDB Atlas     │
+                                             └──────────────────────┘
 ```
 
----
-
-## 🌐 Demo & Credentials
-
-- **Live Deployed Web Application**: [https://hiretrack-client.vercel.app](https://hiretrack-client.vercel.app)
-- **Live Production API Server**: `https://hiretrack-server.onrender.com/health`
-- **GitHub Repository**: [https://github.com/Karthik-hr18/HireTrack](https://github.com/Karthik-hr18/HireTrack)
-
-### Default Seeding Credentials
-| Role | Email Address | Password | Access Level |
-| :--- | :--- | :--- | :--- |
-| **System Administrator** | `admin@example.com` | `admin123` | Full System & Recruiter Provisioning |
-| **Lead Recruiter** | `karthikhr676@gmail.com` | `karthik123` | Full Recruiter Workspace & Kanban Access |
-| **Sample Candidate** | `candidate@example.com` | `candidate123` | Candidate Portal & Job Application Tracking |
+The `@hiretrack/shared` package serves as the single source of truth for validation schemas and TypeScript interfaces, guaranteeing end-to-end type safety between client forms and Express API handlers.
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **npm**: v9.0.0 or higher
-- **MongoDB**: Local instance or MongoDB Atlas Connection URI
-
-### Installation & Local Setup
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/Karthik-hr18/HireTrack.git
-   cd HireTrack
-   ```
-
-2. **Install Workspace Dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Compile Shared Validation Package**:
-   ```bash
-   npm run build:shared
-   ```
-
-4. **Configure Environment Variables**:
-   Copy `.env.example` to `.env` in `server/`:
-   ```bash
-   cp server/.env.example server/.env
-   ```
-   Fill in required credentials:
-   ```env
-   MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/hiretrack?retryWrites=true&w=majority
-   JWT_SECRET=your_jwt_secret_key_here
-   PORT=5000
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
-   ```
-
-5. **Seed Database with Production Demo Data**:
-   ```bash
-   npm run db:seed --workspace=server
-   ```
-
-6. **Start Local Development Servers**:
-   ```bash
-   # Terminal 1: Backend Server (Port 5000)
-   npm run dev:server
-
-   # Terminal 2: Frontend Vite Client (Port 5173)
-   npm run dev:client
-   ```
-
-7. **Run Vitest Integration Suite**:
-   ```bash
-   npm run test --workspace=server
-   ```
-
----
-
-## 📡 API Overview
-
-The HireTrack backend exposes a RESTful API with Zod request validation and JWT authorization:
-
-| Category | Endpoint | Method | Access | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **Auth** | `/api/auth/register` | `POST` | Public | Register new candidate account |
-| **Auth** | `/api/auth/login` | `POST` | Public | Authenticate user & receive JWT |
-| **Auth** | `/api/auth/forgot-password` | `POST` | Public | Request password reset token |
-| **Auth** | `/api/auth/reset-password` | `POST` | Public | Reset password via single-use token |
-| **Jobs** | `/api/jobs` | `GET` | Public | Fetch open job listings |
-| **Jobs** | `/api/jobs` | `POST` | Staff | Create new job posting |
-| **Applications** | `/api/applications` | `POST` | Public/Candidate | Submit candidate application & PDF resume |
-| **Applications** | `/api/applications/:id/stage` | `PATCH` | Staff | Update application pipeline stage |
-| **Interviews** | `/api/interviews` | `POST` | Staff | Schedule technical interview |
-| **Scorecards** | `/api/applications/:id/scorecards` | `POST` | Staff | Submit interviewer scorecard |
-| **Analytics** | `/api/analytics/overview` | `GET` | Staff | Fetch hiring pipeline metrics |
-
-*For complete endpoint schemas and payloads, consult [Docs/API_SPEC.md](file:///c:/Users/karth/Projects/HireTrack/Docs/API_SPEC.md).*
-
----
-
-## 🔒 Security Architecture
-
-- **Password Hashing**: Passwords are hashed using `bcrypt` with cost factor 12.
-- **Single-Use Reset Tokens**: Reset tokens use 32-byte cryptographically secure random generation, SHA-256 token hashing at rest, and 30-minute TTL expiration.
-- **Role-Based Access Control (RBAC)**: Express middleware (`authenticate`, `authorize`) enforces endpoint access levels (`admin`, `recruiter`, `candidate`).
-- **Auth Rate Limiting**: Sensitive auth routes (`/login`, `/reset-password`) are rate-limited to **5 attempts per 15 minutes per IP** via `express-rate-limit`.
-- **File Attachment Security**: Resume uploads are strictly allow-listed for PDF mime-types and capped at 5MB.
-
----
-
-## 🧪 Testing & Quality Assurance
-
-HireTrack includes an automated integration test suite built with Vitest and Supertest executing 34 tests across 8 test suites:
-
-- **Authentication & RBAC**: Password hashing, duplicate registration handling, JWT verification, and unauthorized route access blocks.
-- **Password Reset Flow**: Single-use token generation, password updating, and expired token rejection.
-- **Application Pipeline**: Application creation, PDF resume validation, duplicate protection, and stage transitions.
-- **Interview & Scorecards**: Interview scheduling, scorecard calculation, and stage advancement.
-- **Analytics & Seeding**: MongoDB aggregation pipelines and stage metrics calculation.
-
----
-
-## 📂 Project Structure
+## Folder Structure
 
 ```
 HireTrack/
-├── .github/ workflows/ ci.yml       # GitHub Actions CI workflow
-├── Docs/                            # Project Documentation Directory
-│   ├── API_SPEC.md                  # Complete API REST specification
-│   ├── architecture.md              # System design & architecture tradeoffs
-│   ├── DATA_MODEL.md                # Mongoose collection & schema reference
-│   ├── MASTER_PROJECT_SPEC.md       # Handbook requirements specification
-│   ├── POST_RELEASE_TECH_DEBT.md    # Post-release maintenance backlog
-│   ├── PRD.md                       # Product Requirements Document
-│   └── PROJECT_AUDIT.md             # Consolidated Master Audit & Release Report
 ├── packages/
-│   └── shared/                      # Shared npm workspace (@hiretrack/shared)
-│       └── src/
-│           ├── types.ts             # Shared TypeScript entity interfaces
-│           └── validation.ts        # Shared Zod validation schemas
-├── server/                          # Backend Express Application Workspace
+│   └── shared/               # Shared Zod schemas & TypeScript definitions
+│       ├── src/
+│       │   ├── validation.ts
+│       │   └── types.ts
+│       └── package.json
+├── server/                   # Express REST API application
 │   ├── src/
-│   │   ├── config/                  # DB and Cloudinary configuration
-│   │   ├── controllers/             # Express route controllers
-│   │   ├── middleware/              # Auth, RBAC, Rate Limiting & Error handlers
-│   │   ├── models/                  # Mongoose Schema definitions
-│   │   ├── routes/                  # Express Router definitions
-│   │   ├── scripts/                 # Database seed & migration scripts
-│   │   └── test/                    # Vitest integration test suites
-│   ├── package.json
-│   └── tsconfig.json
-├── client/                          # Frontend React/Vite Application Workspace
+│   │   ├── config/           # Database & cloud storage configurations
+│   │   ├── controllers/      # Route controllers (Auth, Jobs, Applications, Analytics)
+│   │   ├── middleware/       # Auth, RBAC, Rate Limiting, Error Handling
+│   │   ├── models/           # Mongoose Data Schemas
+│   │   ├── routes/           # Express Route Definitions
+│   │   └── test/             # Vitest Integration Test Suites
+│   └── package.json
+├── client/                   # Vite / React Web Client
 │   ├── src/
-│   │   ├── components/              # Shared UI components & Modals
-│   │   ├── hooks/                   # Custom React data & workspace hooks
-│   │   ├── pages/                   # Application views (Careers, Dashboard, Auth)
-│   │   ├── index.css                # Design system token definitions & global CSS
-│   │   └── App.tsx                  # Client routing & layout definitions
-│   ├── package.json
-│   └── tsconfig.json
-├── CHANGELOG.md                     # Semantic versioning changelog
-├── CONTRIBUTING.md                  # Open source contribution guide
-├── LICENSE                          # MIT Open Source License
-├── README.md                        # Master repository README
-└── package.json                     # Monorepo root workspace configuration
+│   │   ├── components/       # UI Components & Layouts
+│   │   ├── pages/            # Page Views (Careers, Candidate, Recruiter, Admin)
+│   │   ├── hooks/            # Custom Hooks (useDebounce, etc.)
+│   │   └── types/            # Client-specific interfaces
+│   └── package.json
+├── .github/                  # Issue & PR Templates
+├── package.json              # Monorepo root workspace configuration
+└── README.md
 ```
 
 ---
 
-## 💡 Engineering Decisions & Trade-Offs
+## Installation
 
-1. **Why Monorepo with npm Workspaces?**  
-   Consolidating the client, server, and shared schemas in a single monorepo guarantees 100% type synchronicity. When a Zod validation rule or entity interface is updated in `@hiretrack/shared`, compiler checks instantly catch breaking changes across both client forms and server controllers.
+### Prerequisites
+- **Node.js**: `v18.x` or higher
+- **npm**: `v9.x` or higher
+- **MongoDB**: Local MongoDB instance (`mongodb://127.0.0.1:27017/hiretrack`) or MongoDB Atlas connection URI
 
-2. **Why Vanilla CSS Tokens instead of TailwindCSS?**  
-   Vanilla CSS with CSS custom variables was selected to maintain maximum control over the design system, animations, glassmorphic backdrop filters, and responsive grid layouts without relying on utility class bloat.
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Karthik-hr18/HireTrack.git
+cd HireTrack
+```
 
-3. **In-Memory JWT Headers vs. `httpOnly` Cookies**:  
-   JWT bearer tokens transmitted via HTTP headers were chosen over `httpOnly` cookies to simplify cross-domain CORS communication between independent deployment platforms (Vercel CDN frontend and Render backend containers).
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Build Shared Schemas
+```bash
+npm run build:shared
+```
+
+### 4. Configure Environment Variables
+
+Create `.env` inside the `server/` directory:
+```env
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/hiretrack
+JWT_SECRET=your_jwt_secret_key_here
+NODE_ENV=development
+```
+
+Create `.env` inside the `client/` directory:
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+### 5. Seed Initial Database Accounts
+```bash
+npm run db:seed
+```
+
+### 6. Run Development Servers
+
+Start the server (Port 5000):
+```bash
+npm run dev:server
+```
+
+Start the client (Port 5173):
+```bash
+npm run dev:client
+```
+
+### 7. Build for Production
+```bash
+npm run build
+```
+
+### 8. Run Test Suite
+```bash
+npm run test
+```
 
 ---
 
-## 🔮 Future Improvements
+## API Overview
 
-- **Axios HTTP Interceptors**: Refactor direct `fetch` calls to a centralized Axios client with automatic 401 token refresh interceptors.
-- **CSS Modularization**: Split monolithic `index.css` into modular partials (`tokens.css`, `public.css`, `recruiter.css`).
-- **Dynamic OpenGraph Previews**: Implement server-side dynamic social media meta image generation for individual job postings.
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Register new candidate account | Public |
+| `POST` | `/api/auth/login` | Authenticate user & issue session cookie | Public |
+| `POST` | `/api/auth/logout` | Clear session cookies | Authenticated |
+| `GET` | `/api/jobs` | Search & filter public open job requisitions | Public |
+| `POST` | `/api/jobs` | Create new job posting | Recruiter / Admin |
+| `PATCH` | `/api/jobs/:id` | Update job requisition details or status | Recruiter (Owner) / Admin |
+| `GET` | `/api/applications` | List applications with pagination and filters | Recruiter / Admin |
+| `POST` | `/api/applications` | Submit candidate application | Candidate |
+| `PATCH` | `/api/applications/:id/stage` | Transition application pipeline stage | Recruiter / Admin |
+| `POST` | `/api/interviews` | Schedule candidate interview | Recruiter / Admin |
+| `POST` | `/api/scorecards` | Submit evaluator scorecard | Recruiter / Admin |
+| `GET` | `/api/analytics/overview` | Fetch high-level executive dashboard metrics | Recruiter / Admin |
 
 ---
 
-## 📄 Documentation Directory
+## Security
 
-- [Docs/PROJECT_AUDIT.md](file:///c:/Users/karth/Projects/HireTrack/Docs/PROJECT_AUDIT.md) — Master Pre-Release Audit & Handbook Compliance Report.
-- [Docs/architecture.md](file:///c:/Users/karth/Projects/HireTrack/Docs/architecture.md) — Architectural Overview & System Trade-Offs.
-- [Docs/API_SPEC.md](file:///c:/Users/karth/Projects/HireTrack/Docs/API_SPEC.md) — Complete REST API Endpoint Specification.
-- [Docs/DATA_MODEL.md](file:///c:/Users/karth/Projects/HireTrack/Docs/DATA_MODEL.md) — Database Schema & Collection Definitions.
-- [Docs/POST_RELEASE_TECH_DEBT.md](file:///c:/Users/karth/Projects/HireTrack/Docs/POST_RELEASE_TECH_DEBT.md) — Stabilization Phase Technical Debt Backlog.
-- [CHANGELOG.md](file:///c:/Users/karth/Projects/HireTrack/CHANGELOG.md) — Version Release History.
-- [CONTRIBUTING.md](file:///c:/Users/karth/Projects/HireTrack/CONTRIBUTING.md) — Contribution & Code Guidelines.
-- [LICENSE](file:///c:/Users/karth/Projects/HireTrack/LICENSE) — MIT License.
+- **JWT & HTTP-Only Cookies:** Tokens are set in `httpOnly`, `Secure`, `SameSite=Lax` cookies, shielding authentication state against XSS.
+- **RBAC (Role-Based Access Control):** Declarative middleware verifying user roles before processing privileged endpoints.
+- **Password Security:** Passwords hashed using `bcrypt` with cost factor 12.
+- **Input Validation:** Incoming request bodies parsed against strict Zod schemas.
+- **Rate Limiting:** IP-based rate limiting on sensitive routes to protect against brute-force attacks.
+- **Password Reset Security:** Cryptographically secure 32-byte hex reset tokens stored as SHA-256 hashes with short expiration windows.
+
+---
+
+## Performance
+
+- **Responsive Design:** Fluid layouts optimized for mobile, tablet, and desktop viewports using CSS custom properties.
+- **Debounced Inputs:** Search inputs debounced by 300ms to reduce backend load during typing.
+- **Compound Database Indexes:** MongoDB text indexes on frequently searched fields for fast query execution.
+- **Loading & Empty States:** Skeleton UI indicators and fallback views across data-fetching components.
+
+---
+
+## Future Improvements
+
+- Add WebSocket support for real-time Kanban board updates during panel interviews.
+- Integrate automated email dispatches using Nodemailer / Resend for production environments.
+- Add multi-tenant support for enterprise organization subdomains.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

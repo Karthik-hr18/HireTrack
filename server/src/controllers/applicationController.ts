@@ -149,10 +149,10 @@ export const getCandidateApplications = async (req: Request, res: Response, next
 export const getManageApplications = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = Math.min(parseInt(req.query.limit as string) || 200, 200);
+    const limit = Math.min(parseInt(req.query.limit as string) || 25, 100);
     const skip = (page - 1) * limit;
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
 
     // Filter by specific job (supports jobId or job parameter)
     const rawJobId = (req.query.jobId || req.query.job) as string;
@@ -184,7 +184,7 @@ export const getManageApplications = async (req: Request, res: Response, next: N
 
     const [applications, total] = await Promise.all([
       Application.find(query)
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, _id: -1 }) // Stable secondary sort on _id
         .skip(skip)
         .limit(limit)
         .populate('candidate', 'name email')

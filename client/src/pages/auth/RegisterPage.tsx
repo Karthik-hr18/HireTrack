@@ -36,6 +36,7 @@ export const RegisterPage: React.FC = () => {
       const response = await fetch(`${apiUrl}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ name, email, password })
       });
 
@@ -48,6 +49,7 @@ export const RegisterPage: React.FC = () => {
       const loginResponse = await fetch(`${apiUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password })
       });
 

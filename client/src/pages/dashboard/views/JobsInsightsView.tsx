@@ -3,6 +3,8 @@ import { Briefcase, Target, CheckCircle, Clock } from 'lucide-react';
 import { JobHealthGrid } from '../components/JobHealth/JobHealthGrid';
 import styles from '../dashboard.module.css';
 
+import { MonthlyTrendData } from '@hiretrack/shared';
+
 interface JobsInsightsViewProps {
   data?: any;
 }
@@ -90,13 +92,16 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
             <span className={styles.subtext}>Monthly candidate application activity</span>
           </div>
           <div className={styles.barChartContainer}>
-            {monthlyData.map((b: any) => (
-              <div key={b.month} className={styles.barCol}>
-                <div className={styles.barTooltip}>{b.apps} apps</div>
-                <div className={styles.barFill} style={{ height: `${Math.max((b.apps / 25) * 140, 15)}px` }} />
-                <span className={styles.barLabel}>{b.month}</span>
-              </div>
-            ))}
+            {monthlyData.map((b: MonthlyTrendData) => {
+              const count = b.apps || b.applications || 0;
+              return (
+                <div key={b.month} className={styles.barCol}>
+                  <div className={styles.barTooltip}>{count} apps</div>
+                  <div className={styles.barFill} style={{ height: `${Math.max((count / 25) * 140, 15)}px` }} />
+                  <span className={styles.barLabel}>{b.month}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

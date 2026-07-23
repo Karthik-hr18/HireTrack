@@ -8,7 +8,8 @@ export interface IUser extends Document {
   role: UserRoleType;
   isActive: boolean;
   isEmailVerified: boolean;
-  emailVerificationToken?: string | null;
+  emailVerificationTokenHash?: string | null;
+  emailVerificationExpiresAt?: Date | null;
   resetTokenHash?: string | null;
   resetTokenExpiresAt?: Date | null;
   createdAt: Date;
@@ -23,7 +24,8 @@ const UserSchema: Schema = new Schema(
     role: { type: String, required: true, enum: ['candidate', 'recruiter', 'admin'] },
     isActive: { type: Boolean, required: true, default: true },
     isEmailVerified: { type: Boolean, required: true, default: false },
-    emailVerificationToken: { type: String, default: null },
+    emailVerificationTokenHash: { type: String, default: null },
+    emailVerificationExpiresAt: { type: Date, default: null },
     resetTokenHash: { type: String, default: null },
     resetTokenExpiresAt: { type: Date, default: null }
   },

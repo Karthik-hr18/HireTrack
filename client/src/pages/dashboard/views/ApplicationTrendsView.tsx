@@ -5,6 +5,8 @@ import { CandidatePipelineDistribution } from '../components/CandidatePipeline/C
 import { SourcingChannels } from '../components/SourcingChannels/SourcingChannels';
 import styles from '../dashboard.module.css';
 
+import { MonthlyTrendData } from '@hiretrack/shared';
+
 interface Props {
   data?: any;
 }
@@ -12,7 +14,7 @@ interface Props {
 export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('6m');
 
-  const monthlyTrends = data?.monthlyTrends || [
+  const monthlyTrends: MonthlyTrendData[] = data?.monthlyTrends || [
     { month: 'Feb', apps: 3 },
     { month: 'Mar', apps: 8 },
     { month: 'Apr', apps: 6 },
@@ -124,10 +126,11 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
               strokeLinecap="round"
             />
 
-            {monthlyTrends.map((d: any, index: number) => {
-              const maxApp = Math.max(...monthlyTrends.map((item: any) => item.apps || 1), 1);
+            {monthlyTrends.map((d: MonthlyTrendData, index: number) => {
+              const maxApp = Math.max(...monthlyTrends.map((item: MonthlyTrendData) => item.apps || item.applications || 1), 1);
+              const appCount = d.apps || d.applications || 0;
               const cx = 60 + index * (680 / Math.max(monthlyTrends.length - 1, 1));
-              const cy = 170 - (d.apps / maxApp) * 135;
+              const cy = 170 - (appCount / maxApp) * 135;
               return (
                 <g key={d.month}>
                   <circle cx={cx} cy={cy} r="6" fill="#ffffff" stroke="#0284c7" strokeWidth="3" />

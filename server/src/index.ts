@@ -3,6 +3,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { connectDB } from './config/db';
 import authRoutes from './routes/authRoutes';
 import jobRoutes from './routes/jobRoutes';
@@ -23,7 +25,9 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Global Middlewares
+app.use(helmet({ contentSecurityPolicy: false })); // Mount HTTP security headers
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
 
 // CORS configuration - single allowed origin (can be customized via environment variables on production)
@@ -37,7 +41,8 @@ app.use(
       } else {
         callback(new Error('Not allowed by CORS'));
       }
-    }
+    },
+    credentials: true
   })
 );
 

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { PageHeader } from '../../components/layout/PageHeader';
+import { JobEntity } from '@hiretrack/shared';
 
 export const JobsDashboard: React.FC = () => {
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<JobEntity[]>([]);
   const token = localStorage.getItem('token');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +70,7 @@ export const JobsDashboard: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (job: any) => {
+  const handleOpenEditModal = (job: JobEntity) => {
     setEditingJobId(job._id);
     setModalTitle('Edit Job Posting');
     setTitle(job.title);
@@ -95,7 +96,7 @@ export const JobsDashboard: React.FC = () => {
         : `${apiUrl}/api/jobs`;
       
       const method = editingJobId ? 'PATCH' : 'POST';
-      const body: any = { 
+      const body: Record<string, unknown> = { 
         title, 
         description, 
         requirements, 
@@ -114,6 +115,7 @@ export const JobsDashboard: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
+        credentials: 'include',
         body: JSON.stringify(body)
       });
 
@@ -131,7 +133,7 @@ export const JobsDashboard: React.FC = () => {
     }
   };
 
-  const handleToggleStatus = async (job: any) => {
+  const handleToggleStatus = async (job: JobEntity) => {
     if (!token) return;
     const targetStatus = job.status === 'open' ? 'closed' : 'open';
 
@@ -293,7 +295,7 @@ export const JobsDashboard: React.FC = () => {
                 <tr key={job._id} style={tableRowStyle}>
                   <td style={tdTitleStyle}>{job.title}</td>
                   <td style={tdStyle}>{job.location || 'N/A'}</td>
-                  <td style={tdStyle}>{job.createdBy?.name || 'Admin'}</td>
+                  <td style={tdStyle}>{typeof job.createdBy === 'object' && job.createdBy ? job.createdBy.name : 'Admin'}</td>
                   <td style={tdStyle}>
                     <button 
                       onClick={() => handleToggleStatus(job)}

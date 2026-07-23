@@ -79,12 +79,13 @@ export const ManageRecruitersView: React.FC = () => {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       let url = `${apiUrl}/api/users/recruiters`;
       let method = 'POST';
-      let body: any = { name, email, department };
+      const body: Record<string, string> = { name, email, department };
 
       if (modalMode === 'create') {
         body.password = password;
-      } else {
-        url = `${apiUrl}/api/users/recruiters/${selectedRecruiter._id}`;
+      } else if (selectedRecruiter) {
+        const id = selectedRecruiter._id || selectedRecruiter.id;
+        url = `${apiUrl}/api/users/recruiters/${id}`;
         method = 'PUT';
       }
 
@@ -94,6 +95,7 @@ export const ManageRecruitersView: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
+        credentials: 'include',
         body: JSON.stringify(body)
       });
 
@@ -104,8 +106,8 @@ export const ManageRecruitersView: React.FC = () => {
         const errData = await res.json();
         alert(errData.message || 'Operation failed.');
       }
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert((err as Error).message);
     } finally {
       setSubmitting(false);
     }
@@ -113,9 +115,10 @@ export const ManageRecruitersView: React.FC = () => {
 
   const handleToggleStatus = async (rec: any) => {
     if (!token) return;
+    const id = rec._id || rec.id;
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${apiUrl}/api/users/recruiters/${rec._id}/toggle`, {
+      const res = await fetch(`${apiUrl}/api/users/recruiters/${id}/toggle`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` }
       });

@@ -9,6 +9,7 @@ import { ConductInterviewPage } from './pages/admin/ConductInterviewPage';
 import { ManageRecruiters } from './pages/admin/ManageRecruiters';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
+import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
 import { ApplicationsTracker } from './pages/candidate/ApplicationsTracker';
 import { Dashboard } from './pages/dashboard/Dashboard';
 import { NotFoundPage } from './pages/error/NotFoundPage';
@@ -25,6 +26,7 @@ function App() {
           <Route path="/jobs/:id" element={<JobDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/candidate/applications" element={<ApplicationsTracker />} />
 
           {/* Unified Recruiter / Admin Application Shell */}
