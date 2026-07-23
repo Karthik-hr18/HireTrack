@@ -9,20 +9,30 @@ if (dns.setDefaultResultOrder) {
 // Configure Nodemailer transporter (supports SMTP or Gmail App Passwords)
 const createTransporter = () => {
   const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT) || 587;
+  const port = Number(process.env.SMTP_PORT) || 465;
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
 
-  if (host && user && pass) {
+  if (!user || !pass) return null;
+
+  // Use Nodemailer's built-in Gmail service configuration when sending via Gmail
+  if (host === 'smtp.gmail.com' || (user && user.endsWith('@gmail.com'))) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass }
+    });
+  }
+
+  if (host) {
     return nodemailer.createTransport({
       host,
       port,
-      secure: port === 465, // true for 465, false for 587
+      secure: port === 465,
       auth: { user, pass },
-      family: 4, // Force IPv4 socket connection
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 5000,     // 5 seconds
-      socketTimeout: 10000       // 10 seconds
+      family: 4,
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000
     } as any);
   }
 
