@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { User } from '../models/User';
 import { RegisterSchema, LoginSchema } from '@hiretrack/shared';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../services/emailService';
 
 // Helper to generate JWT
 const generateToken = (userId: string, email: string, role: string): string => {
@@ -54,6 +55,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       emailVerificationTokenHash,
       emailVerificationExpiresAt
     });
+
+    // Dispatch verification email via Resend
+    sendVerificationEmail(newUser.email, verificationToken).catch(err => console.error(err));
 
     const token = generateToken(newUser._id.toString(), newUser.email, newUser.role);
 
@@ -238,6 +242,9 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     user.resetTokenHash = resetTokenHash;
     user.resetTokenExpiresAt = resetTokenExpiresAt;
     await user.save();
+
+    // Dispatch password reset email via Resend
+    sendPasswordResetEmail(user.email, resetToken).catch(err => console.error(err));
 
     return res.status(200).json({
       message: 'If an account with that email exists, a password reset link has been dispatched.',
