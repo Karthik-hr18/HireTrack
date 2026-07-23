@@ -16,7 +16,12 @@ const getOrCreateFirebaseUser = async (email: string, defaultPassword: string, d
   const cleanEmail = email.trim().toLowerCase();
   try {
     const existing = await firebaseAuth.getUserByEmail(cleanEmail);
-    console.log(`ℹ️ Firebase Auth user already exists for ${cleanEmail} (uid: ${existing.uid}). Preserving credentials.`);
+    console.log(`ℹ️ Firebase Auth user already exists for ${cleanEmail} (uid: ${existing.uid}). Synchronizing password & profile...`);
+    await firebaseAuth.updateUser(existing.uid, {
+      password: defaultPassword,
+      displayName,
+      emailVerified: true
+    });
     return existing.uid;
   } catch (err: any) {
     if (err.code === 'auth/user-not-found') {
