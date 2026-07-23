@@ -11,12 +11,14 @@ const createTransporter = () => {
     return nodemailer.createTransport({
       host,
       port,
-      secure: port === 465,
-      auth: { user, pass }
+      secure: port === 465, // true for 465, false for 587
+      auth: { user, pass },
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 5000,     // 5 seconds
+      socketTimeout: 10000       // 10 seconds
     });
   }
 
-  // Fallback console transporter for development/testing
   return null;
 };
 

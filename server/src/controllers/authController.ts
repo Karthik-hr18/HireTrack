@@ -136,6 +136,7 @@ export const resendVerification = async (req: Request, res: Response, next: Next
       return res.status(400).json({ message: 'Email address is required', code: 'BAD_REQUEST' });
     }
 
+    console.log(`▶️ Generating email verification link for: ${emailToVerify}`);
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const actionCodeSettings = {
       url: `${clientUrl}/verify-email`,
@@ -143,12 +144,16 @@ export const resendVerification = async (req: Request, res: Response, next: Next
     };
 
     const verificationLink = await firebaseAuth.generateEmailVerificationLink(emailToVerify, actionCodeSettings);
+    console.log(`✅ Verification link generated for ${emailToVerify}. Dispatching custom HTML email...`);
+
     await sendVerificationEmail(emailToVerify, userName, verificationLink);
+    console.log(`✉️ Custom verification email successfully dispatched to ${emailToVerify}!`);
 
     return res.status(200).json({
       message: `Custom verification email dispatched to ${emailToVerify}!`
     });
   } catch (error: any) {
+    console.error('❌ Error in resendVerification:', error.message || error);
     return res.status(400).json({ message: error.message || 'Failed to resend verification email' });
   }
 };
@@ -161,6 +166,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    console.log(`▶️ Generating password reset link for: ${cleanEmail}`);
     const existingUser = await User.findOne({ email: cleanEmail });
     const userName = existingUser ? existingUser.name : cleanEmail.split('@')[0];
 
@@ -171,12 +177,16 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     };
 
     const resetLink = await firebaseAuth.generatePasswordResetLink(cleanEmail, actionCodeSettings);
+    console.log(`✅ Password reset link generated for ${cleanEmail}. Dispatching custom HTML email...`);
+
     await sendPasswordResetEmail(cleanEmail, userName, resetLink);
+    console.log(`✉️ Custom password reset email successfully dispatched to ${cleanEmail}!`);
 
     return res.status(200).json({
       message: 'If an account exists for that email, a password reset link has been dispatched.'
     });
   } catch (error: any) {
+    console.error('❌ Error in forgotPassword:', error.message || error);
     return res.status(200).json({
       message: 'If an account exists for that email, a password reset link has been dispatched.'
     });
