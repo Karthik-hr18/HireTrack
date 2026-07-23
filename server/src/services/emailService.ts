@@ -1,4 +1,10 @@
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+
+// Force Node.js to resolve IPv4 addresses first to prevent ENETUNREACH on Render/cloud hosts
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 // Configure Nodemailer transporter (supports SMTP or Gmail App Passwords)
 const createTransporter = () => {
@@ -13,10 +19,11 @@ const createTransporter = () => {
       port,
       secure: port === 465, // true for 465, false for 587
       auth: { user, pass },
+      family: 4, // Force IPv4 socket connection
       connectionTimeout: 10000, // 10 seconds
       greetingTimeout: 5000,     // 5 seconds
       socketTimeout: 10000       // 10 seconds
-    });
+    } as any);
   }
 
   return null;
