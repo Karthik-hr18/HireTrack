@@ -152,27 +152,26 @@ VITE_API_URL=http://localhost:5000
 npm run db:seed
 ```
 
-### 6. Run Development Servers
+---
 
-Start the server (Port 5000):
-```bash
-npm run dev:server
-```
+## 🔑 Seed Accounts & Demo Credentials
 
-Start the client (Port 5173):
-```bash
-npm run dev:client
-```
+When the database is seeded (`npm run db:seed`), the following pre-configured accounts are synchronized across Firebase Authentication and MongoDB:
 
-### 7. Build for Production
-```bash
-npm run build
-```
+### 🛡️ Administrator Account
 
-### 8. Run Test Suite
-```bash
-npm run test
-```
+| Role | Name | Email Address | Password |
+| :--- | :--- | :--- | :--- |
+| **Admin** | Administrator | `admin@hiretrack.com` | `Karthik@64` |
+
+### 👥 Recruiter Accounts
+
+| Role | Name | Email Address | Password |
+| :--- | :--- | :--- | :--- |
+| **Recruiter** | Karthik Recruiter | `karthikhr676@gmail.com` | `RecruiterPass123!` |
+| **Recruiter** | Sarah Jenkins | `sarah.j@hiretrack.io` | `RecruiterPass123!` |
+| **Recruiter** | Marcus Vance | `marcus.vance@hiretrack.io` | `RecruiterPass123!` |
+| **Recruiter** | Elena Rostova | `elena.r@hiretrack.io` | `RecruiterPass123!` |
 
 ---
 
