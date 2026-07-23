@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { sendEmailVerification } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 
 interface VerificationModalProps {
@@ -91,11 +90,8 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
       const data = await res.json();
       if (res.ok) {
         setNotice(data.message || 'Custom verification email dispatched to your inbox!');
-      } else if (auth.currentUser) {
-        await sendEmailVerification(auth.currentUser);
-        setNotice('Verification link sent to your email inbox!');
       } else {
-        setNotice(data.message || 'Failed to dispatch email.');
+        setNotice(data.message || 'Failed to dispatch verification email.');
       }
     } catch (err: any) {
       setNotice(err.message || 'Failed to dispatch verification email. Please try again.');
