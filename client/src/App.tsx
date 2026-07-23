@@ -10,6 +10,7 @@ import { ManageRecruiters } from './pages/admin/ManageRecruiters';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
 import { ApplicationsTracker } from './pages/candidate/ApplicationsTracker';
 import { Dashboard } from './pages/dashboard/Dashboard';
 import { NotFoundPage } from './pages/error/NotFoundPage';
@@ -27,6 +28,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/candidate/applications" element={<ApplicationsTracker />} />
 
           {/* Unified Recruiter / Admin Application Shell */}

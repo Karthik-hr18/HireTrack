@@ -125,6 +125,13 @@ export const JobDetailPage: React.FC = () => {
       return;
     }
 
+    const userJson = localStorage.getItem('user');
+    const user = userJson ? JSON.parse(userJson) : null;
+    if (user && user.role === 'candidate' && !user.isEmailVerified) {
+      setSubmitError('Email Verification Required: You must verify your account email address before applying for job requisitions.');
+      return;
+    }
+
     if (!resume) {
       setSubmitError('Please select a PDF copy of your resume.');
       return;

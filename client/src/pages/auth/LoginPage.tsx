@@ -12,6 +12,41 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Forgot Password Modal State
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState<string | null>(null);
+  const [forgotResetToken, setForgotResetToken] = useState<string | null>(null);
+
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) return;
+
+    try {
+      setForgotLoading(true);
+      setForgotMessage(null);
+      setForgotResetToken(null);
+
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail })
+      });
+
+      const data = await response.json();
+      setForgotMessage(data.message || 'Password reset request processed.');
+      if (data.resetToken) {
+        setForgotResetToken(data.resetToken);
+      }
+    } catch (err) {
+      setForgotMessage((err as Error).message);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const handleLogin = async (e?: React.FormEvent, customEmail?: string, customPassword?: string) => {
     if (e) e.preventDefault();
     
@@ -163,6 +198,18 @@ export const LoginPage: React.FC = () => {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                <div style={{ textAlign: 'right', marginTop: 6 }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForgotEmail(email);
+                      setIsForgotPasswordModalOpen(true);
+                    }}
+                    style={{ background: 'none', border: 'none', color: '#6366f1', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
               </div>
 
               <button 
@@ -209,6 +256,93 @@ export const LoginPage: React.FC = () => {
 
         </div>
       </main>
+
+      {/* Forgot Password Modal */}
+      {isForgotPasswordModalOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 999999,
+            padding: 16
+          }}
+          onClick={() => setIsForgotPasswordModalOpen(false)}
+        >
+          <div 
+            style={{
+              backgroundColor: '#111827',
+              border: '1px solid #1f2937',
+              borderRadius: 16,
+              padding: 28,
+              maxWidth: 420,
+              width: '100%',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f9fafb', marginBottom: 8 }}>Forgot Password</h3>
+            <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 20, lineHeight: 1.5 }}>
+              Enter your account email below to receive a single-use password reset link.
+            </p>
+
+            {forgotMessage && (
+              <div style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)', color: '#f9fafb', padding: '12px 14px', borderRadius: 10, fontSize: 13, marginBottom: 16 }}>
+                <div>{forgotMessage}</div>
+                {forgotResetToken && (
+                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <p style={{ fontSize: 12, color: '#10b981', fontWeight: 700, margin: '0 0 6px' }}>⚡ In Dev/Test Mode:</p>
+                    <Link 
+                      to={`/reset-password?token=${forgotResetToken}`}
+                      onClick={() => setIsForgotPasswordModalOpen(false)}
+                      style={{ color: '#6366f1', fontWeight: 600, fontSize: 13, textDecoration: 'underline' }}
+                    >
+                      Click here to reset password now →
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <form onSubmit={handleForgotPasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#f9fafb', marginBottom: 6 }}>Email Address</label>
+                <input 
+                  type="email"
+                  placeholder="enter your account email..."
+                  value={forgotEmail}
+                  onChange={e => setForgotEmail(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid #374151', backgroundColor: '#0b0f19', fontSize: 14, color: '#f9fafb', boxSizing: 'border-box' }}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                <button 
+                  type="button" 
+                  onClick={() => setIsForgotPasswordModalOpen(false)} 
+                  className="btn-secondary" 
+                  style={{ flex: 1, justifyContent: 'center' }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn-primary-lg" 
+                  style={{ flex: 1, justifyContent: 'center' }}
+                  disabled={forgotLoading}
+                >
+                  {forgotLoading ? 'Sending...' : 'Send Link'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <CareersFooter />
     </div>

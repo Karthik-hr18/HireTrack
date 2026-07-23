@@ -41,6 +41,17 @@ export const applyToJob = async (req: Request, res: Response, next: NextFunction
       return res.status(400).json({ message: 'This job posting is closed', code: 'BAD_REQUEST' });
     }
 
+    // Verify candidate email verification status
+    if (req.user && req.user.role === 'candidate') {
+      const candidateUser = await User.findById(req.user.id);
+      if (candidateUser && !candidateUser.isEmailVerified) {
+        return res.status(403).json({
+          message: 'Email Verification Required: Please verify your email address before applying for open job requisitions.',
+          code: 'EMAIL_NOT_VERIFIED'
+        });
+      }
+    }
+
     // Gating check for experience requirements
     if (job.minExperience > 0 && experience < job.minExperience) {
       const eligibilityMsg = experience === 0 
