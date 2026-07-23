@@ -12,24 +12,32 @@ import { ActivityLog } from '../models/ActivityLog';
 dotenv.config();
 
 const seedDatabase = async () => {
-  console.log('Starting full database seeding with 15 jobs and 50 candidates...');
+  if (process.env.NODE_ENV === 'production') {
+    console.error('⛔ ERROR: Seeding is blocked in production environments to prevent data loss.');
+    process.exit(1);
+  }
+
+  const allowSeed = process.env.ALLOW_SEED === 'true' || process.argv.includes('--force-seed');
+  if (!allowSeed) {
+    console.log('⚠️ Notice: Seeding requires ALLOW_SEED=true environment variable or --force-seed flag.');
+    console.log('Database seeding skipped to protect registered user data.');
+    process.exit(0);
+  }
+
+  console.log('Starting database seeding with sample jobs and candidates...');
   await connectDB();
 
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@hiretrack.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
 
   try {
-    const salt = await bcrypt.genSalt(12);
-    const defaultHash = await bcrypt.hash('Password@123', salt);
-
-    // ── 1. CLEAN COLLECTIONS ─────────────────────────────────────────────────
-    console.log('Cleaning collections...');
+    // ── 1. CLEAN COLLECTIONS (ONLY WHEN EXPLICITLY ALLOWED) ────────────────
+    console.log('Cleaning test sample collections...');
     await Job.deleteMany({});
     await Application.deleteMany({});
     await Interview.deleteMany({});
     await Scorecard.deleteMany({});
     await ActivityLog.deleteMany({});
-    await User.deleteMany({ role: { $in: ['candidate'] } });
+    await User.deleteMany({ role: { $in: ['candidate'] }, email: /@example\.com$/ });
 
     // ── 2. SEED ADMIN ACCOUNT ────────────────────────────────────────────────
     let admin = await User.findOne({ email: adminEmail.toLowerCase() });

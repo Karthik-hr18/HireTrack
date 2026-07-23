@@ -23,9 +23,13 @@ describe('Interview Scheduler Integration Tests', () => {
   let interviewId: string;
 
   beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
     const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
     if (!mongoUri) {
       throw new Error('Test aborted: MONGO_URI is not defined in environment variables.');
+    }
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
     }
     await mongoose.connect(mongoUri, { dbName: 'hiretrack_test' });
 
