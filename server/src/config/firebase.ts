@@ -13,7 +13,6 @@ if (!getApps().length) {
     }
     privateKey = privateKey.replace(/\\n/g, '\n');
 
-    // Auto-attach PEM headers if user omitted them in environment variables
     if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
       privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}`;
     }
@@ -34,7 +33,7 @@ if (!getApps().length) {
       });
       initialized = true;
     } catch (err: any) {
-      console.warn('⚠️ Service Account credential initialization failed. Falling back to default app setup:', err.message);
+      console.warn('⚠️ Service Account initialization warning:', err.message);
     }
   }
 
