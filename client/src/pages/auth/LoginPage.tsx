@@ -80,7 +80,7 @@ export const LoginPage: React.FC = () => {
       localStorage.setItem('user', JSON.stringify(syncData.user));
 
       if (syncData.user.role === 'recruiter' || syncData.user.role === 'admin') {
-        navigate('/admin');
+        navigate('/dashboard');
       } else {
         navigate('/');
       }
@@ -105,11 +105,11 @@ export const LoginPage: React.FC = () => {
       demoEmail = 'karthikhr676@gmail.com';
       demoPassword = 'Karthik@64';
     } else if (role === 'recruiter') {
-      demoEmail = 'recruiter1@hiretrack.com';
-      demoPassword = 'Recruiter@123';
+      demoEmail = 'sarah.j@hiretrack.io';
+      demoPassword = 'RecruiterPass123!';
     } else if (role === 'candidate') {
-      demoEmail = 'candidate@hiretrack.com';
-      demoPassword = 'Candidate@123';
+      demoEmail = 'karthik.h.r@example.com';
+      demoPassword = 'CandidatePass123!';
     }
 
     setEmail(demoEmail);

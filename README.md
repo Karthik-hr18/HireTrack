@@ -162,13 +162,12 @@ When the database is seeded (`npm run db:seed`), the following pre-configured ac
 
 | Role | Name | Email Address | Password |
 | :--- | :--- | :--- | :--- |
-| **Admin** | Administrator | `admin@hiretrack.com` | `Karthik@64` |
+| **Admin** | Administrator | `karthikhr676@gmail.com` | `Karthik@64` |
 
 ### 👥 Recruiter Accounts
 
 | Role | Name | Email Address | Password |
 | :--- | :--- | :--- | :--- |
-| **Recruiter** | Karthik Recruiter | `karthikhr676@gmail.com` | `RecruiterPass123!` |
 | **Recruiter** | Sarah Jenkins | `sarah.j@hiretrack.io` | `RecruiterPass123!` |
 | **Recruiter** | Marcus Vance | `marcus.vance@hiretrack.io` | `RecruiterPass123!` |
 | **Recruiter** | Elena Rostova | `elena.r@hiretrack.io` | `RecruiterPass123!` |

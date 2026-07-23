@@ -55,7 +55,7 @@ const seedDatabase = async () => {
   console.log('Starting database seeding with sample jobs and candidates...');
   await connectDB();
 
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@hiretrack.com';
+  const adminEmail = process.env.ADMIN_EMAIL || 'karthikhr676@gmail.com';
   const adminPassword = process.env.ADMIN_PASSWORD || 'Karthik@64';
 
   try {
@@ -73,6 +73,7 @@ const seedDatabase = async () => {
     let admin = await User.findOne({ email: adminEmail.toLowerCase() });
     if (admin) {
       admin.firebaseUid = adminFirebaseUid;
+      admin.role = 'admin';
       admin.isActive = true;
       admin.isEmailVerified = true;
       await admin.save();
@@ -90,7 +91,6 @@ const seedDatabase = async () => {
     // ── 3. SEED RECRUITERS ───────────────────────────────────────────────────
     const recruiters = [];
     const recruiterData = [
-      { name: 'Karthik Recruiter', email: 'karthikhr676@gmail.com' },
       { name: 'Sarah Jenkins', email: 'sarah.j@hiretrack.io' },
       { name: 'Marcus Vance', email: 'marcus.vance@hiretrack.io' },
       { name: 'Elena Rostova', email: 'elena.r@hiretrack.io' }
