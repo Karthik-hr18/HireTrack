@@ -43,8 +43,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   try {
     // Validate request body
     const validatedData = RegisterSchema.parse(req.body);
+    const cleanEmail = validatedData.email.trim().toLowerCase();
 
-    const existingUser = await User.findOne({ email: validatedData.email.toLowerCase() });
+    const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       return res.status(400).json({
         message: 'A user with this email address already exists',
@@ -62,8 +63,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     const emailVerificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours TTL
 
     const newUser = await User.create({
-      name: validatedData.name,
-      email: validatedData.email.toLowerCase(),
+      name: validatedData.name.trim(),
+      email: cleanEmail,
       passwordHash,
       role: 'candidate', // Only candidates can self-register
       isActive: true,
@@ -102,8 +103,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   try {
     // Validate request body
     const validatedData = LoginSchema.parse(req.body);
+    const cleanEmail = validatedData.email.trim().toLowerCase();
 
-    const user = await User.findOne({ email: validatedData.email.toLowerCase() });
+    const user = await User.findOne({ email: cleanEmail });
     if (!user) {
       return res.status(401).json({
         message: 'Invalid email or password',
@@ -275,7 +277,8 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       return res.status(400).json({ message: 'Email is required', code: 'BAD_REQUEST' });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: cleanEmail });
     if (!user) {
       // Always return 200 for user enumeration protection
       return res.status(200).json({
