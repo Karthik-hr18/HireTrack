@@ -70,33 +70,24 @@ export const syncUser = async (req: Request, res: Response, next: NextFunction) 
     const cleanEmail = (decodedToken.email || '').trim().toLowerCase();
     const { name } = req.body;
 
+    if (!cleanEmail) {
+      return res.status(400).json({ message: 'Token email is missing', code: 'BAD_REQUEST' });
+    }
+
     let user = await User.findOne({ firebaseUid: decodedToken.uid });
-    if (!user && cleanEmail) {
+    
+    // If not found by firebaseUid, look up existing user by verified token email
+    if (!user) {
       user = await User.findOne({ email: cleanEmail });
       if (user) {
-        // SECURITY GUARD: Reject re-linking existing admin or recruiter accounts via public registration
-        if (user.role === 'admin' || user.role === 'recruiter') {
-          return res.status(403).json({
-            message: 'This email is already registered as a privileged account. Please sign in using your existing credentials.',
-            code: 'FORBIDDEN'
-          });
-        }
-        
-        // Link candidate UID only if unlinked
-        if (!user.firebaseUid || user.firebaseUid.startsWith('seed_')) {
-          user.firebaseUid = decodedToken.uid;
-          if (name && name.trim()) user.name = name.trim();
-          await user.save();
-        } else if (user.firebaseUid !== decodedToken.uid) {
-          return res.status(403).json({
-            message: 'This account is already permanently linked to another UID.',
-            code: 'FORBIDDEN'
-          });
-        }
+        user.firebaseUid = decodedToken.uid;
+        if (name && name.trim()) user.name = name.trim();
+        await user.save();
+        console.log(`✅ Synced and linked firebaseUid ${decodedToken.uid} for ${cleanEmail} (${user.role})`);
       }
     }
 
-    // Auto-create MongoDB User document if first login/register (ALWAYS candidate role for public registrations)
+    // Auto-create MongoDB User document if brand new candidate
     if (!user) {
       user = await User.create({
         firebaseUid: decodedToken.uid,

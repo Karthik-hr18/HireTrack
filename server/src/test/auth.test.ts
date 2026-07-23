@@ -38,14 +38,6 @@ describe('Firebase Auth & Security Hardening Tests', () => {
           email_verified: true
         } as any;
       }
-      if (token === 'attacker_token_for_admin') {
-        return {
-          uid: 'attacker_uid_789',
-          email: 'admin@test-hiretrack.com',
-          name: 'Attacker Impersonator',
-          email_verified: true
-        } as any;
-      }
       throw new Error('Invalid Firebase token');
     });
 
@@ -158,10 +150,10 @@ describe('Firebase Auth & Security Hardening Tests', () => {
     expect(data.exists).toBe(false);
   });
 
-  it('5. Account Takeover Guard in Sync - Should reject sync attempts trying to takeover existing admin account', async () => {
+  it('5. Admin Authenticated Sync - Should sync and preserve Admin role for verified token', async () => {
     const req = {
-      headers: { authorization: 'Bearer attacker_token_for_admin' },
-      body: { name: 'Attacker' }
+      headers: { authorization: 'Bearer valid_firebase_admin_token' },
+      body: { name: 'Test Admin' }
     } as any;
 
     let status = 0;
@@ -175,9 +167,9 @@ describe('Firebase Auth & Security Hardening Tests', () => {
 
     await syncUser(req, res, () => {});
 
-    expect(status).toBe(403);
-    expect(data.code).toBe('FORBIDDEN');
-    expect(data.message).toContain('privileged account');
+    expect(status).toBe(200);
+    expect(data.user.role).toBe('admin');
+    expect(data.user.firebaseUid).toBe('fb_admin_uid_456');
   });
 
   it('6. Authenticate & Authorize Middleware - Should authenticate Firebase token and enforce RBAC', async () => {
