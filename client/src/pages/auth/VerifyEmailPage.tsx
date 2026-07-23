@@ -32,6 +32,14 @@ export const VerifyEmailPage: React.FC = () => {
         if (response.ok) {
           setStatus('success');
           setMessage(data.message || 'Your email address has been successfully verified.');
+          const userJson = localStorage.getItem('user');
+          if (userJson) {
+            try {
+              const userObj = JSON.parse(userJson);
+              userObj.isEmailVerified = true;
+              localStorage.setItem('user', JSON.stringify(userObj));
+            } catch (e) {}
+          }
         } else {
           setStatus('error');
           setMessage(data.message || 'Invalid or expired verification token.');

@@ -187,6 +187,39 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+export const resendVerification = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Authentication required', code: 'UNAUTHORIZED' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User account not found', code: 'NOT_FOUND' });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).json({ message: 'Your email address is already verified.', code: 'ALREADY_VERIFIED' });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const emailVerificationTokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
+    const emailVerificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    user.emailVerificationTokenHash = emailVerificationTokenHash;
+    user.emailVerificationExpiresAt = emailVerificationExpiresAt;
+    await user.save();
+
+    await sendVerificationEmail(user.email, verificationToken);
+
+    return res.status(200).json({
+      message: `Verification link has been sent to ${user.email}. Please check your inbox.`
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {

@@ -68,47 +68,35 @@ export const CareersNav: React.FC = () => {
     window.location.href = '/';
   };
 
-  const [verifying, setVerifying] = useState(false);
-  const [verifySuccess, setVerifySuccess] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [resendNotice, setResendNotice] = useState<string | null>(null);
 
-  const handleInstantVerify = async () => {
+  const handleResendVerificationEmail = async () => {
     try {
-      setVerifying(true);
+      setSendingEmail(true);
+      setResendNotice(null);
       const apiUrl = import.meta.env.VITE_API_URL || '';
-      // Fetch user profile or send verification request
-      const res = await fetch(`${apiUrl}/api/auth/me`, {
-        headers: { 'Authorization': `Bearer ${token}` },
+      const response = await fetch(`${apiUrl}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
         credentials: 'include'
       });
-      const data = await res.json();
-      if (data?.user?.id) {
-        // Automatically verify user in dev/demo mode
-        const vRes = await fetch(`${apiUrl}/api/auth/verify-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: 'dev_instant_verify' })
-        });
-        await vRes.json();
-        // Update user state in localStorage
-        const updatedUser = { ...user, isEmailVerified: true };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        setVerifySuccess(true);
-        setTimeout(() => window.location.reload(), 1200);
-      }
+
+      const data = await response.json();
+      setResendNotice(data.message || 'Verification link sent! Please check your email inbox.');
     } catch (err) {
-      // Fallback: direct update in local storage for candidate testing
-      const updatedUser = { ...user, isEmailVerified: true };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      setVerifySuccess(true);
-      setTimeout(() => window.location.reload(), 1200);
+      setResendNotice('Failed to dispatch verification email. Please try again.');
     } finally {
-      setVerifying(false);
+      setSendingEmail(false);
     }
   };
 
   return (
     <>
-      {token && user?.role === 'candidate' && !user?.isEmailVerified && !verifySuccess && (
+      {token && user?.role === 'candidate' && !user?.isEmailVerified && (
         <div style={{
           backgroundColor: '#b45309',
           color: '#ffffff',
@@ -126,11 +114,11 @@ export const CareersNav: React.FC = () => {
           right: 0,
           zIndex: 100000
         }}>
-          <span>⚠️ Your account email ({user?.email}) is not verified. Verification is required to apply for jobs.</span>
+          <span>⚠️ Your account email ({user?.email}) is not verified. Verification is required to apply for open job positions.</span>
           <button
             type="button"
-            onClick={handleInstantVerify}
-            disabled={verifying}
+            onClick={handleResendVerificationEmail}
+            disabled={sendingEmail}
             style={{
               backgroundColor: '#ffffff',
               color: '#92400e',
@@ -142,26 +130,38 @@ export const CareersNav: React.FC = () => {
               cursor: 'pointer'
             }}
           >
-            {verifying ? 'Verifying...' : 'Click Here to Verify Email'}
+            {sendingEmail ? 'Sending Email...' : 'Resend Verification Email'}
           </button>
         </div>
       )}
 
-      {verifySuccess && (
+      {resendNotice && (
         <div style={{
-          backgroundColor: '#059669',
-          color: '#ffffff',
-          padding: '8px 16px',
+          backgroundColor: '#1e293b',
+          borderBottom: '2px solid #6366f1',
+          color: '#f9fafb',
+          padding: '10px 16px',
           fontSize: 13,
           fontWeight: 600,
           textAlign: 'center',
           position: 'fixed',
-          top: 0,
+          top: (token && user?.role === 'candidate' && !user?.isEmailVerified) ? 36 : 0,
           left: 0,
           right: 0,
-          zIndex: 100000
+          zIndex: 100001,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 16
         }}>
-          ✅ Email verified successfully! Reloading portal...
+          <span>📩 {resendNotice}</span>
+          <button
+            type="button"
+            onClick={() => setResendNotice(null)}
+            style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: 14, fontWeight: 'bold' }}
+          >
+            ✕
+          </button>
         </div>
       )}
 
