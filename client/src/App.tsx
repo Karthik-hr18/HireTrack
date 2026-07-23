@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RecruiterLayout } from './components/layout/RecruiterLayout';
 import { CareersPage } from './pages/careers/CareersPage';
 import { JobDetailPage } from './pages/careers/JobDetailPage';
@@ -30,6 +30,10 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/candidate/applications" element={<ApplicationsTracker />} />
+
+          {/* Legacy Aliases & Redirects */}
+          <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/recruiter" element={<Navigate to="/dashboard" replace />} />
 
           {/* Unified Recruiter / Admin Application Shell */}
           <Route element={<RecruiterLayout />}>
