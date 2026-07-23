@@ -143,9 +143,15 @@ export const resendVerification = async (req: Request, res: Response, next: Next
       handleCodeInApp: true
     };
 
-    const verificationLink = await firebaseAuth.generateEmailVerificationLink(emailToVerify, actionCodeSettings);
-    console.log(`✅ Verification link generated for ${emailToVerify}. Dispatching custom HTML email...`);
+    let verificationLink: string;
+    try {
+      verificationLink = await firebaseAuth.generateEmailVerificationLink(emailToVerify, actionCodeSettings);
+    } catch (linkErr: any) {
+      console.warn(`⚠️ Custom action code URL failed (${linkErr.message}). Generating default Firebase verification link...`);
+      verificationLink = await firebaseAuth.generateEmailVerificationLink(emailToVerify);
+    }
 
+    console.log(`✅ Verification link generated for ${emailToVerify}. Dispatching custom HTML email...`);
     await sendVerificationEmail(emailToVerify, userName, verificationLink);
     console.log(`✉️ Custom verification email successfully dispatched to ${emailToVerify}!`);
 
@@ -153,7 +159,7 @@ export const resendVerification = async (req: Request, res: Response, next: Next
       message: `Custom verification email dispatched to ${emailToVerify}!`
     });
   } catch (error: any) {
-    console.error('❌ Error in resendVerification:', error.message || error);
+    console.error('❌ Error in resendVerification:', error.code || error.message || error);
     return res.status(400).json({ message: error.message || 'Failed to resend verification email' });
   }
 };
@@ -176,9 +182,15 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       handleCodeInApp: true
     };
 
-    const resetLink = await firebaseAuth.generatePasswordResetLink(cleanEmail, actionCodeSettings);
-    console.log(`✅ Password reset link generated for ${cleanEmail}. Dispatching custom HTML email...`);
+    let resetLink: string;
+    try {
+      resetLink = await firebaseAuth.generatePasswordResetLink(cleanEmail, actionCodeSettings);
+    } catch (linkErr: any) {
+      console.warn(`⚠️ Custom action code URL failed (${linkErr.message}). Generating default Firebase reset link...`);
+      resetLink = await firebaseAuth.generatePasswordResetLink(cleanEmail);
+    }
 
+    console.log(`✅ Password reset link generated for ${cleanEmail}. Dispatching custom HTML email...`);
     await sendPasswordResetEmail(cleanEmail, userName, resetLink);
     console.log(`✉️ Custom password reset email successfully dispatched to ${cleanEmail}!`);
 
@@ -186,7 +198,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       message: 'If an account exists for that email, a password reset link has been dispatched.'
     });
   } catch (error: any) {
-    console.error('❌ Error in forgotPassword:', error.message || error);
+    console.error('❌ Error in forgotPassword:', error.code || error.message || error);
     return res.status(200).json({
       message: 'If an account exists for that email, a password reset link has been dispatched.'
     });
