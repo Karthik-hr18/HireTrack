@@ -100,20 +100,13 @@ export const sendVerificationEmail = async (email: string, name: string, verific
         html: htmlContent
       });
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Nodemailer verification email dispatch failed:', err);
+      throw new Error(`SMTP Dispatch Error: ${err.message || 'Could not send verification email'}`);
     }
   }
 
-  // Fallback mock dispatch for dev environment
-  console.log(`
-======================================================
-✉️ CUSTOM HTML VERIFICATION EMAIL DISPATCH FOR: ${email}
-Subject: Verify your HireTrack candidate account
-Verification Link: ${verificationLink}
-======================================================
-  `);
-  return true;
+  throw new Error('SMTP Error: Server is missing SMTP_HOST, SMTP_USER, or SMTP_PASS environment variables.');
 };
 
 export const sendPasswordResetEmail = async (email: string, name: string, resetLink: string): Promise<boolean> => {
@@ -196,18 +189,11 @@ export const sendPasswordResetEmail = async (email: string, name: string, resetL
         html: htmlContent
       });
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Nodemailer password reset email dispatch failed:', err);
+      throw new Error(`SMTP Dispatch Error: ${err.message || 'Could not send reset password email'}`);
     }
   }
 
-  // Fallback mock dispatch for dev environment
-  console.log(`
-======================================================
-✉️ CUSTOM HTML PASSWORD RESET EMAIL DISPATCH FOR: ${email}
-Subject: Reset your HireTrack password
-Reset Link: ${resetLink}
-======================================================
-  `);
-  return true;
+  throw new Error('SMTP Error: Server is missing SMTP_HOST, SMTP_USER, or SMTP_PASS environment variables.');
 };
