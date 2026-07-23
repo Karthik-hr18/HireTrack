@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { connectDB } from '../config/db';
+import { firebaseAuth } from '../config/firebase';
 import { User } from '../models/User';
 import { Job } from '../models/Job';
 import { Application } from '../models/Application';
@@ -10,6 +11,33 @@ import { Scorecard } from '../models/Scorecard';
 import { ActivityLog } from '../models/ActivityLog';
 
 dotenv.config();
+
+const getOrCreateFirebaseUser = async (email: string, defaultPassword: string, displayName: string): Promise<string> => {
+  const cleanEmail = email.trim().toLowerCase();
+  try {
+    const existing = await firebaseAuth.getUserByEmail(cleanEmail);
+    console.log(`ℹ️ Firebase Auth user already exists for ${cleanEmail} (uid: ${existing.uid}). Preserving credentials.`);
+    return existing.uid;
+  } catch (err: any) {
+    if (err.code === 'auth/user-not-found') {
+      try {
+        const newUser = await firebaseAuth.createUser({
+          email: cleanEmail,
+          password: defaultPassword,
+          displayName,
+          emailVerified: true
+        });
+        console.log(`✅ Created new Firebase Auth user for ${cleanEmail} (uid: ${newUser.uid}).`);
+        return newUser.uid;
+      } catch (createErr: any) {
+        console.warn(`⚠️ Warning creating Firebase user for ${cleanEmail}: ${createErr.message}`);
+        return `seed_uid_${cleanEmail.replace(/[^a-z0-9]/g, '_')}`;
+      }
+    }
+    console.warn(`⚠️ Warning fetching Firebase user for ${cleanEmail}: ${err.message}`);
+    return `seed_uid_${cleanEmail.replace(/[^a-z0-9]/g, '_')}`;
+  }
+};
 
 const seedDatabase = async () => {
   if (process.env.NODE_ENV === 'production' && !process.argv.includes('--force-seed')) {
@@ -28,6 +56,7 @@ const seedDatabase = async () => {
   await connectDB();
 
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@hiretrack.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Karthik@64';
 
   try {
     // ── 1. CLEAN COLLECTIONS (ONLY WHEN EXPLICITLY ALLOWED) ────────────────
@@ -40,15 +69,16 @@ const seedDatabase = async () => {
     await User.deleteMany({ role: { $in: ['candidate'] }, email: /@example\.com$/ });
 
     // ── 2. SEED ADMIN ACCOUNT ────────────────────────────────────────────────
+    const adminFirebaseUid = await getOrCreateFirebaseUser(adminEmail, adminPassword, 'Administrator');
     let admin = await User.findOne({ email: adminEmail.toLowerCase() });
     if (admin) {
-      admin.firebaseUid = admin.firebaseUid || 'seed_admin_uid';
+      admin.firebaseUid = adminFirebaseUid;
       admin.isActive = true;
       admin.isEmailVerified = true;
       await admin.save();
     } else {
       admin = await User.create({
-        firebaseUid: 'seed_admin_uid',
+        firebaseUid: adminFirebaseUid,
         name: 'Administrator',
         email: adminEmail.toLowerCase(),
         role: 'admin',
@@ -67,16 +97,20 @@ const seedDatabase = async () => {
     ];
 
     for (const r of recruiterData) {
-      let recruiter = await User.findOne({ email: r.email });
+      const recruiterUid = await getOrCreateFirebaseUser(r.email, 'RecruiterPass123!', r.name);
+      let recruiter = await User.findOne({ email: r.email.toLowerCase() });
       if (!recruiter) {
         recruiter = await User.create({
-          firebaseUid: `seed_recruiter_${r.email}`,
+          firebaseUid: recruiterUid,
           name: r.name,
-          email: r.email,
+          email: r.email.toLowerCase(),
           role: 'recruiter',
           isActive: true,
           isEmailVerified: true
         });
+      } else {
+        recruiter.firebaseUid = recruiterUid;
+        await recruiter.save();
       }
       recruiters.push(recruiter);
     }

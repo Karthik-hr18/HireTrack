@@ -34,8 +34,25 @@ export const RegisterPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
+      const cleanEmail = email.trim().toLowerCase();
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+
+      // 0. PRE-REGISTRATION SECURITY CHECK (Check MongoDB & Firebase Auth)
+      const checkRes = await fetch(`${apiUrl}/api/auth/check-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail })
+      });
+
+      const checkData = await checkRes.json();
+      if (!checkRes.ok || checkData.exists) {
+        setError(checkData.message || 'This email is already registered. Please use Login instead.');
+        setLoading(false);
+        return;
+      }
+
       // 1. Create Firebase User
-      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
       
       // 2. Set Display Name on Firebase User
       if (name.trim()) {
@@ -47,7 +64,6 @@ export const RegisterPage: React.FC = () => {
 
       // 4. Retrieve Firebase ID Token & Sync with Backend MongoDB Database
       const idToken = await userCredential.user.getIdToken();
-      const apiUrl = import.meta.env.VITE_API_URL || '';
       const syncResponse = await fetch(`${apiUrl}/api/auth/sync`, {
         method: 'POST',
         headers: {
