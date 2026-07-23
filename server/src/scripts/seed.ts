@@ -12,9 +12,9 @@ import { ActivityLog } from '../models/ActivityLog';
 dotenv.config();
 
 const seedDatabase = async () => {
-  if (process.env.NODE_ENV === 'production') {
-    console.error('⛔ ERROR: Seeding is blocked in production environments to prevent data loss.');
-    process.exit(1);
+  if (process.env.NODE_ENV === 'production' && !process.argv.includes('--force-seed')) {
+    console.log('⚠️ Notice: Database seeding is automatically skipped in production to protect user data.');
+    process.exit(0);
   }
 
   const allowSeed = process.env.ALLOW_SEED === 'true' || process.argv.includes('--force-seed');
