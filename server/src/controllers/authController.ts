@@ -147,8 +147,13 @@ export const resendVerification = async (req: Request, res: Response, next: Next
     try {
       verificationLink = await firebaseAuth.generateEmailVerificationLink(emailToVerify, actionCodeSettings);
     } catch (linkErr: any) {
-      console.warn(`⚠️ Custom action code URL failed (${linkErr.message}). Generating default Firebase verification link...`);
-      verificationLink = await firebaseAuth.generateEmailVerificationLink(emailToVerify);
+      console.warn(`⚠️ Custom action code URL failed (code: ${linkErr.code}, message: ${linkErr.message}). Generating default Firebase verification link...`);
+      try {
+        verificationLink = await firebaseAuth.generateEmailVerificationLink(emailToVerify);
+      } catch (fallbackErr: any) {
+        console.error(`❌ Fallback verification link generation failed (code: ${fallbackErr.code}, message: ${fallbackErr.message})`);
+        throw fallbackErr;
+      }
     }
 
     console.log(`✅ Verification link generated for ${emailToVerify}. Dispatching custom HTML email...`);
@@ -186,8 +191,13 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     try {
       resetLink = await firebaseAuth.generatePasswordResetLink(cleanEmail, actionCodeSettings);
     } catch (linkErr: any) {
-      console.warn(`⚠️ Custom action code URL failed (${linkErr.message}). Generating default Firebase reset link...`);
-      resetLink = await firebaseAuth.generatePasswordResetLink(cleanEmail);
+      console.warn(`⚠️ Custom action code URL failed (code: ${linkErr.code}, message: ${linkErr.message}). Generating default Firebase reset link...`);
+      try {
+        resetLink = await firebaseAuth.generatePasswordResetLink(cleanEmail);
+      } catch (fallbackErr: any) {
+        console.error(`❌ Fallback link generation failed (code: ${fallbackErr.code}, message: ${fallbackErr.message})`);
+        throw fallbackErr;
+      }
     }
 
     console.log(`✅ Password reset link generated for ${cleanEmail}. Dispatching custom HTML email...`);
