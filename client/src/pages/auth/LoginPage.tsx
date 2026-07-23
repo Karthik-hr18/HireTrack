@@ -17,7 +17,6 @@ export const LoginPage: React.FC = () => {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMessage, setForgotMessage] = useState<string | null>(null);
-  const [forgotResetToken, setForgotResetToken] = useState<string | null>(null);
 
   const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +25,6 @@ export const LoginPage: React.FC = () => {
     try {
       setForgotLoading(true);
       setForgotMessage(null);
-      setForgotResetToken(null);
 
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const response = await fetch(`${apiUrl}/api/auth/forgot-password`, {
@@ -37,9 +35,6 @@ export const LoginPage: React.FC = () => {
 
       const data = await response.json();
       setForgotMessage(data.message || 'Password reset request processed.');
-      if (data.resetToken) {
-        setForgotResetToken(data.resetToken);
-      }
     } catch (err) {
       setForgotMessage((err as Error).message);
     } finally {
@@ -291,20 +286,8 @@ export const LoginPage: React.FC = () => {
             </p>
 
             {forgotMessage && (
-              <div style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)', color: '#f9fafb', padding: '12px 14px', borderRadius: 10, fontSize: 13, marginBottom: 16 }}>
-                <div>{forgotMessage}</div>
-                {forgotResetToken && (
-                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                    <p style={{ fontSize: 12, color: '#10b981', fontWeight: 700, margin: '0 0 6px' }}>⚡ In Dev/Test Mode:</p>
-                    <Link 
-                      to={`/reset-password?token=${forgotResetToken}`}
-                      onClick={() => setIsForgotPasswordModalOpen(false)}
-                      style={{ color: '#6366f1', fontWeight: 600, fontSize: 13, textDecoration: 'underline' }}
-                    >
-                      Click here to reset password now →
-                    </Link>
-                  </div>
-                )}
+              <div style={{ backgroundColor: 'rgba(99, 102, 241, 0.12)', border: '1px solid rgba(99, 102, 241, 0.3)', color: '#818cf8', padding: '12px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
+                📩 {forgotMessage}
               </div>
             )}
 

@@ -39,6 +39,10 @@ export const VerifyEmailPage: React.FC = () => {
               localStorage.setItem('user', JSON.stringify(userObj));
             } catch (e) {}
           }
+          setTimeout(() => {
+            const authToken = localStorage.getItem('token');
+            navigate(authToken ? '/' : '/login');
+          }, 1800);
         } else {
           setStatus('error');
           setMessage(data.message || 'Invalid or expired verification token.');
@@ -96,11 +100,14 @@ export const VerifyEmailPage: React.FC = () => {
             <CheckCircle2 size={52} style={{ color: '#10b981', margin: '0 auto 16px' }} />
             <h2 style={{ fontSize: 22, fontWeight: 800, color: '#f9fafb', marginBottom: 8 }}>Email Verified!</h2>
             <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 28, lineHeight: 1.5 }}>
-              {message}
+              Your account has been activated. Redirecting you to the Careers Portal...
             </p>
             <button
               type="button"
-              onClick={() => navigate('/login')}
+              onClick={() => {
+                const authToken = localStorage.getItem('token');
+                navigate(authToken ? '/' : '/login');
+              }}
               style={{
                 width: '100%',
                 backgroundColor: '#6366f1',
@@ -114,7 +121,7 @@ export const VerifyEmailPage: React.FC = () => {
                 boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)'
               }}
             >
-              Back to Login
+              Continue to Careers Portal →
             </button>
           </div>
         )}

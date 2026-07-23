@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface VerificationModalProps {
   isOpen: boolean;
@@ -17,6 +17,48 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
 }) => {
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+
+  // Auto-detect verification across devices/tabs (polls /api/auth/me and listens to tab focus)
+  useEffect(() => {
+    if (!isOpen || !token) return;
+
+    const checkStatus = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const res = await fetch(`${apiUrl}/api/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          credentials: 'include'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user?.isEmailVerified) {
+            // Update local storage and close modal
+            const userJson = localStorage.getItem('user');
+            const currentUser = userJson ? JSON.parse(userJson) : {};
+            localStorage.setItem('user', JSON.stringify({ ...currentUser, isEmailVerified: true }));
+            onClose();
+          }
+        }
+      } catch (err) {}
+    };
+
+    // Poll every 3 seconds
+    const interval = setInterval(checkStatus, 3000);
+
+    // Also check immediately when user switches back to this tab/window
+    const handleFocus = () => {
+      checkStatus();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [isOpen, token, onClose]);
 
   if (!isOpen) return null;
 
