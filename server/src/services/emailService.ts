@@ -10,10 +10,10 @@ const getResendClient = () => {
 };
 
 const FROM_EMAIL = process.env.EMAIL_FROM || 'HireTrack Support <onboarding@resend.dev>';
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
-export const sendVerificationEmail = async (toEmail: string, verificationToken: string): Promise<boolean> => {
-  const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}`;
+export const sendVerificationEmail = async (toEmail: string, verificationToken: string, customClientUrl?: string): Promise<boolean> => {
+  const baseUrl = (customClientUrl || process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+  const verifyUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
   console.log(`\n======================================================`);
   console.log(`✉️ EMAIL DISPATCH FOR: ${toEmail}`);
   console.log(`Subject: Verify Your HireTrack Email Address`);
@@ -81,8 +81,9 @@ export const sendVerificationEmail = async (toEmail: string, verificationToken: 
   }
 };
 
-export const sendPasswordResetEmail = async (toEmail: string, resetToken: string): Promise<boolean> => {
-  const resetUrl = `${CLIENT_URL}/reset-password?token=${resetToken}`;
+export const sendPasswordResetEmail = async (toEmail: string, resetToken: string, customClientUrl?: string): Promise<boolean> => {
+  const baseUrl = (customClientUrl || process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+  const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
   console.log(`\n======================================================`);
   console.log(`✉️ EMAIL DISPATCH FOR: ${toEmail}`);
   console.log(`Subject: Reset Your HireTrack Password`);

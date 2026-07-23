@@ -96,38 +96,60 @@ export const CareersNav: React.FC = () => {
 
   return (
     <>
+      {/* Premium Email Verification Top Banner */}
       {token && user?.role === 'candidate' && !user?.isEmailVerified && (
         <div style={{
-          backgroundColor: '#b45309',
-          color: '#ffffff',
-          padding: '8px 16px',
+          background: 'linear-gradient(90deg, #1e1b4b 0%, #31104b 50%, #1e1b4b 100%)',
+          borderBottom: '1px solid rgba(139, 92, 246, 0.3)',
+          color: '#f3e8ff',
+          padding: '10px 20px',
           fontSize: 13,
           fontWeight: 600,
           textAlign: 'center',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 12,
+          gap: 14,
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
-          zIndex: 100000
+          zIndex: 100000,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+          backdropFilter: 'blur(10px)'
         }}>
-          <span>⚠️ Your account email ({user?.email}) is not verified. Verification is required to apply for open job positions.</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 22,
+              height: 22,
+              borderRadius: '50%',
+              backgroundColor: 'rgba(245, 158, 11, 0.2)',
+              color: '#f59e0b',
+              fontSize: 12,
+              fontWeight: 800
+            }}>⚡</span>
+            <span>Account Action Required: Please verify <strong>{user?.email}</strong> to unlock full candidate features & apply for roles.</span>
+          </div>
+
           <button
             type="button"
             onClick={handleResendVerificationEmail}
             disabled={sendingEmail}
             style={{
-              backgroundColor: '#ffffff',
-              color: '#92400e',
-              border: 'none',
-              borderRadius: 4,
-              padding: '4px 10px',
+              background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+              color: '#ffffff',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: 20,
+              padding: '5px 14px',
               fontSize: 12,
               fontWeight: 700,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(99, 102, 241, 0.4)',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
             }}
           >
             {sendingEmail ? 'Sending Email...' : 'Resend Verification Email'}
@@ -135,30 +157,56 @@ export const CareersNav: React.FC = () => {
         </div>
       )}
 
+      {/* Floating Premium Toast Notification */}
       {resendNotice && (
         <div style={{
-          backgroundColor: '#1e293b',
-          borderBottom: '2px solid #6366f1',
-          color: '#f9fafb',
-          padding: '10px 16px',
-          fontSize: 13,
-          fontWeight: 600,
-          textAlign: 'center',
           position: 'fixed',
-          top: (token && user?.role === 'candidate' && !user?.isEmailVerified) ? 36 : 0,
-          left: 0,
-          right: 0,
-          zIndex: 100001,
+          top: (token && user?.role === 'candidate' && !user?.isEmailVerified) ? 56 : 16,
+          right: 20,
+          zIndex: 100002,
+          backgroundColor: '#0f172a',
+          border: '1px solid rgba(99, 102, 241, 0.4)',
+          borderRadius: 14,
+          padding: '14px 18px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(99, 102, 241, 0.2)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: 16
+          gap: 12,
+          maxWidth: 440,
+          color: '#f8fafc',
+          backdropFilter: 'blur(16px)',
+          animation: 'slideIn 0.3s ease-out'
         }}>
-          <span>📩 {resendNotice}</span>
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            backgroundColor: 'rgba(99, 102, 241, 0.15)',
+            color: '#818cf8',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 800,
+            fontSize: 16,
+            flexShrink: 0
+          }}>
+            📩
+          </div>
+          <div style={{ flex: 1, fontSize: 13, lineHeight: 1.4, fontWeight: 500 }}>
+            {resendNotice}
+          </div>
           <button
             type="button"
             onClick={() => setResendNotice(null)}
-            style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: 14, fontWeight: 'bold' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              fontSize: 16,
+              padding: 4,
+              borderRadius: 6
+            }}
           >
             ✕
           </button>

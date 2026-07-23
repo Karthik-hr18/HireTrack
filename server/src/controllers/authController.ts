@@ -6,6 +6,22 @@ import { User } from '../models/User';
 import { RegisterSchema, LoginSchema } from '@hiretrack/shared';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../services/emailService';
 
+// Helper to resolve request origin URL for production emails
+const getClientOrigin = (req: Request): string => {
+  try {
+    const origin = typeof req.get === 'function' ? req.get('origin') : undefined;
+    if (origin && origin !== 'null') return origin;
+    const referer = typeof req.get === 'function' ? req.get('referer') : undefined;
+    if (referer) {
+      try {
+        const u = new URL(referer);
+        return `${u.protocol}//${u.host}`;
+      } catch (e) {}
+    }
+  } catch (err) {}
+  return process.env.CLIENT_URL || 'http://localhost:5173';
+};
+
 // Helper to generate JWT
 const generateToken = (userId: string, email: string, role: string): string => {
   const jwtSecret = process.env.JWT_SECRET;
@@ -56,8 +72,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       emailVerificationExpiresAt
     });
 
-    // Dispatch verification email via Resend
-    sendVerificationEmail(newUser.email, verificationToken).catch(err => console.error(err));
+    // Dispatch verification email via Resend with dynamic origin
+    sendVerificationEmail(newUser.email, verificationToken, getClientOrigin(req)).catch(err => console.error(err));
 
     const token = generateToken(newUser._id.toString(), newUser.email, newUser.role);
 
@@ -210,7 +226,7 @@ export const resendVerification = async (req: Request, res: Response, next: Next
     user.emailVerificationExpiresAt = emailVerificationExpiresAt;
     await user.save();
 
-    await sendVerificationEmail(user.email, verificationToken);
+    await sendVerificationEmail(user.email, verificationToken, getClientOrigin(req));
 
     return res.status(200).json({
       message: `Verification link has been sent to ${user.email}. Please check your inbox.`
@@ -276,8 +292,8 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     user.resetTokenExpiresAt = resetTokenExpiresAt;
     await user.save();
 
-    // Dispatch password reset email via Resend
-    sendPasswordResetEmail(user.email, resetToken).catch(err => console.error(err));
+    // Dispatch password reset email via Resend with dynamic origin
+    sendPasswordResetEmail(user.email, resetToken, getClientOrigin(req)).catch(err => console.error(err));
 
     return res.status(200).json({
       message: 'If an account with that email exists, a password reset link has been dispatched.',
