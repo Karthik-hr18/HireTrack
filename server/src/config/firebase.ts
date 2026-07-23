@@ -12,6 +12,14 @@ if (!getApps().length) {
       privateKey = privateKey.substring(1, privateKey.length - 1);
     }
     privateKey = privateKey.replace(/\\n/g, '\n');
+
+    // Auto-attach PEM headers if user omitted them in environment variables
+    if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+      privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}`;
+    }
+    if (!privateKey.includes('-----END PRIVATE KEY-----')) {
+      privateKey = `${privateKey.trim()}\n-----END PRIVATE KEY-----\n`;
+    }
   }
 
   let initialized = false;
