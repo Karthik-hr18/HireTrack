@@ -28,27 +28,16 @@ export const LoginPage: React.FC = () => {
       setForgotLoading(true);
       setForgotMessage(null);
 
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${apiUrl}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail.trim() })
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setForgotMessage(data.message || 'If an account exists for that email, a password reset link has been dispatched.');
-      } else {
-        await sendPasswordResetEmail(auth, forgotEmail.trim());
-        setForgotMessage('Password reset email dispatched! Please check your inbox.');
-      }
+      await sendPasswordResetEmail(auth, forgotEmail.trim());
+      setForgotMessage('Password reset email dispatched! Please check your inbox.');
     } catch (err: any) {
-      try {
-        await sendPasswordResetEmail(auth, forgotEmail.trim());
-        setForgotMessage('Password reset email dispatched! Please check your inbox.');
-      } catch (fallbackErr: any) {
-        setForgotMessage(fallbackErr.message || 'Failed to send reset email');
+      let msg = err.message || 'Failed to send reset email';
+      if (err.code === 'auth/user-not-found') {
+        msg = 'If an account with that email exists, a password reset link has been dispatched.';
+      } else if (err.code === 'auth/invalid-email') {
+        msg = 'Please enter a valid email address.';
       }
+      setForgotMessage(msg);
     } finally {
       setForgotLoading(false);
     }

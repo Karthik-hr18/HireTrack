@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 import { CareersNav } from '../careers/components/CareersNav';
 import { CareersFooter } from '../careers/components/CareersFooter';
@@ -41,6 +41,9 @@ export const RegisterPage: React.FC = () => {
       if (name.trim()) {
         await updateProfile(userCredential.user, { displayName: name.trim() });
       }
+
+      // 3. Send Verification Email
+      await sendEmailVerification(userCredential.user);
 
       // 3. Retrieve Firebase ID Token & Sync with Backend MongoDB Database
       const idToken = await userCredential.user.getIdToken();
