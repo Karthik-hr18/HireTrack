@@ -34,15 +34,15 @@ const seedDatabase = async () => {
     // ── 2. SEED ADMIN ACCOUNT ────────────────────────────────────────────────
     let admin = await User.findOne({ email: adminEmail.toLowerCase() });
     if (admin) {
-      admin.passwordHash = await bcrypt.hash(adminPassword, salt);
+      admin.firebaseUid = admin.firebaseUid || 'seed_admin_uid';
       admin.isActive = true;
       admin.isEmailVerified = true;
       await admin.save();
     } else {
       admin = await User.create({
+        firebaseUid: 'seed_admin_uid',
         name: 'Administrator',
         email: adminEmail.toLowerCase(),
-        passwordHash: await bcrypt.hash(adminPassword, salt),
         role: 'admin',
         isActive: true,
         isEmailVerified: true
@@ -62,9 +62,9 @@ const seedDatabase = async () => {
       let recruiter = await User.findOne({ email: r.email });
       if (!recruiter) {
         recruiter = await User.create({
+          firebaseUid: `seed_recruiter_${r.email}`,
           name: r.name,
           email: r.email,
-          passwordHash: defaultHash,
           role: 'recruiter',
           isActive: true,
           isEmailVerified: true
@@ -303,9 +303,9 @@ const seedDatabase = async () => {
       const email = `${name.toLowerCase().replace(/ /g, '.')}@example.com`;
 
       const candidateUser = await User.create({
+        firebaseUid: `seed_candidate_${email}`,
         name,
         email,
-        passwordHash: defaultHash,
         role: 'candidate',
         isActive: true,
         isEmailVerified: true

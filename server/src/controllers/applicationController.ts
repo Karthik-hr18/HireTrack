@@ -651,9 +651,9 @@ export const recruiterAddCandidate = async (req: Request, res: Response, next: N
     let candidateUser = await User.findOne({ email: email.toLowerCase() });
     if (!candidateUser) {
       candidateUser = await User.create({
+        firebaseUid: `anon_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         name,
         email: email.toLowerCase(),
-        passwordHash: '$2a$10$e7xN98Z/Jz86d8oK.y/6y.k7L06xM9o9o9o9o9o9o9o9o9o9o9o9o',
         role: 'candidate',
         isActive: true,
         isEmailVerified: true

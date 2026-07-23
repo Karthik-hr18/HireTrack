@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, Sparkles } from 'lucide-react';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../../config/firebase';
 import { CareersNav } from '../careers/components/CareersNav';
 import { CareersFooter } from '../careers/components/CareersFooter';
 
@@ -26,17 +28,16 @@ export const LoginPage: React.FC = () => {
       setForgotLoading(true);
       setForgotMessage(null);
 
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail })
-      });
-
-      const data = await response.json();
-      setForgotMessage(data.message || 'Password reset request processed.');
-    } catch (err) {
-      setForgotMessage((err as Error).message);
+      await sendPasswordResetEmail(auth, forgotEmail.trim());
+      setForgotMessage('Password reset email dispatched! Please check your inbox.');
+    } catch (err: any) {
+      let msg = err.message || 'Failed to send reset email';
+      if (err.code === 'auth/user-not-found') {
+        msg = 'If an account with that email exists, a password reset link has been dispatched.';
+      } else if (err.code === 'auth/invalid-email') {
+        msg = 'Please enter a valid email address.';
+      }
+      setForgotMessage(msg);
     } finally {
       setForgotLoading(false);
     }
@@ -51,41 +52,46 @@ export const LoginPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
+      // 1. Authenticate via Firebase Client SDK
+      const userCredential = await signInWithEmailAndPassword(auth, targetEmail.trim(), targetPassword);
+
+      // 2. Retrieve Firebase ID Token
+      const idToken = await userCredential.user.getIdToken();
       const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/auth/login`, {
+
+      // 3. Sync & Retrieve MongoDB User Profile from Backend
+      const syncRes = await fetch(`${apiUrl}/api/auth/sync`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
         credentials: 'include',
-        body: JSON.stringify({ email: targetEmail, password: targetPassword })
+        body: JSON.stringify({})
       });
 
-      if (!response.ok) {
-          // Attempt to parse error JSON; fallback to plain text if parsing fails
-          let errorMessage = 'Authentication failed. Check credentials.';
-          try {
-            const errData = await response.json();
-            if (errData && errData.message) errorMessage = errData.message;
-          } catch (jsonErr) {
-            // Not JSON – try to read raw text
-            const errText = await response.text();
-            if (errText) errorMessage = errText;
-          }
-          throw new Error(errorMessage);
-        }
+      if (!syncRes.ok) {
+        throw new Error('Failed to synchronize user profile.');
+      }
 
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      const syncData = await syncRes.json();
+      localStorage.setItem('token', idToken);
+      localStorage.setItem('user', JSON.stringify(syncData.user));
 
-      // Redirect depending on user role
-      if (data.user.role === 'admin' || data.user.role === 'recruiter') {
-        navigate('/recruiter/jobs');
+      if (syncData.user.role === 'recruiter' || syncData.user.role === 'admin') {
+        navigate('/admin');
       } else {
         navigate('/');
       }
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: any) {
+      let errorMessage = 'Invalid email or password.';
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        errorMessage = 'Invalid email or password.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -38,33 +38,31 @@ describe('Interview Scheduler Integration Tests', () => {
 
     // Create Admin (Interviewer)
     const admin = await User.create({
+      firebaseUid: 'uid_admin_int',
       name: 'Int Admin',
       email: 'admin@test-int.com',
-      passwordHash: 'dummy',
       role: 'admin',
       isActive: true,
       isEmailVerified: true
     });
     adminId = admin._id.toString();
-    adminToken = jwt.sign({ id: adminId, email: admin.email, role: admin.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Create Recruiter (Scheduler)
     const recruiter = await User.create({
+      firebaseUid: 'uid_recruiter_int',
       name: 'Int Recruiter',
       email: 'recruiter@test-int.com',
-      passwordHash: 'dummy',
       role: 'recruiter',
       isActive: true,
       isEmailVerified: true
     });
     recruiterId = recruiter._id.toString();
-    recruiterToken = jwt.sign({ id: recruiterId, email: recruiter.email, role: recruiter.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Create Candidate
     const candidate = await User.create({
+      firebaseUid: 'uid_candidate_int',
       name: 'Int Candidate',
       email: 'candidate@test-int.com',
-      passwordHash: 'dummy',
       role: 'candidate',
       isActive: true,
       isEmailVerified: true

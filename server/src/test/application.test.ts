@@ -40,27 +40,25 @@ describe('Candidate Application Submission & Duplicate Prevention Tests', () => 
 
     // Create Verified Candidate
     const candidate = await User.create({
+      firebaseUid: 'uid_candidate_app',
       name: 'App Candidate',
       email: 'candidate@test-app.com',
-      passwordHash: 'dummy',
       role: 'candidate',
       isActive: true,
       isEmailVerified: true
     });
     candidateId = candidate._id.toString();
-    candidateToken = jwt.sign({ id: candidateId, email: candidate.email, role: candidate.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Create Recruiter
     const recruiter = await User.create({
+      firebaseUid: 'uid_recruiter_app',
       name: 'App Recruiter',
       email: 'recruiter@test-app.com',
-      passwordHash: 'dummy',
       role: 'recruiter',
       isActive: true,
       isEmailVerified: true
     });
     recruiterId = recruiter._id.toString();
-    recruiterToken = jwt.sign({ id: recruiterId, email: recruiter.email, role: recruiter.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Create Open Job requiring min 2 years experience
     const job = await Job.create({

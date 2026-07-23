@@ -1,17 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { firebaseAuth } from '../config/firebase';
 import { User } from '../models/User';
 import { UserRoleType } from '@hiretrack/shared';
-import { UserSession } from '../types';
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let token: string | undefined;
 
-    if (req.cookies && req.cookies.token) {
-      token = req.cookies.token;
-    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
     }
 
     if (!token) {
@@ -21,23 +20,42 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      console.error('JWT_SECRET environment variable is missing.');
-      return res.status(500).json({
-        message: 'Internal server configuration error',
-        code: 'INTERNAL_ERROR'
+    // Verify Firebase ID Token
+    let decodedToken;
+    try {
+      decodedToken = await firebaseAuth.verifyIdToken(token);
+    } catch (err) {
+      return res.status(401).json({
+        message: 'Invalid or expired Firebase authentication token',
+        code: 'UNAUTHORIZED'
       });
     }
 
-    const decoded = jwt.verify(token, jwtSecret) as {
-      id: string;
-      email: string;
-      role: UserRoleType;
-    };
+    const cleanEmail = (decodedToken.email || '').trim().toLowerCase();
 
-    // Verify user exists and is active in the database
-    const user = await User.findById(decoded.id);
+    // Look up existing MongoDB user by firebaseUid or fallback by email
+    let user = await User.findOne({ firebaseUid: decodedToken.uid });
+    if (!user && cleanEmail) {
+      user = await User.findOne({ email: cleanEmail });
+      if (user) {
+        user.firebaseUid = decodedToken.uid;
+        await user.save();
+      }
+    }
+
+    // Auto-create MongoDB User document on first login if not found
+    if (!user && cleanEmail) {
+      const name = decodedToken.name || cleanEmail.split('@')[0];
+      user = await User.create({
+        firebaseUid: decodedToken.uid,
+        email: cleanEmail,
+        name: name,
+        role: 'candidate',
+        isActive: true,
+        isEmailVerified: Boolean(decodedToken.email_verified)
+      });
+    }
+
     if (!user) {
       return res.status(401).json({
         message: 'User account not found',
@@ -52,24 +70,24 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    // Attach user to request object
+    // Keep MongoDB isEmailVerified synced with Firebase email_verified
+    if (decodedToken.email_verified && !user.isEmailVerified) {
+      user.isEmailVerified = true;
+      await user.save();
+    }
+
+    // Attach user session object with MongoDB ObjectId as 'id'
     req.user = {
-      id: decoded.id,
-      email: decoded.email,
-      role: decoded.role,
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
       isEmailVerified: user.isEmailVerified
     };
 
     return next();
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({
-        message: 'Authentication token has expired',
-        code: 'TOKEN_EXPIRED'
-      });
-    }
     return res.status(401).json({
-      message: 'Invalid authentication token',
+      message: 'Authentication failure',
       code: 'UNAUTHORIZED'
     });
   }
@@ -79,39 +97,38 @@ export const optionalAuthenticate = async (req: Request, res: Response, next: Ne
   try {
     let token: string | undefined;
 
-    if (req.cookies && req.cookies.token) {
-      token = req.cookies.token;
-    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
     }
 
     if (!token) {
       return next();
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      return next();
+    const decodedToken = await firebaseAuth.verifyIdToken(token);
+    const cleanEmail = (decodedToken.email || '').trim().toLowerCase();
+
+    let user = await User.findOne({ firebaseUid: decodedToken.uid });
+    if (!user && cleanEmail) {
+      user = await User.findOne({ email: cleanEmail });
     }
 
-    const decoded = jwt.verify(token, jwtSecret) as {
-      id: string;
-      email: string;
-      role: UserRoleType;
-    };
-
-    const user = await User.findById(decoded.id);
     if (user && user.isActive) {
+      if (decodedToken.email_verified && !user.isEmailVerified) {
+        user.isEmailVerified = true;
+        await user.save();
+      }
       req.user = {
-        id: decoded.id,
-        email: decoded.email,
-        role: decoded.role,
+        id: user._id.toString(),
+        email: user.email,
+        role: user.role,
         isEmailVerified: user.isEmailVerified
       };
     }
     return next();
   } catch (error) {
-    // Treat invalid or expired tokens as anonymous public requests
     return next();
   }
 };
@@ -153,4 +170,3 @@ export const requireVerifiedEmail = (req: Request, res: Response, next: NextFunc
 
   return next();
 };
-

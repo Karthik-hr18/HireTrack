@@ -1,237 +1,73 @@
 import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
 import { User } from '../models/User';
-import { RegisterSchema, LoginSchema } from '@hiretrack/shared';
-import { sendVerificationEmail, sendPasswordResetEmail } from '../services/emailService';
+import { firebaseAuth } from '../config/firebase';
 
-// Helper to resolve request origin URL for production emails
-const getClientOrigin = (req: Request): string => {
+export const syncUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const origin = typeof req.get === 'function' ? req.get('origin') : undefined;
-    if (origin && origin !== 'null') return origin;
-    const referer = typeof req.get === 'function' ? req.get('referer') : undefined;
-    if (referer) {
-      try {
-        const u = new URL(referer);
-        return `${u.protocol}//${u.host}`;
-      } catch (e) {}
+    let token: string | undefined;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
     }
-  } catch (err) {}
-  return process.env.CLIENT_URL || 'http://localhost:5173';
-};
 
-// Helper to generate JWT
-const generateToken = (userId: string, email: string, role: string): string => {
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) {
-    throw new Error('JWT_SECRET is not configured');
-  }
-  return jwt.sign({ id: userId, email, role }, jwtSecret, { expiresIn: '24h' });
-};
-
-// Cookie options for secure session handling
-const getCookieOptions = () => ({
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
-});
-
-export const register = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // Validate request body
-    const validatedData = RegisterSchema.parse(req.body);
-    const cleanEmail = validatedData.email.trim().toLowerCase();
-
-    const existingUser = await User.findOne({ email: cleanEmail });
-    if (existingUser) {
-      return res.status(400).json({
-        message: 'A user with this email address already exists',
-        code: 'EMAIL_EXISTS'
+    if (!token) {
+      return res.status(401).json({
+        message: 'Firebase authentication token missing',
+        code: 'UNAUTHORIZED'
       });
     }
 
-    // Hash password with cost factor >= 12
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(validatedData.password, salt);
+    const decodedToken = await firebaseAuth.verifyIdToken(token);
+    const cleanEmail = (decodedToken.email || '').trim().toLowerCase();
+    const { name, role } = req.body;
 
-    // Generate email verification token (32-byte hex)
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const emailVerificationTokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
-    const emailVerificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours TTL
-
-    const newUser = await User.create({
-      name: validatedData.name.trim(),
-      email: cleanEmail,
-      passwordHash,
-      role: 'candidate', // Only candidates can self-register
-      isActive: true,
-      isEmailVerified: false,
-      emailVerificationTokenHash,
-      emailVerificationExpiresAt
-    });
-
-    // Dispatch verification email via Resend with dynamic origin
-    sendVerificationEmail(newUser.email, verificationToken, getClientOrigin(req)).catch(err => console.error(err));
-
-    const token = generateToken(newUser._id.toString(), newUser.email, newUser.role);
-
-    // Set httpOnly, Secure, SameSite cookie if res.cookie function is available
-    if (typeof res.cookie === 'function') {
-      res.cookie('token', token, getCookieOptions());
-    }
-
-    return res.status(201).json({
-      token,
-      verificationToken, // Returned for dev/test verification
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        isEmailVerified: newUser.isEmailVerified
+    let user = await User.findOne({ firebaseUid: decodedToken.uid });
+    if (!user && cleanEmail) {
+      user = await User.findOne({ email: cleanEmail });
+      if (user) {
+        user.firebaseUid = decodedToken.uid;
+        if (name && name.trim()) user.name = name.trim();
+        await user.save();
       }
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
+    }
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // Validate request body
-    const validatedData = LoginSchema.parse(req.body);
-    const cleanEmail = validatedData.email.trim().toLowerCase();
-
-    const user = await User.findOne({ email: cleanEmail });
+    // Auto-create MongoDB User document if first login/register
     if (!user) {
-      return res.status(401).json({
-        message: 'Invalid email or password',
-        code: 'INVALID_CREDENTIALS'
+      user = await User.create({
+        firebaseUid: decodedToken.uid,
+        email: cleanEmail,
+        name: name ? name.trim() : (decodedToken.name || cleanEmail.split('@')[0]),
+        role: role || 'candidate',
+        isActive: true,
+        isEmailVerified: Boolean(decodedToken.email_verified)
       });
-    }
-
-    // Verify password
-    const isMatch = await bcrypt.compare(validatedData.password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({
-        message: 'Invalid email or password',
-        code: 'INVALID_CREDENTIALS'
-      });
-    }
-
-    // Verify account is active
-    if (!user.isActive) {
-      return res.status(403).json({
-        message: 'Your account has been deactivated. Please contact the administrator.',
-        code: 'DEACTIVATED'
-      });
-    }
-
-    const token = generateToken(user._id.toString(), user.email, user.role);
-
-    // Set httpOnly, Secure, SameSite cookie if res.cookie function is available
-    if (typeof res.cookie === 'function') {
-      res.cookie('token', token, getCookieOptions());
+    } else {
+      // Sync verification status & name if updated
+      let modified = false;
+      if (decodedToken.email_verified && !user.isEmailVerified) {
+        user.isEmailVerified = true;
+        modified = true;
+      }
+      if (name && name.trim() && user.name !== name.trim()) {
+        user.name = name.trim();
+        modified = true;
+      }
+      if (modified) {
+        await user.save();
+      }
     }
 
     return res.status(200).json({
-      token,
+      message: 'User synchronized successfully',
       user: {
         id: user._id,
+        firebaseUid: user.firebaseUid,
         name: user.name,
         email: user.email,
         role: user.role,
         isEmailVerified: user.isEmailVerified
       }
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-export const logout = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (typeof res.clearCookie === 'function') {
-      res.clearCookie('token', getCookieOptions());
-    }
-    return res.status(200).json({ message: 'Successfully logged out' });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const token = (req.body.token || req.query.token) as string;
-    if (!token) {
-      return res.status(400).json({
-        message: 'Verification token is required',
-        code: 'BAD_REQUEST'
-      });
-    }
-
-    const emailVerificationTokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-    const user = await User.findOne({
-      emailVerificationTokenHash,
-      emailVerificationExpiresAt: { $gt: new Date() }
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        message: 'Verification token is invalid or has expired',
-        code: 'BAD_REQUEST'
-      });
-    }
-
-    user.isEmailVerified = true;
-    user.emailVerificationTokenHash = null;
-    user.emailVerificationExpiresAt = null;
-    await user.save();
-
-    return res.status(200).json({
-      message: 'Email address has been successfully verified',
-      user: {
-        id: user._id,
-        email: user.email,
-        isEmailVerified: user.isEmailVerified
-      }
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-export const resendVerification = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required', code: 'UNAUTHORIZED' });
-    }
-
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User account not found', code: 'NOT_FOUND' });
-    }
-
-    if (user.isEmailVerified) {
-      return res.status(400).json({ message: 'Your email address is already verified.', code: 'ALREADY_VERIFIED' });
-    }
-
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const emailVerificationTokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
-    const emailVerificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-    user.emailVerificationTokenHash = emailVerificationTokenHash;
-    user.emailVerificationExpiresAt = emailVerificationExpiresAt;
-    await user.save();
-
-    await sendVerificationEmail(user.email, verificationToken, getClientOrigin(req));
-
-    return res.status(200).json({
-      message: `Verification link has been sent to ${user.email}. Please check your inbox.`
     });
   } catch (error) {
     return next(error);
@@ -247,7 +83,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
       });
     }
 
-    const user = await User.findById(req.user.id).select('-passwordHash');
+    const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({
         message: 'User not found',
@@ -258,6 +94,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
     return res.status(200).json({
       user: {
         id: user._id,
+        firebaseUid: user.firebaseUid,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -270,79 +107,12 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required', code: 'BAD_REQUEST' });
+    if (typeof res.clearCookie === 'function') {
+      res.clearCookie('token');
     }
-
-    const cleanEmail = email.trim().toLowerCase();
-    const user = await User.findOne({ email: cleanEmail });
-    if (!user) {
-      // Always return 200 for user enumeration protection
-      return res.status(200).json({
-        message: 'If an account with that email exists, a password reset link has been dispatched.'
-      });
-    }
-
-    // Generate random 32-byte hex token and hash at rest with SHA-256
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
-    const resetTokenExpiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes TTL
-
-    user.resetTokenHash = resetTokenHash;
-    user.resetTokenExpiresAt = resetTokenExpiresAt;
-    await user.save();
-
-    // Dispatch password reset email via Resend with dynamic origin
-    sendPasswordResetEmail(user.email, resetToken, getClientOrigin(req)).catch(err => console.error(err));
-
-    return res.status(200).json({
-      message: 'If an account with that email exists, a password reset link has been dispatched.',
-      resetToken // Returned in response payload for dev/test verification
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { token, newPassword } = req.body;
-    if (!token || !newPassword || newPassword.length < 6) {
-      return res.status(400).json({
-        message: 'Token and a valid new password (min 6 characters) are required',
-        code: 'BAD_REQUEST'
-      });
-    }
-
-    const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-    const user = await User.findOne({
-      resetTokenHash,
-      resetTokenExpiresAt: { $gt: new Date() }
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        message: 'Password reset token is invalid or has expired',
-        code: 'BAD_REQUEST'
-      });
-    }
-
-    // Hash new password with bcrypt (cost factor 12)
-    const salt = await bcrypt.genSalt(12);
-    user.passwordHash = await bcrypt.hash(newPassword, salt);
-
-    // Invalidate reset token after single use
-    user.resetTokenHash = null;
-    user.resetTokenExpiresAt = null;
-    await user.save();
-
-    return res.status(200).json({
-      message: 'Password has been successfully updated. Please log in with your new credentials.'
-    });
+    return res.status(200).json({ message: 'Successfully logged out' });
   } catch (error) {
     return next(error);
   }

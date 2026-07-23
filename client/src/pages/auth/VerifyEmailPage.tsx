@@ -1,60 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { CheckCircle2, XCircle, Loader2, RefreshCw } from 'lucide-react';
+import { auth } from '../../config/firebase';
 
 export const VerifyEmailPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
   const navigate = useNavigate();
 
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState<string>('Verifying your email address...');
+  const [status, setStatus] = useState<'loading' | 'success' | 'unverified' | 'error'>('loading');
+  const [message, setMessage] = useState<string>('Checking email verification status...');
 
-  useEffect(() => {
-    const doVerify = async () => {
-      if (!token) {
-        setStatus('error');
-        setMessage('Missing email verification token in URL request.');
+  const checkVerification = async () => {
+    try {
+      setStatus('loading');
+      if (!auth.currentUser) {
+        setStatus('unverified');
+        setMessage('Please log in to your account to verify your email status.');
         return;
       }
 
-      try {
+      await auth.currentUser.reload();
+      if (auth.currentUser.emailVerified) {
+        setStatus('success');
+        setMessage('Your email address has been verified successfully!');
+
+        const idToken = await auth.currentUser.getIdToken(true);
         const apiUrl = import.meta.env.VITE_API_URL || '';
-        const response = await fetch(`${apiUrl}/api/auth/verify-email`, {
+        const syncRes = await fetch(`${apiUrl}/api/auth/sync`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json'
+          },
           credentials: 'include',
-          body: JSON.stringify({ token })
+          body: JSON.stringify({})
         });
 
-        const data = await response.json();
-        if (response.ok) {
-          setStatus('success');
-          setMessage(data.message || 'Your email address has been successfully verified.');
-          const userJson = localStorage.getItem('user');
-          if (userJson) {
-            try {
-              const userObj = JSON.parse(userJson);
-              userObj.isEmailVerified = true;
-              localStorage.setItem('user', JSON.stringify(userObj));
-            } catch (e) {}
-          }
-          setTimeout(() => {
-            const authToken = localStorage.getItem('token');
-            navigate(authToken ? '/' : '/login');
-          }, 1800);
-        } else {
-          setStatus('error');
-          setMessage(data.message || 'Invalid or expired verification token.');
+        if (syncRes.ok) {
+          const syncData = await syncRes.json();
+          localStorage.setItem('token', idToken);
+          localStorage.setItem('user', JSON.stringify(syncData.user));
         }
-      } catch (err) {
-        setStatus('error');
-        setMessage((err as Error).message || 'Verification request failed. Please try again.');
-      }
-    };
 
-    doVerify();
-  }, [token]);
+        setTimeout(() => {
+          navigate('/');
+        }, 1800);
+      } else {
+        setStatus('unverified');
+        setMessage('Your email address is not yet verified. Please check your inbox for the link.');
+      }
+    } catch (err: any) {
+      setStatus('error');
+      setMessage(err.message || 'Failed to verify email status.');
+    }
+  };
+
+  useEffect(() => {
+    checkVerification();
+  }, []);
 
   return (
     <div style={{ backgroundColor: '#090d16', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
@@ -122,6 +124,36 @@ export const VerifyEmailPage: React.FC = () => {
               }}
             >
               Continue to Careers Portal →
+            </button>
+          </div>
+        )}
+
+        {status === 'unverified' && (
+          <div>
+            <Loader2 size={48} style={{ color: '#f59e0b', margin: '0 auto 16px' }} />
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#f9fafb', marginBottom: 8 }}>Email Unverified</h2>
+            <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 28, lineHeight: 1.5 }}>{message}</p>
+            <button
+              type="button"
+              onClick={checkVerification}
+              style={{
+                width: '100%',
+                backgroundColor: '#6366f1',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 12,
+                padding: '13px 20px',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)'
+              }}
+            >
+              <RefreshCw size={16} /> Refresh Verification Status
             </button>
           </div>
         )}

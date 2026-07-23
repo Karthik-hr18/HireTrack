@@ -29,25 +29,23 @@ describe('Job CRUD & Visibility Gating Tests', () => {
 
     // Create Admin
     const adminUser = await User.create({
+      firebaseUid: 'uid_admin_job',
       name: 'Test Admin',
       email: 'admin@test-job.com',
-      passwordHash: 'dummy',
       role: 'admin',
       isActive: true
     });
     adminId = adminUser._id.toString();
-    adminToken = jwt.sign({ id: adminId, email: adminUser.email, role: adminUser.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Create Candidate
     const candidateUser = await User.create({
+      firebaseUid: 'uid_candidate_job',
       name: 'Test Candidate',
       email: 'candidate@test-job.com',
-      passwordHash: 'dummy',
       role: 'candidate',
       isActive: true
     });
     candidateId = candidateUser._id.toString();
-    candidateToken = jwt.sign({ id: candidateId, email: candidateUser.email, role: candidateUser.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
   });
 
   afterAll(async () => {

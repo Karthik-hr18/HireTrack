@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { sendEmailVerification } from 'firebase/auth';
+import { auth } from '../../config/firebase';
 
 interface VerificationModalProps {
   isOpen: boolean;
@@ -18,37 +20,44 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // Auto-detect verification across devices/tabs (polls /api/auth/me and listens to tab focus)
+  // Auto-detect verification across devices/tabs (polls Firebase currentUser & /api/auth/me)
   useEffect(() => {
-    if (!isOpen || !token) return;
+    if (!isOpen) return;
 
     const checkStatus = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const res = await fetch(`${apiUrl}/api/auth/me`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-          credentials: 'include'
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.user?.isEmailVerified) {
-            // Update local storage and close modal
+        if (auth.currentUser) {
+          await auth.currentUser.reload();
+          if (auth.currentUser.emailVerified) {
             const userJson = localStorage.getItem('user');
             const currentUser = userJson ? JSON.parse(userJson) : {};
             localStorage.setItem('user', JSON.stringify({ ...currentUser, isEmailVerified: true }));
             onClose();
+            return;
+          }
+        }
+
+        if (token) {
+          const apiUrl = import.meta.env.VITE_API_URL || '';
+          const res = await fetch(`${apiUrl}/api/auth/me`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+            credentials: 'include'
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.user?.isEmailVerified) {
+              const userJson = localStorage.getItem('user');
+              const currentUser = userJson ? JSON.parse(userJson) : {};
+              localStorage.setItem('user', JSON.stringify({ ...currentUser, isEmailVerified: true }));
+              onClose();
+            }
           }
         }
       } catch (err) {}
     };
 
-    // Poll every 3 seconds
     const interval = setInterval(checkStatus, 3000);
-
-    // Also check immediately when user switches back to this tab/window
-    const handleFocus = () => {
-      checkStatus();
-    };
+    const handleFocus = () => { checkStatus(); };
 
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleFocus);
@@ -66,20 +75,15 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
     try {
       setSending(true);
       setNotice(null);
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/auth/resend-verification`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
 
-      const data = await response.json();
-      setNotice(data.message || 'Verification link sent to your inbox!');
-    } catch (err) {
-      setNotice('Failed to dispatch verification email. Please try again.');
+      if (auth.currentUser) {
+        await sendEmailVerification(auth.currentUser);
+        setNotice('Verification link sent to your email inbox!');
+      } else {
+        setNotice('Please sign in to resend email verification.');
+      }
+    } catch (err: any) {
+      setNotice(err.message || 'Failed to dispatch verification email. Please try again.');
     } finally {
       setSending(false);
     }

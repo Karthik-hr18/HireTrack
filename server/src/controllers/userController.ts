@@ -55,15 +55,11 @@ export const createRecruiter = async (req: Request, res: Response, next: NextFun
       });
     }
 
-    // Hash password with cost factor >= 12
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(validatedData.password, salt);
-
     const newRecruiter = await User.create({
+      firebaseUid: (req.body as any).firebaseUid || `recruiter_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: validatedData.name,
       email: validatedData.email.toLowerCase(),
-      passwordHash,
-      role: 'recruiter', // Explicitly Recruiter role
+      role: 'recruiter',
       isActive: true,
       isEmailVerified: true
     });

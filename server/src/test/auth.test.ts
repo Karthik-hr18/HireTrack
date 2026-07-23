@@ -1,276 +1,154 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { User } from '../models/User';
-import { register, login, verifyEmail, forgotPassword, resetPassword } from '../controllers/authController';
+import { syncUser, getMe, logout } from '../controllers/authController';
 import { authenticate, authorize } from '../middleware/auth';
-import { connectDB } from '../config/db';
+import { firebaseAuth } from '../config/firebase';
 
-// Load environment variables for the test process
 dotenv.config();
 
-describe('Auth & RBAC Integration Tests', () => {
+describe('Firebase Auth & RBAC Integration Tests', () => {
   beforeAll(async () => {
-    // Connect to MongoDB Atlas or local MongoDB (using 'hiretrack_test' DB namespace)
     const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
     if (!mongoUri) {
       throw new Error('Test aborted: MONGO_URI is not defined in environment variables.');
     }
     await mongoose.connect(mongoUri, { dbName: 'hiretrack_test' });
+
+    // Mock firebaseAuth.verifyIdToken
+    vi.spyOn(firebaseAuth, 'verifyIdToken').mockImplementation(async (token: string) => {
+      if (token === 'valid_firebase_candidate_token') {
+        return {
+          uid: 'fb_candidate_uid_123',
+          email: 'candidate@test-hiretrack.com',
+          name: 'Test Candidate',
+          email_verified: true
+        } as any;
+      }
+      if (token === 'valid_firebase_admin_token') {
+        return {
+          uid: 'fb_admin_uid_456',
+          email: 'admin@test-hiretrack.com',
+          name: 'Test Admin',
+          email_verified: true
+        } as any;
+      }
+      throw new Error('Invalid Firebase token');
+    });
   });
 
   afterAll(async () => {
-    // Cleanup users created during tests and close connection
     await User.deleteMany({ email: /@test-hiretrack\.com$/ });
     await mongoose.connection.close();
+    vi.restoreAllMocks();
   });
 
-  const testCandidate = {
-    name: 'Test Candidate',
-    email: 'candidate@test-hiretrack.com',
-    password: 'password123'
-  };
+  it('1. Sync Candidate User - Should auto-create MongoDB user record on first Firebase login', async () => {
+    await User.deleteOne({ email: 'candidate@test-hiretrack.com' });
 
-  it('1. Register Candidate - Should create user, hash password and return token', async () => {
-    // Clean up if user already exists from a crashed run
-    await User.deleteOne({ email: testCandidate.email });
-
-    // Mock Express Req, Res, Next
     const req = {
-      body: testCandidate
+      headers: { authorization: 'Bearer valid_firebase_candidate_token' },
+      body: { name: 'Test Candidate', role: 'candidate' }
     } as any;
 
-    let responseStatus = 0;
-    let responseData: any = null;
-
+    let status = 0;
+    let data: any = null;
     const res = {
-      status: (status: number) => {
-        responseStatus = status;
-        return {
-          json: (data: any) => {
-            responseData = data;
-          }
-        };
+      status: (s: number) => {
+        status = s;
+        return { json: (d: any) => { data = d; } };
       }
     } as any;
 
-    const next = () => {};
+    await syncUser(req, res, () => {});
 
-    await register(req, res, next);
+    expect(status).toBe(200);
+    expect(data.user).toHaveProperty('id');
+    expect(data.user.firebaseUid).toBe('fb_candidate_uid_123');
+    expect(data.user.email).toBe('candidate@test-hiretrack.com');
+    expect(data.user.role).toBe('candidate');
 
-    expect(responseStatus).toBe(201);
-    expect(responseData).toHaveProperty('token');
-    expect(responseData.user).toHaveProperty('id');
-    expect(responseData.user.name).toBe(testCandidate.name);
-    expect(responseData.user.email).toBe(testCandidate.email);
-    expect(responseData.user.role).toBe('candidate');
-
-    // Confirm database record matches
-    const userInDb = await User.findOne({ email: testCandidate.email });
+    const userInDb = await User.findOne({ email: 'candidate@test-hiretrack.com' });
     expect(userInDb).not.toBeNull();
-    expect(userInDb!.name).toBe(testCandidate.name);
-    expect(userInDb!.role).toBe('candidate');
-    // Verify password is hashed
-    const match = await bcrypt.compare(testCandidate.password, userInDb!.passwordHash);
-    expect(match).toBe(true);
+    expect(userInDb!.firebaseUid).toBe('fb_candidate_uid_123');
   });
 
-  it('2. Register Existing User - Should return 400 with EMAIL_EXISTS code', async () => {
+  it('2. Authenticate & Authorize Middleware - Should authenticate Firebase token and enforce RBAC', async () => {
     const req = {
-      body: testCandidate
-    } as any;
-
-    let responseStatus = 0;
-    let responseData: any = null;
-
-    const res = {
-      status: (status: number) => {
-        responseStatus = status;
-        return {
-          json: (data: any) => {
-            responseData = data;
-          }
-        };
-      }
-    } as any;
-
-    const next = () => {};
-
-    await register(req, res, next);
-
-    expect(responseStatus).toBe(400);
-    expect(responseData.code).toBe('EMAIL_EXISTS');
-  });
-
-  it('3. Login Candidate - Should verify credentials and return JWT', async () => {
-    const req = {
-      body: {
-        email: testCandidate.email,
-        password: testCandidate.password
-      }
-    } as any;
-
-    let responseStatus = 0;
-    let responseData: any = null;
-
-    const res = {
-      status: (status: number) => {
-        responseStatus = status;
-        return {
-          json: (data: any) => {
-            responseData = data;
-          }
-        };
-      }
-    } as any;
-
-    const next = () => {};
-
-    await login(req, res, next);
-
-    expect(responseStatus).toBe(200);
-    expect(responseData).toHaveProperty('token');
-    expect(responseData.user.email).toBe(testCandidate.email);
-    expect(responseData.user.role).toBe('candidate');
-  });
-
-  it('4. RBAC Middleware - Authenticate and Authorize Candidate vs Admin resources', async () => {
-    // Generate valid Candidate token
-    const user = await User.findOne({ email: testCandidate.email });
-    const candidateToken = jwt.sign(
-      { id: user!._id.toString(), email: user!.email, role: user!.role },
-      process.env.JWT_SECRET || 'testsecret',
-      { expiresIn: '1h' }
-    );
-
-    // Mock authenticate middleware
-    const req = {
-      headers: {
-        authorization: `Bearer ${candidateToken}`
-      }
-    } as any;
-
-    const res = {
-      status: (status: number) => ({
-        json: (data: any) => {}
-      })
+      headers: { authorization: 'Bearer valid_firebase_candidate_token' }
     } as any;
 
     let authCalled = false;
-    const next = () => {
+    await authenticate(req, {} as any, () => {
       authCalled = true;
-    };
-
-    await authenticate(req, res, next);
+    });
 
     expect(authCalled).toBe(true);
     expect(req.user).toBeDefined();
     expect(req.user.role).toBe('candidate');
 
-    // Test authorize middleware for candidate role (should succeed)
+    // Authorize candidate role (should succeed)
     let candidateAuthCalled = false;
-    const candidateNext = () => {
+    authorize('candidate')(req, {} as any, () => {
       candidateAuthCalled = true;
-    };
-    authorize('candidate')(req, res, candidateNext);
+    });
     expect(candidateAuthCalled).toBe(true);
 
-    // Test authorize middleware for admin role (should fail)
-    let adminAuthCalled = false;
-    let authErrorStatus = 0;
-    let authErrorData: any = null;
-    const adminNext = () => {
-      adminAuthCalled = true;
-    };
+    // Authorize admin role for candidate user (should fail with 403)
+    let forbiddenStatus = 0;
+    let forbiddenData: any = null;
     const adminRes = {
-      status: (status: number) => {
-        authErrorStatus = status;
-        return {
-          json: (data: any) => {
-            authErrorData = data;
-          }
-        };
+      status: (s: number) => {
+        forbiddenStatus = s;
+        return { json: (d: any) => { forbiddenData = d; } };
       }
     } as any;
 
-    authorize('admin')(req, adminRes, adminNext);
-    expect(adminAuthCalled).toBe(false);
-    expect(authErrorStatus).toBe(403);
-    expect(authErrorData.code).toBe('FORBIDDEN');
+    authorize('admin')(req, adminRes, () => {});
+    expect(forbiddenStatus).toBe(403);
+    expect(forbiddenData.code).toBe('FORBIDDEN');
   });
 
-  it('5. Password Reset Flow - Should generate token, reset password, and enforce single-use TTL', async () => {
-    let forgotData: any = null;
-    const forgotReq = { body: { email: testCandidate.email } } as any;
-    const forgotRes = {
-      status: (s: number) => ({ json: (d: any) => { forgotData = d; } })
-    } as any;
-
-    await forgotPassword(forgotReq, forgotRes, () => {});
-    expect(forgotData).toHaveProperty('resetToken');
-    const token = forgotData.resetToken;
-
-    // Reset password with token
-    let resetStatus = 0;
-    const resetReq = { body: { token, newPassword: 'newpassword123' } } as any;
-    const resetRes = {
-      status: (s: number) => {
-        resetStatus = s;
-        return { json: (d: any) => {} };
+  it('3. Get Current User (GET /api/auth/me) - Should return profile info for authenticated user', async () => {
+    const userInDb = await User.findOne({ email: 'candidate@test-hiretrack.com' });
+    const req = {
+      user: {
+        id: userInDb!._id.toString(),
+        email: userInDb!.email,
+        role: userInDb!.role,
+        isEmailVerified: userInDb!.isEmailVerified
       }
     } as any;
 
-    await resetPassword(resetReq, resetRes, () => {});
-    expect(resetStatus).toBe(200);
-
-    // Single-use check: reusing same token must fail
-    let reuseStatus = 0;
-    const reuseRes = {
+    let status = 0;
+    let data: any = null;
+    const res = {
       status: (s: number) => {
-        reuseStatus = s;
-        return { json: (d: any) => {} };
+        status = s;
+        return { json: (d: any) => { data = d; } };
       }
     } as any;
 
-    await resetPassword(resetReq, reuseRes, () => {});
-    expect(reuseStatus).toBe(400);
+    await getMe(req, res, () => {});
+
+    expect(status).toBe(200);
+    expect(data.user.email).toBe('candidate@test-hiretrack.com');
+    expect(data.user.firebaseUid).toBe('fb_candidate_uid_123');
   });
 
-  it('6. Email Verification Flow - Should verify candidate email with single-use token', async () => {
-    // Create candidate user
-    const candidateEmail = 'verify-test@test-hiretrack.com';
-    await User.deleteOne({ email: candidateEmail });
-
-    let regData: any = null;
-    const regReq = {
-      body: { name: 'Verify Test', email: candidateEmail, password: 'password123' }
-    } as any;
-    const regRes = {
-      status: (s: number) => ({ json: (d: any) => { regData = d; } })
-    } as any;
-
-    await register(regReq, regRes, () => {});
-    expect(regData).toHaveProperty('verificationToken');
-    expect(regData.user.isEmailVerified).toBe(false);
-
-    // Verify email with token
-    let verifyStatus = 0;
-    let verifyData: any = null;
-    const verifyReq = { body: { token: regData.verificationToken } } as any;
-    const verifyRes = {
+  it('4. Logout Endpoint - Should handle logout gracefully', async () => {
+    let status = 0;
+    let data: any = null;
+    const res = {
       status: (s: number) => {
-        verifyStatus = s;
-        return { json: (d: any) => { verifyData = d; } };
+        status = s;
+        return { json: (d: any) => { data = d; } };
       }
     } as any;
 
-    await verifyEmail(verifyReq, verifyRes, () => {});
-    expect(verifyStatus).toBe(200);
-    expect(verifyData.user.isEmailVerified).toBe(true);
-
-    // Cleanup
-    await User.deleteOne({ email: candidateEmail });
+    await logout({} as any, res, () => {});
+    expect(status).toBe(200);
+    expect(data.message).toBe('Successfully logged out');
   });
 });

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { auth } from '../../config/firebase';
 import { CareersNav } from '../careers/components/CareersNav';
 import { CareersFooter } from '../careers/components/CareersFooter';
 
@@ -32,37 +34,47 @@ export const RegisterPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ name, email, password })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || 'Registration failed');
+      // 1. Create Firebase User
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      
+      // 2. Set Display Name on Firebase User
+      if (name.trim()) {
+        await updateProfile(userCredential.user, { displayName: name.trim() });
       }
 
-      // Auto login after successful signup
-      const loginResponse = await fetch(`${apiUrl}/api/auth/login`, {
+      // 3. Send Firebase Email Verification
+      await sendEmailVerification(userCredential.user);
+
+      // 4. Retrieve Firebase ID Token & Sync with Backend MongoDB Database
+      const idToken = await userCredential.user.getIdToken();
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const syncResponse = await fetch(`${apiUrl}/api/auth/sync`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
         credentials: 'include',
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ name: name.trim(), role: 'candidate' })
       });
 
-      if (loginResponse.ok) {
-        const loginData = await loginResponse.json();
-        localStorage.setItem('token', loginData.token);
-        localStorage.setItem('user', JSON.stringify(loginData.user));
+      if (syncResponse.ok) {
+        const syncData = await syncResponse.json();
+        localStorage.setItem('token', idToken);
+        localStorage.setItem('user', JSON.stringify(syncData.user));
         navigate('/');
       } else {
-        navigate('/login');
+        localStorage.setItem('token', idToken);
+        navigate('/');
       }
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: any) {
+      let msg = err.message || 'Registration failed';
+      if (err.code === 'auth/email-already-in-use') {
+        msg = 'A user with this email address already exists.';
+      } else if (err.code === 'auth/weak-password') {
+        msg = 'Password should be at least 6 characters long.';
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }

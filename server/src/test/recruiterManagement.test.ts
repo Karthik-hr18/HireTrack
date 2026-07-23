@@ -26,27 +26,25 @@ describe('Admin Recruiter Management Integration Tests', () => {
 
     // Create Admin
     const admin = await User.create({
+      firebaseUid: 'uid_admin_mgmt',
       name: 'Mgmt Admin',
       email: 'admin@test-manage-rec.com',
-      passwordHash: 'dummy',
       role: 'admin',
       isActive: true,
       isEmailVerified: true
     });
     adminId = admin._id.toString();
-    adminToken = jwt.sign({ id: adminId, email: admin.email, role: admin.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Create Recruiter
     const recruiter = await User.create({
+      firebaseUid: 'uid_recruiter_mgmt',
       name: 'Mgmt Recruiter',
       email: 'recruiter@test-manage-rec.com',
-      passwordHash: 'dummy',
       role: 'recruiter',
       isActive: true,
       isEmailVerified: true
     });
     recruiterId = recruiter._id.toString();
-    recruiterToken = jwt.sign({ id: recruiterId, email: recruiter.email, role: recruiter.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
   });
 
   afterAll(async () => {

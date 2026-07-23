@@ -23,9 +23,9 @@ describe('SEO Dynamic Sitemap XML Integration Tests', () => {
 
     // Create Recruiter (owner of job)
     const recruiter = await User.create({
+      firebaseUid: 'uid_recruiter_seo',
       name: 'SEO Recruiter',
       email: 'recruiter@test-seo.com',
-      passwordHash: 'dummy',
       role: 'recruiter',
       isActive: true,
       isEmailVerified: true

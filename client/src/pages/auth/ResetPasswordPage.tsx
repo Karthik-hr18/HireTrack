@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
+import { confirmPasswordReset } from 'firebase/auth';
+import { auth } from '../../config/firebase';
 
 export const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const oobCode = searchParams.get('oobCode') || searchParams.get('token');
   const navigate = useNavigate();
 
   const [newPassword, setNewPassword] = useState('');
@@ -16,8 +18,8 @@ export const ResetPasswordPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) {
-      setError('Missing password reset token in URL.');
+    if (!oobCode) {
+      setError('Missing or invalid password reset action code.');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -33,21 +35,14 @@ export const ResetPasswordPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, newPassword })
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to reset password.');
-      }
-
+      await confirmPasswordReset(auth, oobCode, newPassword);
       setSuccess(true);
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: any) {
+      let msg = err.message || 'Failed to reset password.';
+      if (err.code === 'auth/invalid-action-code' || err.code === 'auth/expired-action-code') {
+        msg = 'This password reset link is invalid or has expired. Please request a new one.';
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
