@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
-import { CareersNav } from '../careers/components/CareersNav';
-import { CareersFooter } from '../careers/components/CareersFooter';
 
 export const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -56,10 +54,25 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <CareersNav />
-
-      <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 16px' }}>
+    <div style={{ backgroundColor: '#090d16', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+      {/* Brand Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
+        <span style={{ 
+          width: 34, 
+          height: 34, 
+          borderRadius: 8, 
+          backgroundColor: '#6366f1', 
+          color: '#ffffff', 
+          fontWeight: 800, 
+          fontSize: 18, 
+          display: 'inline-flex', 
+          alignItems: 'center', 
+          justifyContent: 'center' 
+        }}>H</span>
+        <span style={{ fontSize: 22, fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+          Hire<span style={{ color: '#6366f1' }}>Track</span>
+        </span>
+      </div>
         <div style={{
           backgroundColor: '#111827',
           border: '1px solid #1f2937',
@@ -147,9 +160,6 @@ export const ResetPasswordPage: React.FC = () => {
             </div>
           )}
         </div>
-      </main>
-
-      <CareersFooter />
     </div>
   );
 };
