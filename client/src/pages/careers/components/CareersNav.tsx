@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, Briefcase, Building2, Sparkles, HelpCircle, LogIn, UserPlus, LayoutDashboard, Users, FileText, LogOut } from 'lucide-react';
+import { VerificationModal } from '../../../components/common/VerificationModal';
 
 export const CareersNav: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -9,6 +10,11 @@ export const CareersNav: React.FC = () => {
   const token = localStorage.getItem('token');
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : null;
+
+  // Auto-prompt verification modal for unverified candidate accounts (can be dismissed by user)
+  const [showVerificationModal, setShowVerificationModal] = useState<boolean>(() => {
+    return Boolean(token && user?.role === 'candidate' && !user?.isEmailVerified);
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,156 +74,21 @@ export const CareersNav: React.FC = () => {
     window.location.href = '/';
   };
 
-  const [sendingEmail, setSendingEmail] = useState(false);
-  const [resendNotice, setResendNotice] = useState<string | null>(null);
-
-  const handleResendVerificationEmail = async () => {
-    try {
-      setSendingEmail(true);
-      setResendNotice(null);
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/auth/resend-verification`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-
-      const data = await response.json();
-      setResendNotice(data.message || 'Verification link sent! Please check your email inbox.');
-    } catch (err) {
-      setResendNotice('Failed to dispatch verification email. Please try again.');
-    } finally {
-      setSendingEmail(false);
-    }
-  };
-
   return (
     <>
-      {/* Premium Email Verification Top Banner */}
-      {token && user?.role === 'candidate' && !user?.isEmailVerified && (
-        <div style={{
-          background: 'linear-gradient(90deg, #1e1b4b 0%, #31104b 50%, #1e1b4b 100%)',
-          borderBottom: '1px solid rgba(139, 92, 246, 0.3)',
-          color: '#f3e8ff',
-          padding: '10px 20px',
-          fontSize: 13,
-          fontWeight: 600,
-          textAlign: 'center',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 14,
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100000,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-          backdropFilter: 'blur(10px)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 22,
-              height: 22,
-              borderRadius: '50%',
-              backgroundColor: 'rgba(245, 158, 11, 0.2)',
-              color: '#f59e0b',
-              fontSize: 12,
-              fontWeight: 800
-            }}>⚡</span>
-            <span>Account Action Required: Please verify <strong>{user?.email}</strong> to unlock full candidate features & apply for roles.</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleResendVerificationEmail}
-            disabled={sendingEmail}
-            style={{
-              background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-              color: '#ffffff',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: 20,
-              padding: '5px 14px',
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(99, 102, 241, 0.4)',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {sendingEmail ? 'Sending Email...' : 'Resend Verification Email'}
-          </button>
-        </div>
-      )}
-
-      {/* Floating Premium Toast Notification */}
-      {resendNotice && (
-        <div style={{
-          position: 'fixed',
-          top: (token && user?.role === 'candidate' && !user?.isEmailVerified) ? 56 : 16,
-          right: 20,
-          zIndex: 100002,
-          backgroundColor: '#0f172a',
-          border: '1px solid rgba(99, 102, 241, 0.4)',
-          borderRadius: 14,
-          padding: '14px 18px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(99, 102, 241, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          maxWidth: 440,
-          color: '#f8fafc',
-          backdropFilter: 'blur(16px)',
-          animation: 'slideIn 0.3s ease-out'
-        }}>
-          <div style={{
-            width: 32,
-            height: 32,
-            borderRadius: 10,
-            backgroundColor: 'rgba(99, 102, 241, 0.15)',
-            color: '#818cf8',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: 16,
-            flexShrink: 0
-          }}>
-            📩
-          </div>
-          <div style={{ flex: 1, fontSize: 13, lineHeight: 1.4, fontWeight: 500 }}>
-            {resendNotice}
-          </div>
-          <button
-            type="button"
-            onClick={() => setResendNotice(null)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#94a3b8',
-              cursor: 'pointer',
-              fontSize: 16,
-              padding: 4,
-              borderRadius: 6
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      {/* Non-intrusive Verification Modal matching reference UI design */}
+      <VerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        userEmail={user?.email}
+        token={token}
+      />
 
       <header 
         className={`careers-nav ${isScrolled ? 'careers-nav--scrolled' : ''}`}
         style={{
           position: 'fixed',
-          top: (token && user?.role === 'candidate' && !user?.isEmailVerified) ? 36 : 0,
+          top: 0,
           left: 0,
           right: 0,
           width: '100%',

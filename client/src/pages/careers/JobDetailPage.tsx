@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { CareersNav } from './components/CareersNav';
 import { CareersFooter } from './components/CareersFooter';
 import { SEOMeta } from '../../components/common/SEOMeta';
+import { VerificationModal } from '../../components/common/VerificationModal';
 import { 
   MapPin, 
   Briefcase, 
@@ -21,6 +22,11 @@ import {
 export const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+  const userJson = localStorage.getItem('user');
+  const user = userJson ? JSON.parse(userJson) : null;
+
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   
   const [job, setJob] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,10 +51,6 @@ export const JobDetailPage: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  const token = localStorage.getItem('token');
-  const userJson = localStorage.getItem('user');
-  const user = userJson ? JSON.parse(userJson) : null;
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -128,7 +130,7 @@ export const JobDetailPage: React.FC = () => {
     const userJson = localStorage.getItem('user');
     const user = userJson ? JSON.parse(userJson) : null;
     if (user && user.role === 'candidate' && !user.isEmailVerified) {
-      setSubmitError('Email Verification Required: You must verify your account email address before applying for job requisitions.');
+      setShowVerificationModal(true);
       return;
     }
 
@@ -620,6 +622,14 @@ export const JobDetailPage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      <VerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        userEmail={user?.email}
+        token={token}
+        customMessage="Email Verification Required: Please verify your account email address before applying for open job positions."
+      />
 
       <CareersFooter />
     </div>

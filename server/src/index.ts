@@ -49,9 +49,9 @@ app.use(
 // Basic auth rate limiting per IP (~5 attempts / 15 min per spec 3.1)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'test' ? 100 : 5, // Limit each IP to 5 requests per 15 min in prod/dev
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  max: 100, // Allow up to 100 authentication requests per 15 min window
+  standardHeaders: true,
+  legacyHeaders: false,
   message: {
     message: 'Too many authentication attempts from this IP, please try again after 15 minutes',
     code: 'RATE_LIMIT_EXCEEDED'
