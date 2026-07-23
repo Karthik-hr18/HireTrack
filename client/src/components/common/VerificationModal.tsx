@@ -76,11 +76,26 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
       setSending(true);
       setNotice(null);
 
-      if (auth.currentUser) {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const authToken = localStorage.getItem('token') || token;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
+      const res = await fetch(`${apiUrl}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({ email: userEmail || auth.currentUser?.email })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setNotice(data.message || 'Custom verification email dispatched to your inbox!');
+      } else if (auth.currentUser) {
         await sendEmailVerification(auth.currentUser);
         setNotice('Verification link sent to your email inbox!');
       } else {
-        setNotice('Please sign in to resend email verification.');
+        setNotice(data.message || 'Failed to dispatch email.');
       }
     } catch (err: any) {
       setNotice(err.message || 'Failed to dispatch verification email. Please try again.');

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 import { CareersNav } from '../careers/components/CareersNav';
 import { CareersFooter } from '../careers/components/CareersFooter';
@@ -42,10 +42,7 @@ export const RegisterPage: React.FC = () => {
         await updateProfile(userCredential.user, { displayName: name.trim() });
       }
 
-      // 3. Send Firebase Email Verification
-      await sendEmailVerification(userCredential.user);
-
-      // 4. Retrieve Firebase ID Token & Sync with Backend MongoDB Database
+      // 3. Retrieve Firebase ID Token & Sync with Backend MongoDB Database
       const idToken = await userCredential.user.getIdToken();
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const syncResponse = await fetch(`${apiUrl}/api/auth/sync`, {
@@ -57,6 +54,17 @@ export const RegisterPage: React.FC = () => {
         credentials: 'include',
         body: JSON.stringify({ name: name.trim(), role: 'candidate' })
       });
+
+      // 4. Dispatch Custom HTML Verification Email via Backend
+      fetch(`${apiUrl}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email: email.trim() })
+      }).catch(() => {});
 
       if (syncResponse.ok) {
         const syncData = await syncResponse.json();
