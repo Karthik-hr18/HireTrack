@@ -4,17 +4,33 @@ import { getAuth } from 'firebase-admin/auth';
 if (!getApps().length) {
   const projectId = process.env.FIREBASE_PROJECT_ID || 'hiretrack-9145d';
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined;
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
+  if (privateKey) {
+    privateKey = privateKey.trim();
+    if ((privateKey.startsWith('"') && privateKey.endsWith('"')) || (privateKey.startsWith("'") && privateKey.endsWith("'"))) {
+      privateKey = privateKey.substring(1, privateKey.length - 1);
+    }
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+
+  let initialized = false;
   if (clientEmail && privateKey) {
-    initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey
-      })
-    });
-  } else {
+    try {
+      initializeApp({
+        credential: cert({
+          projectId,
+          clientEmail,
+          privateKey
+        })
+      });
+      initialized = true;
+    } catch (err: any) {
+      console.warn('⚠️ Service Account credential initialization failed. Falling back to default app setup:', err.message);
+    }
+  }
+
+  if (!initialized) {
     initializeApp({
       projectId
     });
