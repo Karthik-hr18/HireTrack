@@ -2,17 +2,19 @@ import React from 'react';
 import { Building2, BarChart3, Award, Zap } from 'lucide-react';
 import styles from '../dashboard.module.css';
 
+import { DashboardData, KPIItem, JobHealthItem } from '../../../types/dashboard';
+
 interface Props {
-  data?: any;
+  data?: DashboardData | null;
 }
 
 export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
-  const jobs = data?.jobHealth || [];
+  const jobs: JobHealthItem[] = data?.jobHealth || [];
   
   // Aggregate real jobs & candidates per department
   const deptMap: Record<string, { name: string; openJobs: number; candidates: number; interviews: number; hires: number }> = {};
 
-  jobs.forEach((j: any) => {
+  jobs.forEach((j: JobHealthItem) => {
     const dName = j.department || 'Engineering';
     if (!deptMap[dName]) {
       deptMap[dName] = { name: dName, openJobs: 0, candidates: 0, interviews: 0, hires: 0 };
@@ -24,7 +26,8 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
   });
 
   const departmentData = Object.values(deptMap);
-  const totalApps = data?.totalApplications || 50;
+  const totalApps = (data as any)?.totalApplications || 0;
+  const timeToHireVal = data?.kpis?.find((k: KPIItem) => k.key === 'time_to_hire')?.value || '0 days';
 
   return (
     <div className={styles.insightsContainer}>
@@ -35,7 +38,7 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiTitle}>TOTAL DEPARTMENTS</span>
             <span className={styles.kpiIcon}><Building2 size={18} color="#0284c7" /></span>
           </div>
-          <div className={styles.kpiValue}>{departmentData.length || 6}</div>
+          <div className={styles.kpiValue}>{departmentData.length}</div>
           <div className={styles.kpiMetaRow}>
             <span className={styles.kpiTrend}>With open requisitions</span>
           </div>
@@ -46,7 +49,7 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiTitle}>OPEN REQUISITIONS</span>
             <span className={styles.kpiIcon}><BarChart3 size={18} color="#3b82f6" /></span>
           </div>
-          <div className={styles.kpiValue}>{data?.totalActiveJobs || 12}</div>
+          <div className={styles.kpiValue}>{data?.totalActiveJobs || 0}</div>
           <div className={styles.kpiMetaRow}>
             <span className={styles.kpiTrend}>Open roles across all teams</span>
           </div>
@@ -57,7 +60,7 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiTitle}>EMPLOYEES HIRED</span>
             <span className={styles.kpiIcon}><Award size={18} color="#10b981" /></span>
           </div>
-          <div className={styles.kpiValue}>{data?.stageDistribution?.hired || 3}</div>
+          <div className={styles.kpiValue}>{data?.stageDistribution?.hired || 0}</div>
           <div className={styles.kpiMetaRow}>
             <span className={styles.kpiTrendGood}>Placements this period</span>
           </div>
@@ -68,7 +71,7 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiTitle}>HIRING VELOCITY</span>
             <span className={styles.kpiIcon}><Zap size={18} color="#8b5cf6" /></span>
           </div>
-          <div className={styles.kpiValue}>14.2 <span style={{ fontSize: 14, fontWeight: 500 }}>days</span></div>
+          <div className={styles.kpiValue}>{timeToHireVal}</div>
           <div className={styles.kpiMetaRow}>
             <span className={styles.kpiTrendGood}>Avg. days from apply to offer</span>
           </div>

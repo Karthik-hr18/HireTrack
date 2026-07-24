@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { User } from '../models/User';
 import { Job } from '../models/Job';
@@ -13,9 +12,6 @@ import { submitScorecard } from '../controllers/scorecardController';
 dotenv.config();
 
 describe('Scorecard Submission & Collapsed Hiring Decision Tests', () => {
-  let adminToken: string;
-  let unauthorizedAdminToken: string;
-  let recruiterToken: string;
   let adminId: string;
   let unauthorizedAdminId: string;
   let recruiterId: string;

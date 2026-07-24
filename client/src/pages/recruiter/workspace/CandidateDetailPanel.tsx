@@ -65,7 +65,7 @@ export interface DetailApplication {
 export interface TimelineEvent {
   _id: string;
   action: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   actor: { _id: string; name: string; role: string } | null;
 }
@@ -175,8 +175,10 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
   // ── Advance Stage Logic ──────────────────────────────────────────────────
   const handleAdvance = async () => {
     if (!token || !applicationId) return;
+    const snapshot = detail;
     try {
       setSubmittingAction(true);
+      setError(null);
       const res = await fetch(`${apiUrl}/api/applications/${applicationId}/advance`, {
         method: 'POST',
         headers: {
@@ -190,7 +192,8 @@ export const CandidateDetailPanel: React.FC<CandidateDetailPanelProps> = ({
       await fetchDetail(applicationId);
       onRefreshList?.();
     } catch (err) {
-      alert((err as Error).message);
+      setDetail(snapshot); // Rollback state snapshot on failure
+      setError((err as Error).message);
     } finally {
       setSubmittingAction(false);
     }
@@ -948,8 +951,9 @@ function formatRelativeDate(dateStr: string): string {
 }
 
 function formatTimelineEventText(event: TimelineEvent, currentStage: string): React.ReactNode {
-  const label = event.metadata?.to
-    ? event.metadata.to.replace(/_/g, ' ').toUpperCase()
+  const meta = (event.metadata || {}) as Record<string, string>;
+  const label = meta.to
+    ? meta.to.replace(/_/g, ' ').toUpperCase()
     : currentStage.replace(/_/g, ' ').toUpperCase();
 
   switch (event.action) {
@@ -962,19 +966,19 @@ function formatTimelineEventText(event: TimelineEvent, currentStage: string): Re
     case 'note_added':
       return (
         <span>
-          📝 Posted remark: <em>"{event.metadata?.text?.substring(0, 50)}..."</em>
+          📝 Posted remark: <em>"{meta.text ? meta.text.substring(0, 50) : ''}..."</em>
         </span>
       );
     case 'interview_scheduled':
       return (
         <span>
-          🗓 Interview Scheduled: <strong>{event.metadata?.interviewType?.toUpperCase()}</strong>
+          🗓 Interview Scheduled: <strong>{meta.interviewType ? meta.interviewType.toUpperCase() : ''}</strong>
         </span>
       );
     case 'scorecard_submitted':
       return (
         <span>
-          📋 Submitted evaluation: <strong>{event.metadata?.recommendation?.toUpperCase()}</strong>
+          📋 Submitted evaluation: <strong>{meta.recommendation ? meta.recommendation.toUpperCase() : ''}</strong>
         </span>
       );
     case 'application_submitted':

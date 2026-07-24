@@ -30,11 +30,12 @@ export const LoginPage: React.FC = () => {
 
       await sendPasswordResetEmail(auth, forgotEmail.trim());
       setForgotMessage('Password reset email dispatched! Please check your inbox.');
-    } catch (err: any) {
-      let msg = err.message || 'Failed to send reset email';
-      if (err.code === 'auth/user-not-found') {
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
+      let msg = errorObj.message || 'Failed to send reset email';
+      if (errorObj.code === 'auth/user-not-found') {
         msg = 'If an account with that email exists, a password reset link has been dispatched.';
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (errorObj.code === 'auth/invalid-email') {
         msg = 'Please enter a valid email address.';
       }
       setForgotMessage(msg);
@@ -84,12 +85,13 @@ export const LoginPage: React.FC = () => {
       } else {
         navigate('/');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
       let errorMessage = 'Invalid email or password.';
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      if (errorObj.code === 'auth/user-not-found' || errorObj.code === 'auth/wrong-password' || errorObj.code === 'auth/invalid-credential') {
         errorMessage = 'Invalid email or password.';
-      } else if (err.message) {
-        errorMessage = err.message;
+      } else if (errorObj.message) {
+        errorMessage = errorObj.message;
       }
       setError(errorMessage);
     } finally {
@@ -102,13 +104,13 @@ export const LoginPage: React.FC = () => {
     let demoPassword = '';
 
     if (role === 'admin') {
-      demoEmail = 'karthikhr676@gmail.com';
-      demoPassword = 'Karthik@64';
+      demoEmail = 'admin@hiretrack.io';
+      demoPassword = 'AdminPass123!';
     } else if (role === 'recruiter') {
       demoEmail = 'sarah.j@hiretrack.io';
       demoPassword = 'RecruiterPass123!';
     } else if (role === 'candidate') {
-      demoEmail = 'karthik.h.r@example.com';
+      demoEmail = 'alex.morgan@example.com';
       demoPassword = 'CandidatePass123!';
     }
 

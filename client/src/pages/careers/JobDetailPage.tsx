@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { JobPosting } from '@hiretrack/shared';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { CareersNav } from './components/CareersNav';
 import { CareersFooter } from './components/CareersFooter';
@@ -28,7 +29,7 @@ export const JobDetailPage: React.FC = () => {
 
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   
-  const [job, setJob] = useState<any | null>(null);
+  const [job, setJob] = useState<JobPosting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,7 +59,7 @@ export const JobDetailPage: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        const headers: any = {};
+        const headers: Record<string, string> = {};
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }

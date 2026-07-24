@@ -83,11 +83,12 @@ export const RegisterPage: React.FC = () => {
         localStorage.setItem('token', idToken);
         navigate('/');
       }
-    } catch (err: any) {
-      let msg = err.message || 'Registration failed';
-      if (err.code === 'auth/email-already-in-use') {
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
+      let msg = errorObj.message || 'Registration failed';
+      if (errorObj.code === 'auth/email-already-in-use') {
         msg = 'A user with this email address already exists.';
-      } else if (err.code === 'auth/weak-password') {
+      } else if (errorObj.code === 'auth/weak-password') {
         msg = 'Password should be at least 6 characters long.';
       }
       setError(msg);

@@ -2,10 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Users, CheckCircle, ShieldCheck, Crown, Search, Plus } from 'lucide-react';
 import styles from '../dashboard.module.css';
 
+export interface RecruiterUser {
+  _id: string;
+  name: string;
+  email: string;
+  department?: string;
+  assignedJobs?: number;
+  activeCandidates?: number;
+  role: string;
+  isActive: boolean;
+}
+
 export const ManageRecruitersView: React.FC = () => {
   const token = localStorage.getItem('token');
 
-  const [recruiters, setRecruiters] = useState<any[]>([]);
+  const [recruiters, setRecruiters] = useState<RecruiterUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('all');
@@ -14,7 +25,7 @@ export const ManageRecruitersView: React.FC = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-  const [selectedRecruiter, setSelectedRecruiter] = useState<any>(null);
+  const [selectedRecruiter, setSelectedRecruiter] = useState<RecruiterUser | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [department, setDepartment] = useState('Engineering');
@@ -38,7 +49,7 @@ export const ManageRecruitersView: React.FC = () => {
       } else {
         // Fallback default recruiter directory data
         setRecruiters([
-          { _id: '1', name: 'Karthik Recruiter', email: 'karthikhr676@gmail.com', department: 'Engineering', assignedJobs: 4, activeCandidates: 12, role: 'Lead Recruiter', isActive: true },
+          { _id: '1', name: 'Admin User', email: 'admin@hiretrack.io', department: 'Engineering', assignedJobs: 4, activeCandidates: 12, role: 'Lead Recruiter', isActive: true },
           { _id: '2', name: 'Sarah Jenkins', email: 'sarah.j@hiretrack.io', department: 'Product', assignedJobs: 3, activeCandidates: 8, role: 'Senior Recruiter', isActive: true },
           { _id: '3', name: 'Marcus Vance', email: 'marcus.vance@hiretrack.io', department: 'Sales', assignedJobs: 2, activeCandidates: 6, role: 'Talent Scout', isActive: true },
           { _id: '4', name: 'Elena Rostova', email: 'elena.r@hiretrack.io', department: 'IT', assignedJobs: 2, activeCandidates: 5, role: 'Technical Recruiter', isActive: true }
@@ -61,7 +72,7 @@ export const ManageRecruitersView: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (rec: any) => {
+  const handleOpenEditModal = (rec: RecruiterUser) => {
     setModalMode('edit');
     setSelectedRecruiter(rec);
     setName(rec.name);
@@ -84,7 +95,7 @@ export const ManageRecruitersView: React.FC = () => {
       if (modalMode === 'create') {
         body.password = password;
       } else if (selectedRecruiter) {
-        const id = selectedRecruiter._id || selectedRecruiter.id;
+        const id = selectedRecruiter._id;
         url = `${apiUrl}/api/users/recruiters/${id}`;
         method = 'PUT';
       }
@@ -113,9 +124,9 @@ export const ManageRecruitersView: React.FC = () => {
     }
   };
 
-  const handleToggleStatus = async (rec: any) => {
+  const handleToggleStatus = async (rec: RecruiterUser) => {
     if (!token) return;
-    const id = rec._id || rec.id;
+    const id = rec._id;
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${apiUrl}/api/users/recruiters/${id}/toggle`, {

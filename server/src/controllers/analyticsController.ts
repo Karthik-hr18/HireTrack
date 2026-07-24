@@ -18,6 +18,7 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
 
     // 1. REAL COUNTS FROM MONGODB
     const totalActiveJobs = await Job.countDocuments({ status: 'open', deletedAt: null });
+    const closedJobsCount = await Job.countDocuments({ status: 'closed', deletedAt: null });
     const totalApplications = await Application.countDocuments({});
     
     const activeCandidates = await Application.countDocuments({
@@ -39,11 +40,11 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
     
     const offerAcceptanceRate = (totalHires + offersPendingCount) > 0 
       ? Math.round((totalHires / (totalHires + offersPendingCount)) * 100) 
-      : 85;
+      : 0;
 
     // Avg Time to Hire (in days)
     const hiredApps = await Application.find({ stage: 'hired' });
-    let avgDaysToHire = 14;
+    let avgDaysToHire = 0;
     if (hiredApps.length > 0) {
       const totalDays = hiredApps.reduce((acc, app) => {
         const diffMs = new Date(app.updatedAt).getTime() - new Date(app.createdAt).getTime();
@@ -148,7 +149,7 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
     // 5. REAL DEPARTMENT METRICS AGGREGATION
     const openJobsList = await Job.find({ status: 'open', deletedAt: null }).populate('createdBy', 'name');
 
-    const jobHealth = await Promise.all(openJobsList.map(async (j: any) => {
+    const jobHealth = await Promise.all(openJobsList.map(async (j) => {
       const appCount = await Application.countDocuments({ job: j._id });
       const intCount = await Application.countDocuments({ 
         job: j._id, 
@@ -224,17 +225,24 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
       })
       .populate('interviewer', 'name');
 
-    const upcomingInterviews = upcomingRaw.map((iv: any) => ({
-      id: iv._id.toString(),
-      interviewId: iv._id.toString(),
-      candidateName: iv.application?.candidate?.name || 'Candidate',
-      candidateEmail: iv.application?.candidate?.email || 'candidate@example.com',
-      jobTitle: iv.application?.job?.title || 'Open Role',
-      type: iv.type || 'technical',
-      scheduledAt: iv.scheduledAt.toISOString(),
-      interviewerName: iv.interviewer?.name || 'Assigned Evaluator',
-      status: iv.status
-    }));
+    const upcomingInterviews = upcomingRaw.map((iv) => {
+      const app = (iv.application as unknown) as Record<string, unknown> | null;
+      const candidate = (app?.candidate as unknown) as Record<string, unknown> | null;
+      const job = (app?.job as unknown) as Record<string, unknown> | null;
+      const interviewer = (iv.interviewer as unknown) as Record<string, unknown> | null;
+
+      return {
+        id: iv._id.toString(),
+        interviewId: iv._id.toString(),
+        candidateName: (candidate?.name as string) || 'Candidate',
+        candidateEmail: (candidate?.email as string) || 'candidate@example.com',
+        jobTitle: (job?.title as string) || 'Open Role',
+        type: iv.type || 'technical',
+        scheduledAt: iv.scheduledAt.toISOString(),
+        interviewerName: (interviewer?.name as string) || 'Assigned Evaluator',
+        status: iv.status
+      };
+    });
 
     // 8. Recent Activity Feed Stream
     const recentLogs = await ActivityLog.find({})
@@ -242,15 +250,20 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
       .limit(6)
       .populate('actor', 'name');
 
-    const activities = recentLogs.map((log: any) => ({
-      id: log._id.toString(),
-      timestamp: log.createdAt.toISOString(),
-      actorName: log.actor?.name || 'System',
-      action: log.action.replace(/_/g, ' '),
-      candidateName: log.metadata?.candidateName || 'Candidate',
-      jobTitle: log.metadata?.jobTitle || '',
-      timeAgo: formatTimeAgo(log.createdAt)
-    }));
+    const activities = recentLogs.map((log) => {
+      const actor = (log.actor as unknown) as Record<string, unknown> | null;
+      const metadata = log.metadata as Record<string, unknown> | null;
+
+      return {
+        id: log._id.toString(),
+        timestamp: log.createdAt.toISOString(),
+        actorName: (actor?.name as string) || 'System',
+        action: log.action.replace(/_/g, ' '),
+        candidateName: (metadata?.candidateName as string) || 'Candidate',
+        jobTitle: (metadata?.jobTitle as string) || '',
+        timeAgo: formatTimeAgo(log.createdAt)
+      };
+    });
 
     // 9. Operational Insights
     const insights = [
@@ -288,6 +301,7 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
       userRole,
       userName,
       totalActiveJobs,
+      closedJobsCount,
       totalApplications,
       stageDistribution: {
         applied: cApplied,

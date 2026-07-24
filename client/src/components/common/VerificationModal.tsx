@@ -66,8 +66,8 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
       } else {
         setNotice('Please sign in to resend email verification.');
       }
-    } catch (err: any) {
-      setNotice(err.message || 'Failed to dispatch verification email. Please try again.');
+    } catch (err: unknown) {
+      setNotice((err as Error).message || 'Failed to dispatch verification email. Please try again.');
     } finally {
       setSending(false);
     }

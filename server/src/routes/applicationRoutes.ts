@@ -10,7 +10,7 @@ import {
   addApplicationNote,
   recruiterAddCandidate
 } from '../controllers/applicationController';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, authorize, requireVerifiedEmail } from '../middleware/auth';
 import { uploadResume } from '../middleware/upload';
 
 const router = Router();
@@ -19,16 +19,16 @@ const router = Router();
 // Removed insecure public resume-stream endpoint
 
 // 1. Candidate specific routes
-router.post('/', authenticate, authorize('candidate'), uploadResume, applyToJob);
+router.post('/', authenticate, requireVerifiedEmail, authorize('candidate'), uploadResume, applyToJob);
 router.get('/me', authenticate, authorize('candidate'), getCandidateApplications);
 
 // 2. Recruiter & Admin management routes
-router.post('/manual', authenticate, authorize('recruiter', 'admin'), uploadResume, recruiterAddCandidate);
+router.post('/manual', authenticate, requireVerifiedEmail, authorize('recruiter', 'admin'), uploadResume, recruiterAddCandidate);
 router.get('/', authenticate, authorize('recruiter', 'admin'), getManageApplications);
 router.get('/:id/resume', authenticate, authorize('candidate', 'recruiter', 'admin'), streamApplicationResume);
 router.get('/:id', authenticate, authorize('recruiter', 'admin'), getApplicationById);
-router.post('/:id/advance', authenticate, authorize('recruiter', 'admin'), advanceApplication);
-router.post('/:id/reject', authenticate, authorize('recruiter', 'admin'), rejectApplication);
-router.post('/:id/notes', authenticate, authorize('recruiter', 'admin'), addApplicationNote);
+router.post('/:id/advance', authenticate, requireVerifiedEmail, authorize('recruiter', 'admin'), advanceApplication);
+router.post('/:id/reject', authenticate, requireVerifiedEmail, authorize('recruiter', 'admin'), rejectApplication);
+router.post('/:id/notes', authenticate, requireVerifiedEmail, authorize('recruiter', 'admin'), addApplicationNote);
 
 export default router;

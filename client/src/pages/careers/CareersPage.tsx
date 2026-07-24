@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { JobPosting } from '@hiretrack/shared';
 import { CareersNav } from './components/CareersNav';
 import { CareersHero } from './components/CareersHero';
 import { CompanyStory } from './components/CompanyStory';
@@ -8,9 +9,10 @@ import { OpenPositionsSection } from './components/OpenPositionsSection';
 import { FAQSection } from './components/FAQSection';
 import { CareersFooter } from './components/CareersFooter';
 import { SEOMeta } from '../../components/common/SEOMeta';
+import { SkeletonLoader } from '../../components/common/SkeletonLoader';
 
 export const CareersPage: React.FC = () => {
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,13 +65,8 @@ export const CareersPage: React.FC = () => {
         <BenefitsSection />
         <CompanyStats />
         {loading ? (
-          <div className="careers-container" style={{ padding: '80px 0', textAlign: 'center' }}>
-            <div className="careers-card" style={{ padding: 48, maxWidth: 480, margin: '0 auto' }}>
-              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--gray-text-muted)', marginBottom: 16 }}>
-                Loading career opportunities...
-              </div>
-              <div className="skeleton-pulse" style={{ height: 40, width: '100%', borderRadius: 8 }} />
-            </div>
+          <div className="careers-container" style={{ padding: '60px 0' }}>
+            <SkeletonLoader count={4} />
           </div>
         ) : error ? (
           <div className="careers-container" style={{ padding: '80px 0', textAlign: 'center' }}>

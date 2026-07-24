@@ -126,8 +126,8 @@ export const AddCandidateModal: React.FC<AddCandidateModalProps> = ({
 
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while adding the candidate.');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'An error occurred while adding the candidate.');
     } finally {
       setLoading(false);
     }

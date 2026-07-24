@@ -37,9 +37,10 @@ export const ResetPasswordPage: React.FC = () => {
 
       await confirmPasswordReset(auth, oobCode, newPassword);
       setSuccess(true);
-    } catch (err: any) {
-      let msg = err.message || 'Failed to reset password.';
-      if (err.code === 'auth/invalid-action-code' || err.code === 'auth/expired-action-code') {
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
+      let msg = errorObj.message || 'Failed to reset password.';
+      if (errorObj.code === 'auth/invalid-action-code' || errorObj.code === 'auth/expired-action-code') {
         msg = 'This password reset link is invalid or has expired. Please request a new one.';
       }
       setError(msg);

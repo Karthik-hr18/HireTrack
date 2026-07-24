@@ -8,6 +8,36 @@ import {
 import { PdfViewerModal } from '../../components/ui/PdfViewerModal';
 import { SchedulingCard } from '../recruiter/workspace/SchedulingCard';
 
+interface InterviewRecord {
+  _id: string;
+  type?: 'technical' | 'hr';
+  scheduledAt?: string;
+  status?: string;
+  name?: string;
+  email?: string;
+  title?: string;
+  location?: string;
+  interviewer?: { name?: string; email?: string };
+  candidate?: { name?: string; email?: string };
+  job?: { title?: string; location?: string; description?: string; requirements?: string };
+  application?: {
+    _id?: string;
+    candidate?: { name?: string; email?: string };
+    job?: { title?: string; location?: string; description?: string; requirements?: string };
+    resumeUrl?: string;
+    coverLetter?: string;
+    experience?: number;
+    phone?: string;
+    country?: string;
+    address?: string;
+    linkedinUrl?: string;
+    githubUrl?: string;
+    portfolioUrl?: string;
+    currentCompany?: string;
+    currentTitle?: string;
+  };
+}
+
 export const ConductInterviewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -15,7 +45,7 @@ export const ConductInterviewPage: React.FC = () => {
   const apiUrl = import.meta.env.VITE_API_URL || '';
 
   // Interview & Application Data
-  const [interview, setInterview] = useState<any | null>(null);
+  const [interview, setInterview] = useState<InterviewRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
@@ -58,8 +88,8 @@ export const ConductInterviewPage: React.FC = () => {
           throw new Error('Failed to load interview details');
         }
 
-        const list = await res.json();
-        const found = list.find((item: any) => item._id === id || item.application?._id === id);
+        const list: InterviewRecord[] = await res.json();
+        const found = list.find((item: InterviewRecord) => item._id === id || item.application?._id === id);
 
         if (found) {
           setInterview(found);
@@ -76,7 +106,7 @@ export const ConductInterviewPage: React.FC = () => {
           });
           if (appRes.ok) {
             const appData = await appRes.json();
-            const schedInt = appData.interviews?.find((i: any) => i.status === 'scheduled');
+            const schedInt = appData.interviews?.find((i: InterviewRecord) => i.status === 'scheduled');
             if (schedInt) {
               setInterview({
                 _id: schedInt._id,
@@ -175,8 +205,8 @@ export const ConductInterviewPage: React.FC = () => {
   }
 
   const app = interview.application;
-  const candidate = app?.candidate || app;
-  const job = app?.job;
+  const candidate = (app?.candidate || interview.candidate) as { name?: string; email?: string } | undefined;
+  const job = (app?.job || interview.job) as { title?: string; location?: string; description?: string; requirements?: string } | undefined;
   const isTech = interview.type === 'technical';
 
   if (success) {
@@ -352,7 +382,7 @@ export const ConductInterviewPage: React.FC = () => {
               {app?.resumeUrl && (
                 <button
                   type="button"
-                  onClick={() => setPreviewPdfUrl(app.resumeUrl)}
+                  onClick={() => setPreviewPdfUrl(app.resumeUrl || null)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -384,7 +414,7 @@ export const ConductInterviewPage: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--gray-text-primary)' }}>
                   <Calendar size={14} style={{ color: 'var(--gray-text-muted)' }} />
-                  <span>{new Date(interview.scheduledAt).toLocaleString()}</span>
+                  <span>{interview.scheduledAt ? new Date(interview.scheduledAt).toLocaleString() : 'Scheduled'}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--gray-text-primary)' }}>
                   <Award size={14} style={{ color: 'var(--gray-text-muted)' }} />

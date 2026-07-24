@@ -12,10 +12,10 @@ import { useCandidateWorkspace } from '../../../hooks/useCandidateWorkspace';
 const STALE_THRESHOLD_DAYS = 7;
 const STALE_STAGES = ['resume_screening'];
 
-function isStaleApplication(app: any): boolean {
+function isStaleApplication(app: { stage?: string; updatedAt?: string; createdAt?: string }): boolean {
   if (!app || !app.stage || !STALE_STAGES.includes(app.stage)) return false;
-  const daysSinceUpdate =
-    (Date.now() - new Date(app.updatedAt || app.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+  const dateStr = app.updatedAt || app.createdAt || '';
+  const daysSinceUpdate = (Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24);
   return daysSinceUpdate > STALE_THRESHOLD_DAYS;
 }
 

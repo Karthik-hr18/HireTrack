@@ -1,21 +1,20 @@
 ---
-name: Feature Request
+name: Feature request
 about: Suggest an idea or enhancement for HireTrack
 title: '[FEAT] '
 labels: 'enhancement'
 assignees: ''
+
 ---
 
-## 🚀 Feature Summary
-A clear and concise description of the feature or operational enhancement.
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-## 💡 Problem / User Value
-Why is this feature needed? What user problem does it solve for recruiters, candidates, or admins?
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen.
 
-## 🛠️ Proposed Solution
-Describe how you imagine this feature working within the HireTrack ATS architecture.
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
 
-## 📋 Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
+**Additional context**
+Add any other context, mockup screenshots, or user stories about the feature request here.

@@ -28,6 +28,8 @@ export interface JobEntity {
   updatedAt: Date | string;
 }
 
+export type JobPosting = JobEntity;
+
 export interface ApplicationEntity {
   _id: string;
   job: JobEntity | string;

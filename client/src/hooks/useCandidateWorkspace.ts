@@ -85,8 +85,8 @@ export const useCandidateWorkspace = ({ activeStage, selectedJobId, selectedSour
           .sort()
           .map((n) => groupMap[n]);
         setGroups([...ordered, ...remaining]);
-      } catch (e: any) {
-        setJobsError(e.message);
+      } catch (e: unknown) {
+        setJobsError((e as Error).message);
       } finally {
         setLoadingJobs(false);
       }
@@ -134,8 +134,8 @@ export const useCandidateWorkspace = ({ activeStage, selectedJobId, selectedSour
       const data = await res.json();
       const apps: Application[] = Array.isArray(data) ? data : (data.applications ?? []);
       setAllApplications(apps);
-    } catch (e: any) {
-      setAppsError(e.message);
+    } catch (e: unknown) {
+      setAppsError((e as Error).message);
     } finally {
       setLoadingApps(false);
     }

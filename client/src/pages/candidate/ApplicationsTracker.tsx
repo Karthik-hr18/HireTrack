@@ -15,9 +15,25 @@ import {
 
 import { PdfViewerModal } from '../../components/ui/PdfViewerModal';
 
+export interface CandidateApplication {
+  _id: string;
+  stage: string;
+  createdAt: string;
+  updatedAt?: string;
+  rejectionReason?: string;
+  job?: {
+    _id: string;
+    title: string;
+    department: string;
+    location: string;
+    type: string;
+  };
+  resumeUrl?: string;
+}
+
 export const ApplicationsTracker: React.FC = () => {
   const navigate = useNavigate();
-  const [applications, setApplications] = useState<any[]>([]);
+  const [applications, setApplications] = useState<CandidateApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
@@ -230,7 +246,7 @@ export const ApplicationsTracker: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            setPreviewPdfUrl(app.resumeUrl);
+                            setPreviewPdfUrl(app.resumeUrl || null);
                             setPreviewCandidateName(user?.name || 'My Resume');
                           }}
                           style={{

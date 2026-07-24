@@ -121,13 +121,6 @@ export const applyToJob = async (req: Request, res: Response, next: NextFunction
     const populatedApp = await Application.findById(application._id)
       .populate('job', 'title location status')
       .populate('candidate', 'name email');
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Created application document:', {
-        id: application._id,
-        resumeUrl: application.resumeUrl,
-        createdAt: application.createdAt,
-      });
-    }
 
     return res.status(201).json(populatedApp);
   } catch (error) {
@@ -307,9 +300,6 @@ export const streamApplicationResume = async (req: Request, res: Response, next:
           }
         );
         fetchUrl = signed;
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('[Resume Stream] Using signed URL', { signedUrl: signed });
-        }
       } catch (e) {
         console.error('[Resume Stream] Failed to generate signed URL', e);
         // fallback to public URL
@@ -726,11 +716,12 @@ export const recruiterAddCandidate = async (req: Request, res: Response, next: N
       .populate('job', 'title location status department');
 
     return res.status(201).json(populatedApp);
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
+  } catch (error: unknown) {
+    const err = error as { name?: string; errors?: unknown };
+    if (err.name === 'ZodError') {
       return res.status(400).json({
         message: 'Validation failed',
-        errors: error.errors,
+        errors: err.errors,
         code: 'VALIDATION_ERROR'
       });
     }

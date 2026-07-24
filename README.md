@@ -154,15 +154,18 @@ npm run db:seed
 
 ---
 
-## 🔑 Seed Accounts & Demo Credentials
+## 🔑 Demo Accounts (Local Development & Testing)
 
-When the database is seeded (`npm run db:seed`), the following pre-configured accounts are synchronized across Firebase Authentication and MongoDB:
+When the database is seeded (`npm run db:seed`), the following pre-configured accounts are synchronized across Firebase Authentication and MongoDB for local testing and evaluation:
+
+> [!NOTE]
+> The credentials below are provided strictly for local development environments and demonstration purposes.
 
 ### 🛡️ Administrator Account
 
 | Role | Name | Email Address | Password |
 | :--- | :--- | :--- | :--- |
-| **Admin** | Administrator | `karthikhr676@gmail.com` | `Karthik@64` |
+| **Admin** | Administrator | `admin@hiretrack.io` | `AdminPass123!` |
 
 ### 👥 Recruiter Accounts
 
@@ -221,6 +224,13 @@ When the database is seeded (`npm run db:seed`), the following pre-configured ac
 
 ---
 
+## Author
+
+Created & maintained by **Karthik H R** ([@Karthik-hr18](https://github.com/Karthik-hr18)).
+
+---
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+

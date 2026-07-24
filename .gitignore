@@ -32,10 +32,11 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Gemini App Data / Local agent configs
+# Coverage and test output
+coverage/
+.nyc_output/
+
+# Local cache & agent workspace configs
 .gemini/
 .agents/
 .system_generated/
-
-Digital_Heroes_Full_Stack_Developer_Trial-1
-Digital_Heroes_Full_Stack_Developer_Trial-1_extracted

@@ -2,13 +2,13 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA6YjFQEO2QsuV7Y-YUBgqjds5Lcnz6ya4",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "hiretrack-9145d.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "hiretrack-9145d",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "hiretrack-9145d.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "601061486299",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:601061486299:web:2e623f2c0f33feed2de6fe",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-3S62CDYCTQ"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDemoPlaceholderKeyForPublicRelease123",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "hiretrack-demo.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "hiretrack-demo",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "hiretrack-demo.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1234567890",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1234567890:web:demoappid",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-DEMO12345"
 };
 
 const app = initializeApp(firebaseConfig);

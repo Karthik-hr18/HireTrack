@@ -4,14 +4,14 @@ import { ArrowRight } from 'lucide-react';
 import styles from '../../dashboard.module.css';
 
 interface Props {
-  data?: any;
+  data?: unknown;
 }
 
 export const RecentApplications: React.FC<Props> = () => {
   const navigate = useNavigate();
 
   const recentApps = [
-    { id: '1', name: 'Karthik H R', role: 'Full-Stack Software Engineer', stage: 'Applied', timeAgo: '10m ago' },
+    { id: '1', name: 'Alex Morgan', role: 'Full-Stack Software Engineer', stage: 'Applied', timeAgo: '10m ago' },
     { id: '2', name: 'Alice Smith', role: 'Senior Backend Engineer', stage: 'Screening', timeAgo: '45m ago' },
     { id: '3', name: 'Bob Jones', role: 'Associate Product Manager', stage: 'Tech Interview', timeAgo: '2h ago' },
     { id: '4', name: 'Emma Watson', role: 'Lead Product Designer', stage: 'Offer Extended', timeAgo: '4h ago' },

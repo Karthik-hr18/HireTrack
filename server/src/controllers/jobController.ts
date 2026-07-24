@@ -40,11 +40,16 @@ export const getPublicJobs = async (req: Request, res: Response, next: NextFunct
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 100, 100);
     const skip = (page - 1) * limit;
+    const cursor = req.query.cursor as string | undefined;
 
     const query: Record<string, unknown> = {
       status: 'open',
       deletedAt: null
     };
+
+    if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
+      query._id = { $lt: new mongoose.Types.ObjectId(cursor) };
+    }
 
     if (req.query.search && typeof req.query.search === 'string' && req.query.search.trim()) {
       query.$text = { $search: req.query.search.trim() };
@@ -53,13 +58,13 @@ export const getPublicJobs = async (req: Request, res: Response, next: NextFunct
     const [jobs, total] = await Promise.all([
       Job.find(query)
         .sort({ createdAt: -1, _id: -1 }) // Stable secondary sort on _id prevents page jitter
-        .skip(skip)
+        .skip(cursor ? 0 : skip)
         .limit(limit)
         .populate('createdBy', 'name email role'),
       Job.countDocuments(query)
     ]);
 
-    let resultJobs: any[] = jobs;
+    let resultJobs: unknown[] = jobs;
     if (req.query.includeCounts === 'true') {
       const counts = await Application.aggregate([
         { $group: { _id: '$job', count: { $sum: 1 } } }
@@ -71,12 +76,17 @@ export const getPublicJobs = async (req: Request, res: Response, next: NextFunct
       });
     }
 
+    const lastJob = jobs[jobs.length - 1];
+    const nextCursor = lastJob ? lastJob._id.toString() : null;
+
     return res.status(200).json({
       jobs: resultJobs,
       page,
       limit,
       total,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
+      nextCursor,
+      hasMore: cursor ? jobs.length === limit : (page * limit < total)
     });
   } catch (error) {
     return next(error);
@@ -184,7 +194,7 @@ export const updateJob = async (req: Request, res: Response, next: NextFunction)
     await job.save();
 
     // Log update action
-    const metadata: any = { title: job.title };
+    const metadata: Record<string, unknown> = { title: job.title };
     if (validatedData.status && validatedData.status !== previousStatus) {
       metadata.statusChange = { from: previousStatus, to: validatedData.status };
     }

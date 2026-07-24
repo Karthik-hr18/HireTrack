@@ -17,7 +17,7 @@
     "build": "npm run build:shared && npm run build:server && npm run build:client",
     "db:seed": "npm run db:seed -w server",
     "test": "npm run test -w server",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.65.0",

@@ -5,29 +5,26 @@ import styles from '../dashboard.module.css';
 
 import { MonthlyTrendData } from '@hiretrack/shared';
 
+import { JobHealthItem, KPIItem, DashboardData } from '../../../types/dashboard';
+
 interface JobsInsightsViewProps {
-  data?: any;
+  data?: DashboardData | null;
 }
 
 export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
   const [filterDepartment, setFilterDepartment] = useState('all');
 
   const jobsList = data?.jobHealth || [];
-  const activeJobsCount = data?.totalActiveJobs || jobsList.length || 0;
-  const totalAppsCount = data?.totalApplications || 50;
+  const activeJobsCount = (data as any)?.totalActiveJobs || jobsList.length || 0;
+  const closedJobsCount = (data as any)?.closedJobsCount || 0;
+  const totalAppsCount = (data as any)?.totalApplications || 0;
+  const timeToHireVal = data?.kpis?.find((k: KPIItem) => k.key === 'time_to_hire')?.value || '0 days';
 
   const filteredJobs = filterDepartment === 'all' 
     ? jobsList 
-    : jobsList.filter((j: any) => j.department.toLowerCase() === filterDepartment.toLowerCase());
+    : jobsList.filter((j: JobHealthItem) => j.department.toLowerCase() === filterDepartment.toLowerCase());
 
-  const monthlyData = data?.monthlyTrends || [
-    { month: 'Feb', apps: 3 },
-    { month: 'Mar', apps: 8 },
-    { month: 'Apr', apps: 6 },
-    { month: 'May', apps: 12 },
-    { month: 'Jun', apps: 15 },
-    { month: 'Jul', apps: 20 },
-  ];
+  const monthlyData = data?.monthlyTrends || [];
 
   return (
     <div className={styles.insightsContainer}>
@@ -60,7 +57,7 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
             <span className={styles.kpiTitle}>CLOSED JOBS</span>
             <span className={styles.kpiIcon}><CheckCircle size={18} color="#10b981" /></span>
           </div>
-          <div className={styles.kpiValue}>3</div>
+          <div className={styles.kpiValue}>{closedJobsCount}</div>
           <div className={styles.kpiMetaRow}>
             <span className={styles.kpiTrend}>Roles successfully filled</span>
           </div>
@@ -71,9 +68,9 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
             <span className={styles.kpiTitle}>AVG HIRING VELOCITY</span>
             <span className={styles.kpiIcon}><Clock size={18} color="#8b5cf6" /></span>
           </div>
-          <div className={styles.kpiValue}>14 <span style={{ fontSize: 14, fontWeight: 500 }}>days</span></div>
+          <div className={styles.kpiValue}>{timeToHireVal}</div>
           <div className={styles.kpiMetaRow}>
-            <span className={styles.kpiTrendGood}>Beat 20-day target</span>
+            <span className={styles.kpiTrendGood}>Target: 20 days</span>
           </div>
         </div>
       </div>
@@ -112,9 +109,9 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
             <span className={styles.subtext}>Highest candidate volume</span>
           </div>
           <div className={styles.horizBarList}>
-            {jobsList.slice(0, 5).map((j: any) => {
+            {jobsList.slice(0, 5).map((j: JobHealthItem) => {
               const count = j.applicantsCount || 0;
-              const maxApp = Math.max(...jobsList.map((item: any) => item.applicantsCount || 1), 1);
+              const maxApp = Math.max(...jobsList.map((item: JobHealthItem) => item.applicantsCount || 1), 1);
               const pct = Math.round((count / maxApp) * 100);
 
               return (
@@ -170,7 +167,7 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {filteredJobs.map((job: any) => (
+              {filteredJobs.map((job: JobHealthItem) => (
                 <tr key={job.id}>
                   <td>
                     <strong style={{ color: '#0f172a' }}>{job.title}</strong>

@@ -7,26 +7,22 @@ import styles from '../dashboard.module.css';
 
 import { MonthlyTrendData } from '@hiretrack/shared';
 
+import { DashboardData, KPIItem } from '../../../types/dashboard';
+
 interface Props {
-  data?: any;
+  data?: DashboardData | null;
 }
 
 export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('6m');
 
-  const monthlyTrends: MonthlyTrendData[] = data?.monthlyTrends || [
-    { month: 'Feb', apps: 3 },
-    { month: 'Mar', apps: 8 },
-    { month: 'Apr', apps: 6 },
-    { month: 'May', apps: 12 },
-    { month: 'Jun', apps: 15 },
-    { month: 'Jul', apps: 20 },
-  ];
+  const monthlyTrends: MonthlyTrendData[] = (data as any)?.monthlyTrends || [];
 
   const funnelData = data?.funnel || [];
   const pipelineDistribution = data?.pipelineDistribution || [];
   const sourcingChannels = data?.sourcingChannels || [];
-  const totalApps = data?.totalApplications || 50;
+  const totalApps = (data as any)?.totalApplications || 0;
+  const offerAcceptanceVal = data?.kpis?.find((k: KPIItem) => k.key === 'offer_acceptance')?.value || '0%';
 
   return (
     <div className={styles.insightsContainer}>
@@ -48,7 +44,7 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiTitle}>ACTIVE CANDIDATES</span>
             <span className={styles.kpiIcon}><Users size={18} color="#3b82f6" /></span>
           </div>
-          <div className={styles.kpiValue}>{totalApps - (data?.stageDistribution?.hired || 0) - (data?.stageDistribution?.rejected || 0)}</div>
+          <div className={styles.kpiValue}>{Math.max(0, totalApps - (data?.stageDistribution?.hired || 0) - (data?.stageDistribution?.rejected || 0))}</div>
           <div className={styles.kpiMetaRow}>
             <span className={styles.kpiTrend}>Actively moving through stages</span>
           </div>
@@ -59,7 +55,7 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiTitle}>REJECTED / WITHDRAWN</span>
             <span className={styles.kpiIcon}><AlertCircle size={18} color="#ef4444" /></span>
           </div>
-          <div className={styles.kpiValue}>{data?.stageDistribution?.rejected || 2}</div>
+          <div className={styles.kpiValue}>{data?.stageDistribution?.rejected || 0}</div>
           <div className={styles.kpiMetaRow}>
             <span className={styles.kpiTrend}>Not progressed further</span>
           </div>
@@ -70,7 +66,7 @@ export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
             <span className={styles.kpiTitle}>OFFER CONVERSION RATE</span>
             <span className={styles.kpiIcon}><Award size={18} color="#10b981" /></span>
           </div>
-          <div className={styles.kpiValue}>85%</div>
+          <div className={styles.kpiValue}>{offerAcceptanceVal}</div>
           <div className={styles.kpiMetaRow}>
             <span className={styles.kpiTrendGood}>Offer accepted rate</span>
           </div>

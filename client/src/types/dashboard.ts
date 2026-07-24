@@ -92,6 +92,11 @@ export interface QuickActionItem {
 export interface DashboardData {
   userRole: 'admin' | 'recruiter' | 'candidate';
   userName: string;
+  totalActiveJobs?: number;
+  closedJobsCount?: number;
+  totalApplications?: number;
+  stageDistribution?: Record<string, number>;
+  monthlyTrends?: { month: string; apps?: number; applications?: number; hires?: number }[];
   todaySummary: {
     interviewsTodayCount: number;
     awaitingReviewCount: number;

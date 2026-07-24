@@ -116,7 +116,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({
         <select
           className="careers-filter-select"
           value={filters.sortBy}
-          onChange={(e) => onChange({ ...filters, sortBy: e.target.value as any })}
+          onChange={(e) => onChange({ ...filters, sortBy: e.target.value as FilterState['sortBy'] })}
         >
           <option value="newest">Sort: Newest</option>
           <option value="title">Sort: Title A-Z</option>

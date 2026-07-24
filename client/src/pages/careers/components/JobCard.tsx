@@ -11,7 +11,7 @@ export interface JobItem {
   description: string;
   requirements?: string;
   status?: string;
-  createdAt?: string;
+  createdAt?: string | Date;
   vacancies?: number;
   department?: string;
 }
@@ -199,7 +199,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <span style={{ fontSize: 12, color: 'var(--gray-text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <Clock size={12} />
-              {formatTimeAgo(job.createdAt)}
+              {formatTimeAgo(typeof job.createdAt === 'string' ? job.createdAt : job.createdAt?.toISOString())}
             </span>
             <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--gray-text-primary)' }}>
               Full-time

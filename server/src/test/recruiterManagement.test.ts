@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { User } from '../models/User';
 import { getRecruiters, createRecruiter, updateRecruiter, toggleRecruiterStatus } from '../controllers/userController';
@@ -8,8 +7,6 @@ import { getRecruiters, createRecruiter, updateRecruiter, toggleRecruiterStatus 
 dotenv.config();
 
 describe('Admin Recruiter Management Integration Tests', () => {
-  let adminToken: string;
-  let recruiterToken: string;
   let adminId: string;
   let recruiterId: string;
   let createdRecruiterId: string;

@@ -48,9 +48,9 @@ export const VerifyEmailPage: React.FC = () => {
         setStatus('unverified');
         setMessage('Your email address is not yet verified. Please check your inbox for the link.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('error');
-      setMessage(err.message || 'Failed to verify email status.');
+      setMessage((err as Error).message || 'Failed to verify email status.');
     }
   };
 

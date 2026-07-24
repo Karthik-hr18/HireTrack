@@ -116,7 +116,7 @@ export const getAdminInterviews = async (req: Request, res: Response, next: Next
       return res.status(401).json({ message: 'Authentication required', code: 'UNAUTHORIZED' });
     }
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
 
     // Gating check: Admins only see their own interviews, Recruiters see all
     if (req.user.role === 'admin') {

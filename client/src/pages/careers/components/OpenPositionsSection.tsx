@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { JobCard, JobItem } from './JobCard';
 import { JobFilters, FilterState } from './JobFilters';
 import { Frown } from 'lucide-react';
@@ -9,17 +10,31 @@ interface OpenPositionsSectionProps {
 }
 
 export const OpenPositionsSection: React.FC<OpenPositionsSectionProps> = ({ jobs }) => {
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    department: '',
-    location: '',
-    type: '',
-    experience: '',
-    sortBy: 'newest',
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [filters, setFilters] = useState<FilterState>(() => ({
+    search: searchParams.get('search') || '',
+    department: searchParams.get('department') || '',
+    location: searchParams.get('location') || '',
+    type: searchParams.get('type') || '',
+    experience: searchParams.get('experience') || '',
+    sortBy: (searchParams.get('sortBy') as FilterState['sortBy']) || 'newest',
+  }));
+
+  const updateFilters = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    const params: Record<string, string> = {};
+    if (newFilters.search) params.search = newFilters.search;
+    if (newFilters.department) params.department = newFilters.department;
+    if (newFilters.location) params.location = newFilters.location;
+    if (newFilters.type) params.type = newFilters.type;
+    if (newFilters.experience) params.experience = newFilters.experience;
+    if (newFilters.sortBy && newFilters.sortBy !== 'newest') params.sortBy = newFilters.sortBy;
+    setSearchParams(params, { replace: true });
+  };
 
   const handleClearFilters = () => {
-    setFilters({
+    updateFilters({
       search: '',
       department: '',
       location: '',
@@ -115,7 +130,7 @@ export const OpenPositionsSection: React.FC<OpenPositionsSectionProps> = ({ jobs
           {/* Filter Controls */}
           <JobFilters
             filters={filters}
-            onChange={setFilters}
+            onChange={updateFilters}
             onClear={handleClearFilters}
             departments={departments}
             locations={locations}

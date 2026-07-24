@@ -3,6 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { PageHeader } from '../../components/layout/PageHeader';
 
+interface RecruiterUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  isEmailVerified?: boolean;
+}
+
 export const ManageRecruiters: React.FC = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -10,14 +19,14 @@ export const ManageRecruiters: React.FC = () => {
   const user = userJson ? JSON.parse(userJson) : null;
 
   // Recruiter directory state
-  const [recruiters, setRecruiters] = useState<any[]>([]);
+  const [recruiters, setRecruiters] = useState<RecruiterUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Form Modals state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-  const [selectedRecruiter, setSelectedRecruiter] = useState<any | null>(null);
+  const [selectedRecruiter, setSelectedRecruiter] = useState<RecruiterUser | null>(null);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -64,7 +73,7 @@ export const ManageRecruiters: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (recruiter: any) => {
+  const openEditModal = (recruiter: RecruiterUser) => {
     setModalMode('edit');
     setSelectedRecruiter(recruiter);
     setName(recruiter.name);
@@ -83,11 +92,11 @@ export const ManageRecruiters: React.FC = () => {
       
       let url = `${apiUrl}/api/users/recruiters`;
       let method = 'POST';
-      let body: any = { name, email };
+      const bodyPayload: { name: string; email: string; password?: string } = { name, email };
 
       if (modalMode === 'create') {
-        body.password = password;
-      } else {
+        bodyPayload.password = password;
+      } else if (selectedRecruiter) {
         url = `${apiUrl}/api/users/recruiters/${selectedRecruiter._id}`;
         method = 'PUT';
       }
@@ -98,7 +107,7 @@ export const ManageRecruiters: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(bodyPayload)
       });
 
       if (!response.ok) {
@@ -115,7 +124,7 @@ export const ManageRecruiters: React.FC = () => {
     }
   };
 
-  const handleToggleStatus = async (recruiter: any) => {
+  const handleToggleStatus = async (recruiter: RecruiterUser) => {
     if (!token) return;
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';

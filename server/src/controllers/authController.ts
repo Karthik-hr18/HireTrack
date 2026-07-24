@@ -34,9 +34,10 @@ export const checkEmail = async (req: Request, res: Response, next: NextFunction
           message: 'This account already exists. Please use Login instead.'
         });
       }
-    } catch (fbErr: any) {
-      if (fbErr.code !== 'auth/user-not-found') {
-        console.warn('⚠️ Unexpected error checking Firebase user by email:', fbErr.message || fbErr);
+    } catch (fbErr: unknown) {
+      const err = fbErr as { code?: string; message?: string };
+      if (err.code !== 'auth/user-not-found') {
+        console.warn('⚠️ Unexpected error checking Firebase user by email:', err.message || fbErr);
       }
     }
 
@@ -83,7 +84,6 @@ export const syncUser = async (req: Request, res: Response, next: NextFunction) 
         user.firebaseUid = decodedToken.uid;
         if (name && name.trim()) user.name = name.trim();
         await user.save();
-        console.log(`✅ Synced and linked firebaseUid ${decodedToken.uid} for ${cleanEmail} (${user.role})`);
       }
     }
 

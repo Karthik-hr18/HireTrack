@@ -60,8 +60,8 @@ const seedDatabase = async () => {
   console.log('Starting database seeding with sample jobs and candidates...');
   await connectDB();
 
-  const adminEmail = process.env.ADMIN_EMAIL || 'karthikhr676@gmail.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'Karthik@64';
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@hiretrack.io';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'AdminPass123!';
 
   try {
     // ── 1. CLEAN COLLECTIONS (ONLY WHEN EXPLICITLY ALLOWED) ────────────────
@@ -314,7 +314,7 @@ const seedDatabase = async () => {
     console.log('Seeding 50 candidates and applications...');
 
     const candidateNames = [
-      'Karthik H R', 'Alice Smith', 'Bob Jones', 'John Doe', 'Emily Wilson',
+      'Alex Morgan', 'Alice Smith', 'Bob Jones', 'John Doe', 'Emily Wilson',
       'Michael Brown', 'Sophia Davies', 'James Taylor', 'Sarah Jenkins', 'David Miller',
       'Vikram Rao', 'Ananya Sharma', 'Rohan Mehta', 'Priya Nair', 'Arjun Kapoor',
       'Neha Gupta', 'Siddharth Joshi', 'Tanvi Reddy', 'Aditya Verma', 'Meera Kulkarni',
@@ -343,7 +343,7 @@ const seedDatabase = async () => {
       0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
     ]; // 0=Feb, 1=Mar, 2=Apr, 3=May, 4=Jun, 5=Jul
 
-    const resumeAssetUrl = '/assets/Karthik_HR_Resume_OnePage.pdf';
+    const resumeAssetUrl = '/assets/sample_resume.pdf';
 
     for (let i = 0; i < 50; i++) {
       const name = candidateNames[i];
