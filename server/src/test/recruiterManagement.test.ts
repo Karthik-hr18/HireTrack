@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { Request, Response } from 'express';
 import { User } from '../models/User';
 import { getRecruiters, createRecruiter, updateRecruiter, toggleRecruiterStatus } from '../controllers/userController';
 
@@ -55,27 +56,27 @@ describe('Admin Recruiter Management Integration Tests', () => {
 
   it('1. Create Recruiter (Admin Access) - Should succeed', async () => {
     const req = {
-      user: { id: adminId, email: 'admin@test-manage-rec.com', role: 'admin' },
+      user: { id: adminId, email: 'admin@test-manage-rec.com', role: 'admin', isEmailVerified: true },
       body: {
         name: 'New Recruiter Profile',
         email: 'newrec@test-manage-rec.com',
         password: 'securePassword123'
       }
-    } as any;
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await createRecruiter(req, res, () => {});
 
@@ -84,32 +85,32 @@ describe('Admin Recruiter Management Integration Tests', () => {
     expect(responseData.name).toBe('New Recruiter Profile');
     expect(responseData.role).toBe('recruiter');
     expect(responseData.isActive).toBe(true);
-    createdRecruiterId = responseData._id.toString();
+    createdRecruiterId = (responseData._id as { toString(): string }).toString();
   });
 
   it('2. Create Recruiter (Recruiter Access Blocked) - Should fail with 403', async () => {
     const req = {
-      user: { id: recruiterId, email: 'recruiter@test-manage-rec.com', role: 'recruiter' },
+      user: { id: recruiterId, email: 'recruiter@test-manage-rec.com', role: 'recruiter', isEmailVerified: true },
       body: {
         name: 'Illegal Recruiter',
         email: 'illegal@test-manage-rec.com',
         password: 'securePassword123'
       }
-    } as any;
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await createRecruiter(req, res, () => {});
 
@@ -119,22 +120,22 @@ describe('Admin Recruiter Management Integration Tests', () => {
 
   it('3. Retrieve Recruiters List (Admin Access) - Should return recruiter directory', async () => {
     const req = {
-      user: { id: adminId, email: 'admin@test-manage-rec.com', role: 'admin' }
-    } as any;
+      user: { id: adminId, email: 'admin@test-manage-rec.com', role: 'admin', isEmailVerified: true }
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: unknown[] = [];
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: unknown[]) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await getRecruiters(req, res, () => {});
 
@@ -144,27 +145,27 @@ describe('Admin Recruiter Management Integration Tests', () => {
 
   it('4. Update Recruiter Details (Admin Access) - Should succeed', async () => {
     const req = {
-      user: { id: adminId, email: 'admin@test-manage-rec.com', role: 'admin' },
+      user: { id: adminId, email: 'admin@test-manage-rec.com', role: 'admin', isEmailVerified: true },
       params: { id: createdRecruiterId },
       body: {
         name: 'Updated Recruiter Name',
         email: 'newrec-updated@test-manage-rec.com'
       }
-    } as any;
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await updateRecruiter(req, res, () => {});
 
@@ -175,23 +176,23 @@ describe('Admin Recruiter Management Integration Tests', () => {
 
   it('5. Toggle Recruiter Active Flag (Admin Access) - Should deactivate profile', async () => {
     const req = {
-      user: { id: adminId, email: 'admin@test-manage-rec.com', role: 'admin' },
+      user: { id: adminId, email: 'admin@test-manage-rec.com', role: 'admin', isEmailVerified: true },
       params: { id: createdRecruiterId }
-    } as any;
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await toggleRecruiterStatus(req, res, () => {});
 

@@ -5,6 +5,7 @@ import { CareersNav } from './components/CareersNav';
 import { CareersFooter } from './components/CareersFooter';
 import { SEOMeta } from '../../components/common/SEOMeta';
 import { VerificationModal } from '../../components/common/VerificationModal';
+import { SkeletonLoader } from '../../components/common/SkeletonLoader';
 import { 
   MapPin, 
   Briefcase, 
@@ -196,11 +197,8 @@ export const JobDetailPage: React.FC = () => {
     return (
       <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <CareersNav />
-        <main className="careers-container" style={{ padding: '100px 24px', flex: 1, textAlign: 'center' }}>
-          <div className="careers-card" style={{ padding: 48, maxWidth: 480, margin: '0 auto' }}>
-            <h2 style={{ color: 'var(--gray-text-muted)', fontSize: 18, marginBottom: 16 }}>Loading opportunity details...</h2>
-            <div style={spinnerStyle}></div>
-          </div>
+        <main className="careers-container" style={{ padding: '60px 24px', flex: 1 }}>
+          <SkeletonLoader count={4} />
         </main>
         <CareersFooter />
       </div>
@@ -663,14 +661,4 @@ const disabledInputStyle: React.CSSProperties = {
   backgroundColor: 'rgba(226, 232, 240, 0.5)',
   color: 'var(--gray-text-muted)',
   cursor: 'not-allowed'
-};
-
-const spinnerStyle: React.CSSProperties = {
-  width: '35px',
-  height: '35px',
-  border: '3px solid var(--gray-border)',
-  borderTop: '3px solid var(--accent)',
-  borderRadius: '50%',
-  animation: 'spin 1s linear infinite',
-  margin: '1.5rem auto 0 auto'
 };

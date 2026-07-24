@@ -24,7 +24,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     let decodedToken;
     try {
       decodedToken = await firebaseAuth.verifyIdToken(token);
-    } catch (err) {
+    } catch (_err) {
       return res.status(401).json({
         message: 'Invalid or expired Firebase authentication token',
         code: 'UNAUTHORIZED'
@@ -85,7 +85,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     };
 
     return next();
-  } catch (error) {
+  } catch (_error) {
     return res.status(401).json({
       message: 'Authentication failure',
       code: 'UNAUTHORIZED'
@@ -128,7 +128,7 @@ export const optionalAuthenticate = async (req: Request, res: Response, next: Ne
       };
     }
     return next();
-  } catch (error) {
+  } catch (_error) {
     return next();
   }
 };

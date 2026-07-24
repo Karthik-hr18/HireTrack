@@ -5,9 +5,13 @@ import { User } from '../models/User';
 import { ActivityLog } from '../models/ActivityLog';
 import { Interview } from '../models/Interview';
 import { Scorecard } from '../models/Scorecard';
-import { uploadToCloudinary, performCloudinaryUpload, getCloudinaryAssetInfo } from '../config/cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
+import { performCloudinaryUpload } from '../config/cloudinary';
 import { ApplySchema, RecruiterAddCandidateSchema, RejectApplicationSchema, PipelineStage } from '@hiretrack/shared';
+import { z } from 'zod';
 import mongoose from 'mongoose';
+
+type PipelineStageType = z.infer<typeof PipelineStage>;
 
 export const applyToJob = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -289,8 +293,14 @@ export const streamApplicationResume = async (req: Request, res: Response, next:
     if (application.cloudinaryPublicId) {
       const expiresAt = Math.floor(Date.now() / 1000) + 300; // 5 minutes
       try {
-        const { v2: cloudinary } = await import('cloudinary');
-        const signed = (cloudinary.utils as any).private_download_url(
+        const utils = cloudinary.utils as unknown as {
+          private_download_url: (
+            publicId: string,
+            format: string,
+            options: Record<string, unknown>
+          ) => string;
+        };
+        const signed = utils.private_download_url(
           application.cloudinaryPublicId,
           'pdf',
           {
@@ -438,7 +448,7 @@ export const advanceApplication = async (req: Request, res: Response, next: Next
     }
 
     // Apply advancement
-    application.stage = nextStage as any;
+    application.stage = nextStage as PipelineStageType;
     await application.save();
 
     // Log the action

@@ -14,7 +14,7 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
     if (userRole === 'candidate') {
       return res.status(403).json({ message: 'Dashboard access denied for candidates', code: 'FORBIDDEN' });
     }
-    const userName = (req.user as any).name || 'User';
+    const userName = (req.user as unknown as { name?: string }).name || req.user.email || 'User';
 
     // 1. REAL COUNTS FROM MONGODB
     const totalActiveJobs = await Job.countDocuments({ status: 'open', deletedAt: null });
@@ -36,7 +36,6 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
 
     const offersPendingCount = await Application.countDocuments({ stage: 'offer' });
     const totalHires = await Application.countDocuments({ stage: 'hired' });
-    const totalRejected = await Application.countDocuments({ stage: 'rejected' });
     
     const offerAcceptanceRate = (totalHires + offersPendingCount) > 0 
       ? Math.round((totalHires / (totalHires + offersPendingCount)) * 100) 

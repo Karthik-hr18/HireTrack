@@ -21,6 +21,29 @@ export const OpenPositionsSection: React.FC<OpenPositionsSectionProps> = ({ jobs
     sortBy: (searchParams.get('sortBy') as FilterState['sortBy']) || 'newest',
   }));
 
+  React.useEffect(() => {
+    const s = searchParams.get('search') || '';
+    const d = searchParams.get('department') || '';
+    const l = searchParams.get('location') || '';
+    const t = searchParams.get('type') || '';
+    const e = searchParams.get('experience') || '';
+    const sb = (searchParams.get('sortBy') as FilterState['sortBy']) || 'newest';
+
+    setFilters((prev) => {
+      if (
+        prev.search === s &&
+        prev.department === d &&
+        prev.location === l &&
+        prev.type === t &&
+        prev.experience === e &&
+        prev.sortBy === sb
+      ) {
+        return prev;
+      }
+      return { search: s, department: d, location: l, type: t, experience: e, sortBy: sb };
+    });
+  }, [searchParams]);
+
   const updateFilters = (newFilters: FilterState) => {
     setFilters(newFilters);
     const params: Record<string, string> = {};

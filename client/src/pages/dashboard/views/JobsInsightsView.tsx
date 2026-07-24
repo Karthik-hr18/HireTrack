@@ -15,9 +15,10 @@ export const JobsInsightsView: React.FC<JobsInsightsViewProps> = ({ data }) => {
   const [filterDepartment, setFilterDepartment] = useState('all');
 
   const jobsList = data?.jobHealth || [];
-  const activeJobsCount = (data as any)?.totalActiveJobs || jobsList.length || 0;
-  const closedJobsCount = (data as any)?.closedJobsCount || 0;
-  const totalAppsCount = (data as any)?.totalApplications || 0;
+  const rawData = data as unknown as Record<string, unknown> | null;
+  const activeJobsCount = (rawData?.totalActiveJobs as number) || jobsList.length || 0;
+  const closedJobsCount = (rawData?.closedJobsCount as number) || 0;
+  const totalAppsCount = (rawData?.totalApplications as number) || 0;
   const timeToHireVal = data?.kpis?.find((k: KPIItem) => k.key === 'time_to_hire')?.value || '0 days';
 
   const filteredJobs = filterDepartment === 'all' 

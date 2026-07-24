@@ -1,7 +1,8 @@
 import multer from 'multer';
+import { Request } from 'express';
 
 // File filter checking mimetype
-const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   if (file.mimetype === 'application/pdf') {
     cb(null, true);
   } else {

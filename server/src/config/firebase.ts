@@ -32,8 +32,8 @@ if (!getApps().length) {
         })
       });
       initialized = true;
-    } catch (err: any) {
-      console.warn('⚠️ Service Account initialization warning:', err.message);
+    } catch (err: unknown) {
+      console.warn('⚠️ Service Account initialization warning:', (err as Error).message);
     }
   }
 

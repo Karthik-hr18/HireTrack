@@ -16,12 +16,13 @@ interface Props {
 export const ApplicationTrendsView: React.FC<Props> = ({ data }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('6m');
 
-  const monthlyTrends: MonthlyTrendData[] = (data as any)?.monthlyTrends || [];
+  const rawData = data as unknown as Record<string, unknown> | null;
+  const monthlyTrends: MonthlyTrendData[] = (rawData?.monthlyTrends as MonthlyTrendData[]) || [];
 
   const funnelData = data?.funnel || [];
   const pipelineDistribution = data?.pipelineDistribution || [];
   const sourcingChannels = data?.sourcingChannels || [];
-  const totalApps = (data as any)?.totalApplications || 0;
+  const totalApps = (rawData?.totalApplications as number) || 0;
   const offerAcceptanceVal = data?.kpis?.find((k: KPIItem) => k.key === 'offer_acceptance')?.value || '0%';
 
   return (

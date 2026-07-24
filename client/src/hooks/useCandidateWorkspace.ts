@@ -70,12 +70,13 @@ export const useCandidateWorkspace = ({ activeStage, selectedJobId, selectedSour
 
         const groupMap: Record<string, JobGroup> = {};
         data.forEach((job) => {
-          const groupName = (job as any).jobGroup || (job as any).department || 'General';
+          const rawJob = job as unknown as { jobGroup?: string; department?: string; candidateCount?: number };
+          const groupName = rawJob.jobGroup || rawJob.department || 'General';
           if (!groupMap[groupName]) {
             groupMap[groupName] = { name: groupName, totalCount: 0, jobs: [] };
           }
           const g = groupMap[groupName];
-          const count = (job as any).candidateCount ?? 0;
+          const count = rawJob.candidateCount ?? 0;
           g.jobs.push({ id: job._id, title: job.title, candidateCount: count });
           g.totalCount += count;
         });

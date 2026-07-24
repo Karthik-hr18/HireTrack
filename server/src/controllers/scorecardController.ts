@@ -73,7 +73,7 @@ export const submitScorecard = async (req: Request, res: Response, next: NextFun
       }
     }
 
-    const candidateUser = application.candidate as any;
+    const candidateUser = application.candidate as unknown as { email?: string; name?: string };
     const currentStage = application.stage;
 
     // Create the Scorecard document

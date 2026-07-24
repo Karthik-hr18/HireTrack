@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { Request, Response } from 'express';
 import { User } from '../models/User';
 import { Job } from '../models/Job';
 import { ActivityLog } from '../models/ActivityLog';
@@ -10,8 +10,6 @@ import { createJob, getPublicJobs, getManageJobs, getJobById, updateJob, deleteJ
 dotenv.config();
 
 describe('Job CRUD & Visibility Gating Tests', () => {
-  let adminToken: string;
-  let candidateToken: string;
   let adminId: string;
   let candidateId: string;
   let createdJobId: string;
@@ -68,21 +66,21 @@ describe('Job CRUD & Visibility Gating Tests', () => {
         requirements: 'React, Node.js',
         location: 'Bengaluru'
       }
-    } as any;
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await createJob(req, res, () => {});
 
@@ -91,7 +89,7 @@ describe('Job CRUD & Visibility Gating Tests', () => {
     expect(responseData.title).toBe('Test Job - SDE 1');
     expect(responseData.status).toBe('open');
     expect(responseData.deletedAt).toBeNull();
-    createdJobId = responseData._id.toString();
+    createdJobId = (responseData._id as { toString(): string }).toString();
 
     // Verify activity log was written
     const log = await ActivityLog.findOne({ entityId: createdJobId, action: 'job_created' });
@@ -102,29 +100,29 @@ describe('Job CRUD & Visibility Gating Tests', () => {
   it('2. Get Public Jobs - Should return the newly created open job', async () => {
     const req = {
       query: { page: '1', limit: '10' }
-    } as any;
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: { jobs: Array<{ _id: { toString(): string }; status: string }> } = { jobs: [] };
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
-            responseData = data;
+          json: (data: Record<string, unknown>) => {
+            responseData = data as { jobs: Array<{ _id: { toString(): string }; status: string }> };
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await getPublicJobs(req, res, () => {});
 
     expect(responseStatus).toBe(200);
     expect(responseData.jobs.length).toBeGreaterThanOrEqual(1);
-    const foundJob = responseData.jobs.find((j: any) => j._id.toString() === createdJobId);
+    const foundJob = responseData.jobs.find((j) => j._id.toString() === createdJobId);
     expect(foundJob).toBeDefined();
-    expect(foundJob.status).toBe('open');
+    expect(foundJob!.status).toBe('open');
   });
 
   it('3. Update Job (Admin) - Should modify fields and record status update activity log', async () => {
@@ -135,21 +133,21 @@ describe('Job CRUD & Visibility Gating Tests', () => {
         title: 'Test Job - SDE 2',
         status: 'closed'
       }
-    } as any;
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await updateJob(req, res, () => {});
 
@@ -160,9 +158,11 @@ describe('Job CRUD & Visibility Gating Tests', () => {
     // Verify update log exists and contains status changes
     const log = await ActivityLog.findOne({ entityId: createdJobId, action: 'job_updated' });
     expect(log).not.toBeNull();
-    expect(log!.metadata.statusChange).toBeDefined();
-    expect(log!.metadata.statusChange.from).toBe('open');
-    expect(log!.metadata.statusChange.to).toBe('closed');
+    const metadata = log!.metadata as Record<string, unknown>;
+    const statusChange = metadata.statusChange as { from: string; to: string };
+    expect(statusChange).toBeDefined();
+    expect(statusChange.from).toBe('open');
+    expect(statusChange.to).toBe('closed');
   });
 
   it('4. Get Closed Job - Candidate vs Staff visibility rules', async () => {
@@ -170,15 +170,15 @@ describe('Job CRUD & Visibility Gating Tests', () => {
     const reqCandidate = {
       user: { id: candidateId, email: 'candidate@test-job.com', role: 'candidate' },
       params: { id: createdJobId }
-    } as any;
+    } as unknown as Request;
 
     let candidateStatus = 0;
     const resCandidate = {
       status: (status: number) => {
         candidateStatus = status;
-        return { json: (data: any) => {} };
+        return { json: (data: Record<string, unknown>) => {} };
       }
-    } as any;
+    } as unknown as Response;
 
     await getJobById(reqCandidate, resCandidate, () => {});
     expect(candidateStatus).toBe(404);
@@ -187,62 +187,62 @@ describe('Job CRUD & Visibility Gating Tests', () => {
     const reqAdmin = {
       user: { id: adminId, email: 'admin@test-job.com', role: 'admin' },
       params: { id: createdJobId }
-    } as any;
+    } as unknown as Request;
 
     let adminStatus = 0;
-    let adminData: any = null;
+    let adminData: Record<string, unknown> = {};
     const resAdmin = {
       status: (status: number) => {
         adminStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             adminData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await getJobById(reqAdmin, resAdmin, () => {});
     expect(adminStatus).toBe(200);
-    expect(adminData._id.toString()).toBe(createdJobId);
+    expect((adminData._id as { toString(): string }).toString()).toBe(createdJobId);
   });
 
   it('5. Soft Delete Job (Admin) - Should flag deletedAt and hide from listings', async () => {
     const reqDelete = {
       user: { id: adminId, email: 'admin@test-job.com', role: 'admin' },
       params: { id: createdJobId }
-    } as any;
+    } as unknown as Request;
 
     let deleteStatus = 0;
-    let deleteData: any = null;
+    let deleteData: Record<string, unknown> = {};
     const resDelete = {
       status: (status: number) => {
         deleteStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             deleteData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await deleteJob(reqDelete, resDelete, () => {});
     expect(deleteStatus).toBe(200);
     expect(deleteData.deletedAt).not.toBeNull();
 
     // Verify it is not returned in public search listings
-    const reqList = { query: {} } as any;
-    let listData: any = null;
+    const reqList = { query: {} } as unknown as Request;
+    let listData: { jobs: Array<Record<string, unknown>> } = { jobs: [] };
     const resList = {
       status: (status: number) => ({
-        json: (data: any) => {
-          listData = data;
+        json: (data: Record<string, unknown>) => {
+          listData = data as { jobs: Array<Record<string, unknown>> };
         }
       })
-    } as any;
+    } as unknown as Response;
 
     await getPublicJobs(reqList, resList, () => {});
-    const deletedJobInPublic = listData.jobs.find((j: any) => j._id.toString() === createdJobId);
+    const deletedJobInPublic = (listData.jobs as Array<{ _id: { toString(): string } }>).find((j) => j._id.toString() === createdJobId);
     expect(deletedJobInPublic).toBeUndefined();
   });
 });

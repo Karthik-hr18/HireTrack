@@ -68,8 +68,7 @@ export const performCloudinaryUpload = async (fileBuffer: Buffer, filename: stri
 
 export const uploadToCloudinary = async (fileBuffer: Buffer, filename: string): Promise<string> => {
   const result = await performCloudinaryUpload(fileBuffer, filename);
-  const anyResult: any = result;
-  return anyResult.secure_url;
+  return (result as unknown as { secure_url: string }).secure_url;
 };
 
 export const getCloudinaryAssetInfo = async (publicId: string) => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { Request, Response } from 'express';
 import { User } from '../models/User';
 import { Job } from '../models/Job';
 import { Application } from '../models/Application';
@@ -9,14 +9,12 @@ import { getDashboardMetrics } from '../controllers/analyticsController';
 
 dotenv.config();
 
-describe('Dashboard Analytics Integration Tests', () => {
-  let adminToken: string;
-  let recruiterToken: string;
-  let candidateToken: string;
+describe('Executive Analytics & Stale Application Alerting Tests', () => {
   let adminId: string;
   let recruiterId: string;
   let candidateId: string;
   let jobId: string;
+  let applicationId: string;
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -31,10 +29,10 @@ describe('Dashboard Analytics Integration Tests', () => {
 
     // Clean tables
     await User.deleteMany({ email: /@test-analytics\.com$/ });
-    await Job.deleteMany({ title: /Test Analytics Job/ });
+    await Job.deleteMany({ title: 'Analytics Test Engineer' });
     await Application.deleteMany({});
 
-    // Create Admin
+    // Seed test users
     const admin = await User.create({
       firebaseUid: 'uid_admin_analytics',
       name: 'Analytics Admin',
@@ -45,7 +43,6 @@ describe('Dashboard Analytics Integration Tests', () => {
     });
     adminId = admin._id.toString();
 
-    // Create Recruiter
     const recruiter = await User.create({
       firebaseUid: 'uid_recruiter_analytics',
       name: 'Analytics Recruiter',
@@ -56,7 +53,6 @@ describe('Dashboard Analytics Integration Tests', () => {
     });
     recruiterId = recruiter._id.toString();
 
-    // Create Candidate
     const candidate = await User.create({
       firebaseUid: 'uid_candidate_analytics',
       name: 'Analytics Candidate',
@@ -66,26 +62,24 @@ describe('Dashboard Analytics Integration Tests', () => {
       isEmailVerified: true
     });
     candidateId = candidate._id.toString();
-    candidateToken = jwt.sign({ id: candidateId, email: candidate.email, role: candidate.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
-    // Create open Job
     const job = await Job.create({
-      title: 'Test Analytics Job',
-      description: 'Role info',
-      requirements: 'Requirements',
+      title: 'Analytics Test Engineer',
+      description: 'Role details',
+      requirements: 'Qualifications',
       location: 'Remote',
       status: 'open',
       minExperience: 1,
-      maxExperience: 3,
-      createdBy: new mongoose.Types.ObjectId(recruiterId)
+      maxExperience: 4,
+      createdBy: recruiter._id
     });
     jobId = job._id.toString();
 
-    // Create Stale Application (updated 10 days ago) for Needs Attention test
+    // Create a stale application (> 7 days old without activity)
     const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
     const app = new Application({
-      candidate: new mongoose.Types.ObjectId(candidateId),
-      job: new mongoose.Types.ObjectId(jobId),
+      candidate: candidate._id,
+      job: job._id,
       source: 'careers_page',
       stage: 'resume_screening',
       resumeUrl: 'https://cloudinary.com/dummy.pdf',
@@ -97,7 +91,9 @@ describe('Dashboard Analytics Integration Tests', () => {
       linkedinUrl: 'https://linkedin.com/in/testcandidate',
       termsAccepted: true
     });
-    
+    await app.save();
+    applicationId = app._id.toString();
+
     // Bypass timestamps update by setting manually and saving
     app.createdAt = tenDaysAgo;
     app.updatedAt = tenDaysAgo;
@@ -113,22 +109,22 @@ describe('Dashboard Analytics Integration Tests', () => {
 
   it('1. Retrieve Dashboard Metrics (Admin Access) - Should succeed', async () => {
     const req = {
-      user: { id: adminId, email: 'admin@test-analytics.com', role: 'admin' }
-    } as any;
+      user: { id: adminId, email: 'admin@test-analytics.com', role: 'admin', isEmailVerified: true }
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await getDashboardMetrics(req, res, () => {});
 
@@ -139,28 +135,30 @@ describe('Dashboard Analytics Integration Tests', () => {
     expect(responseData).toHaveProperty('needsAttention');
     expect(responseData.totalActiveJobs).toBe(1);
     expect(responseData.totalApplications).toBe(1);
-    expect(responseData.stageDistribution.resume_screening).toBe(1);
-    expect(responseData.needsAttention.length).toBe(1); // Stale application is caught
+    const stageDist = responseData.stageDistribution as Record<string, number>;
+    expect(stageDist.resume_screening).toBe(1);
+    const needsAttn = responseData.needsAttention as unknown[];
+    expect(needsAttn.length).toBe(1); // Stale application is caught
   });
 
   it('2. Retrieve Dashboard Metrics (Recruiter Access) - Should succeed', async () => {
     const req = {
-      user: { id: recruiterId, email: 'recruiter@test-analytics.com', role: 'recruiter' }
-    } as any;
+      user: { id: recruiterId, email: 'recruiter@test-analytics.com', role: 'recruiter', isEmailVerified: true }
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await getDashboardMetrics(req, res, () => {});
 
@@ -170,22 +168,22 @@ describe('Dashboard Analytics Integration Tests', () => {
 
   it('3. Retrieve Dashboard Metrics (Candidate Access Gated) - Should fail with 403', async () => {
     const req = {
-      user: { id: candidateId, email: 'candidate@test-analytics.com', role: 'candidate' }
-    } as any;
+      user: { id: candidateId, email: 'candidate@test-analytics.com', role: 'candidate', isEmailVerified: true }
+    } as unknown as Request;
 
     let responseStatus = 0;
-    let responseData: any = null;
+    let responseData: Record<string, unknown> = {};
 
     const res = {
       status: (status: number) => {
         responseStatus = status;
         return {
-          json: (data: any) => {
+          json: (data: Record<string, unknown>) => {
             responseData = data;
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
     await getDashboardMetrics(req, res, () => {});
 

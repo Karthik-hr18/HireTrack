@@ -40,7 +40,7 @@ export const scheduleInterview = async (req: Request, res: Response, next: NextF
       }
     }
 
-    const candidateUser = application.candidate as any;
+    const candidateUser = application.candidate as unknown as { email?: string; name?: string };
 
     // Check if Interviewer exists and is an Admin
     const interviewer = await User.findById(interviewerId);

@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/User';
 import { RegisterSchema } from '@hiretrack/shared';
-import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 
 export const getAdmins = async (req: Request, res: Response, next: NextFunction) => {
@@ -56,7 +55,7 @@ export const createRecruiter = async (req: Request, res: Response, next: NextFun
     }
 
     const newRecruiter = await User.create({
-      firebaseUid: (req.body as any).firebaseUid || `recruiter_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      firebaseUid: (req.body as { firebaseUid?: string }).firebaseUid || `recruiter_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: validatedData.name,
       email: validatedData.email.toLowerCase(),
       role: 'recruiter',

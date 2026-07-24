@@ -5,7 +5,7 @@ export interface IActivityLog extends Document {
   entityId: mongoose.Types.ObjectId;
   action: string;
   actor: mongoose.Types.ObjectId;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
 }
 

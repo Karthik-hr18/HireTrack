@@ -26,7 +26,7 @@ export const DepartmentInsightsView: React.FC<Props> = ({ data }) => {
   });
 
   const departmentData = Object.values(deptMap);
-  const totalApps = (data as any)?.totalApplications || 0;
+  const totalApps = ((data as unknown as Record<string, unknown>)?.totalApplications as number) || 0;
   const timeToHireVal = data?.kpis?.find((k: KPIItem) => k.key === 'time_to_hire')?.value || '0 days';
 
   return (

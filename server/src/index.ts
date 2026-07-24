@@ -76,7 +76,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/', sitemapRoutes);
 
 // 404 Route handler
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404).json({
     message: `Cannot ${req.method} ${req.originalUrl}`,
     code: 'NOT_FOUND'

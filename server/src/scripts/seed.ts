@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { connectDB } from '../config/db';
@@ -23,8 +22,9 @@ const getOrCreateFirebaseUser = async (email: string, defaultPassword: string, d
       emailVerified: true
     });
     return existing.uid;
-  } catch (err: any) {
-    if (err.code === 'auth/user-not-found') {
+  } catch (err: unknown) {
+    const errorObj = err as { code?: string; message?: string };
+    if (errorObj.code === 'auth/user-not-found') {
       try {
         const newUser = await firebaseAuth.createUser({
           email: cleanEmail,
@@ -34,12 +34,12 @@ const getOrCreateFirebaseUser = async (email: string, defaultPassword: string, d
         });
         console.log(`✅ Created new Firebase Auth user for ${cleanEmail} (uid: ${newUser.uid}).`);
         return newUser.uid;
-      } catch (createErr: any) {
-        console.warn(`⚠️ Warning creating Firebase user for ${cleanEmail}: ${createErr.message}`);
+      } catch (createErr: unknown) {
+        console.warn(`⚠️ Warning creating Firebase user for ${cleanEmail}: ${(createErr as Error).message}`);
         return `seed_uid_${cleanEmail.replace(/[^a-z0-9]/g, '_')}`;
       }
     }
-    console.warn(`⚠️ Warning fetching Firebase user for ${cleanEmail}: ${err.message}`);
+    console.warn(`⚠️ Warning fetching Firebase user for ${cleanEmail}: ${errorObj.message}`);
     return `seed_uid_${cleanEmail.replace(/[^a-z0-9]/g, '_')}`;
   }
 };

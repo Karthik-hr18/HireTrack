@@ -62,7 +62,7 @@ describe('SEO Dynamic Sitemap XML Integration Tests', () => {
         if (header === 'host') return 'hiretrack.onrender.com';
         return undefined;
       }
-    } as any;
+    } as unknown as Request;
 
     let responseStatus = 0;
     let responseData = '';
@@ -80,9 +80,13 @@ describe('SEO Dynamic Sitemap XML Integration Tests', () => {
           }
         };
       }
-    } as any;
+    } as unknown as Response;
 
-    await generateSitemapXml(req, res, () => {});
+    await generateSitemapXml(
+      req as unknown as Parameters<typeof generateSitemapXml>[0],
+      res as unknown as Parameters<typeof generateSitemapXml>[1],
+      () => {}
+    );
 
     expect(responseStatus).toBe(200);
     expect(responseHeaders['Content-Type']).toBe('application/xml');

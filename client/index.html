@@ -5,6 +5,49 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HireTrack - Applicant Tracking System</title>
+
+    <!-- SoftwareApplication JSON-LD -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "HireTrack",
+        "operatingSystem": "Web",
+        "applicationCategory": "BusinessApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "HireTrack is an end-to-end B2B Applicant Tracking System supporting job postings, applicant pipelines, technical interview scheduling, and hiring analytics."
+      }
+    </script>
+
+    <!-- FAQPage JSON-LD -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How fast can candidates apply to jobs on HireTrack?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Candidates can submit applications with resume PDF attachments in under 60 seconds without complex registration."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does HireTrack support automated interview scheduling?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, recruiters can schedule technical and HR interviews with automated email notifications and calendar dispatch."
+            }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
