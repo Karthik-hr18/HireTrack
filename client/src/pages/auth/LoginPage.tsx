@@ -104,8 +104,8 @@ export const LoginPage: React.FC = () => {
     let demoPassword = '';
 
     if (role === 'admin') {
-      demoEmail = 'admin@hiretrack.io';
-      demoPassword = 'AdminPass123!';
+      demoEmail = 'karthikhr676@gmail.com';
+      demoPassword = 'Karthik@64';
     } else if (role === 'recruiter') {
       demoEmail = 'sarah.j@hiretrack.io';
       demoPassword = 'RecruiterPass123!';
