@@ -175,6 +175,12 @@ When the database is seeded (`npm run db:seed`), the following pre-configured ac
 | **Recruiter** | Marcus Vance | `marcus.vance@hiretrack.io` | `RecruiterPass123!` |
 | **Recruiter** | Elena Rostova | `elena.r@hiretrack.io` | `RecruiterPass123!` |
 
+### 👤 Candidate Account
+
+| Role | Name | Email Address | Password |
+| :--- | :--- | :--- | :--- |
+| **Candidate** | Alex Morgan | `karthikhrvidyanidhi676@gmail.com` | `Karthik@64` |
+
 ---
 
 ## API Overview

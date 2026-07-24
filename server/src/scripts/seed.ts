@@ -347,10 +347,13 @@ const seedDatabase = async () => {
 
     for (let i = 0; i < 50; i++) {
       const name = candidateNames[i];
-      const email = `${name.toLowerCase().replace(/ /g, '.')}@example.com`;
+      const email = i === 0 ? 'karthikhrvidyanidhi676@gmail.com' : `${name.toLowerCase().replace(/ /g, '.')}@example.com`;
+      const candidateUid = i === 0 
+        ? await getOrCreateFirebaseUser(email, 'Karthik@64', name)
+        : `seed_candidate_${email}`;
 
       const candidateUser = await User.create({
-        firebaseUid: `seed_candidate_${email}`,
+        firebaseUid: candidateUid,
         name,
         email,
         role: 'candidate',
