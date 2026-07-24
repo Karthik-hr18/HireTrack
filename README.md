@@ -1,6 +1,8 @@
 # HireTrack
 
-HireTrack is a modern, enterprise-grade B2B Applicant Tracking System (ATS) designed to streamline talent acquisition for growing organizations. It unifies public candidate sourcing, multi-stage pipeline management, interview scheduling, evaluator scorecards, and hiring analytics into a single responsive control tower.
+HireTrack is a modern B2B Applicant Tracking System (ATS) designed to streamline talent acquisition for growing organizations. It unifies public candidate sourcing, multi-stage pipeline management, interview scheduling, evaluator scorecards, and hiring analytics into a single responsive control tower.
+
+> Built as part of the Digital Heroes Full Stack Developer Trial.
 
 ---
 
