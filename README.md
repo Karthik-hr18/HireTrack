@@ -31,6 +31,13 @@ HireTrack is a modern B2B Applicant Tracking System (ATS) designed to streamline
 - **Department Insights:** Aggregated requisitions, candidate volume, and hiring health per business unit.
 - **Sourcing Channels:** Breakdown of applicant acquisition sources.
 
+### 👥 Employees & Talent Roster
+- **Presentation View Layer**: Presentation view over candidates with stage `"hired"`, avoiding duplicate database collections.
+- **Job Team Headcount Cards**: Dynamic calculation of required headcount, current staff, vacancies, hiring progress %, and staffing status (`Fully Staffed`, `Overstaffed`, `Need Resourcing`).
+- **Interactive Top Summary Cards**: Filter by Total Employees, Active, Onboarding, Probation, Resigned, and Need Resourcing.
+- **ATS Employment Metadata**: Embedded tracking of Employee ID, Joining Date, Reporting Manager, Employment Type, Status, Probation End Date, Shift, and Office.
+- **Full Employee Profile Modal**: Reuses candidate profile UI with a dedicated Employment Information tab.
+
 ### Security
 - **Strict Role-Based Access Control (RBAC):** Access control enforcing route authorization across `candidate`, `recruiter`, and `admin` roles.
 - **Row-Level IDOR Protection:** Object ownership verification ensuring non-admin recruiters can only modify their own job requisitions.

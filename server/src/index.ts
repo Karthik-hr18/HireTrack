@@ -12,6 +12,7 @@ import applicationRoutes from './routes/applicationRoutes';
 import interviewRoutes from './routes/interviewRoutes';
 import userRoutes from './routes/userRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
+import employeeRoutes from './routes/employeeRoutes';
 import sitemapRoutes from './routes/sitemapRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -73,6 +74,7 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/interviews', interviewRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/employees', employeeRoutes);
 app.use('/', sitemapRoutes);
 
 // 404 Route handler

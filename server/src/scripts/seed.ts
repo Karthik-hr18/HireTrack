@@ -133,9 +133,11 @@ const seedDatabase = async () => {
         department: 'Engineering',
         minExperience: 3,
         maxExperience: 6,
+        vacancies: 2,
+        requiredHeadcount: 8,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 1, 10) // Feb
+        createdAt: new Date(now.getFullYear(), 1, 10)
       },
       {
         title: 'Senior Backend Engineer (Java / Microservices)',
@@ -145,9 +147,11 @@ const seedDatabase = async () => {
         department: 'Engineering',
         minExperience: 5,
         maxExperience: 10,
+        vacancies: 0,
+        requiredHeadcount: 5,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 1, 20) // Feb
+        createdAt: new Date(now.getFullYear(), 1, 20)
       },
       {
         title: 'DevOps & Cloud Infrastructure Specialist',
@@ -157,9 +161,11 @@ const seedDatabase = async () => {
         department: 'IT',
         minExperience: 4,
         maxExperience: 8,
+        vacancies: 0,
+        requiredHeadcount: 2,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 2, 5) // Mar
+        createdAt: new Date(now.getFullYear(), 2, 5)
       },
       {
         title: 'Lead Product Designer (UI/UX)',
@@ -169,9 +175,11 @@ const seedDatabase = async () => {
         department: 'Design',
         minExperience: 5,
         maxExperience: 9,
+        vacancies: 1,
+        requiredHeadcount: 4,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 2, 18) // Mar
+        createdAt: new Date(now.getFullYear(), 2, 18)
       },
       {
         title: 'Associate Product Manager',
@@ -181,9 +189,11 @@ const seedDatabase = async () => {
         department: 'Product',
         minExperience: 2,
         maxExperience: 4,
+        vacancies: 1,
+        requiredHeadcount: 3,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 3, 2) // Apr
+        createdAt: new Date(now.getFullYear(), 3, 2)
       },
       {
         title: 'Senior Account Executive',
@@ -193,9 +203,11 @@ const seedDatabase = async () => {
         department: 'Sales',
         minExperience: 5,
         maxExperience: 10,
+        vacancies: 2,
+        requiredHeadcount: 6,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 3, 15) // Apr
+        createdAt: new Date(now.getFullYear(), 3, 15)
       },
       {
         title: 'Growth Marketing Manager',
@@ -205,9 +217,11 @@ const seedDatabase = async () => {
         department: 'Marketing',
         minExperience: 3,
         maxExperience: 7,
+        vacancies: 1,
+        requiredHeadcount: 3,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 4, 8) // May
+        createdAt: new Date(now.getFullYear(), 4, 8)
       },
       {
         title: 'Financial Planning & Analysis Lead',
@@ -217,9 +231,11 @@ const seedDatabase = async () => {
         department: 'Finance',
         minExperience: 4,
         maxExperience: 8,
+        vacancies: 1,
+        requiredHeadcount: 2,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 4, 22) // May
+        createdAt: new Date(now.getFullYear(), 4, 22)
       },
       {
         title: 'Senior Technical Recruiter',
@@ -229,9 +245,11 @@ const seedDatabase = async () => {
         department: 'HR',
         minExperience: 3,
         maxExperience: 6,
+        vacancies: 1,
+        requiredHeadcount: 3,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 5, 4) // Jun
+        createdAt: new Date(now.getFullYear(), 5, 4)
       },
       {
         title: 'Data Platform & Analytics Engineer',
@@ -241,9 +259,11 @@ const seedDatabase = async () => {
         department: 'Engineering',
         minExperience: 4,
         maxExperience: 8,
+        vacancies: 1,
+        requiredHeadcount: 4,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 5, 15) // Jun
+        createdAt: new Date(now.getFullYear(), 5, 15)
       },
       {
         title: 'Customer Success Manager',
@@ -253,9 +273,11 @@ const seedDatabase = async () => {
         department: 'Customer Success',
         minExperience: 3,
         maxExperience: 6,
+        vacancies: 2,
+        requiredHeadcount: 5,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 5, 28) // Jun
+        createdAt: new Date(now.getFullYear(), 5, 28)
       },
       {
         title: 'Site Reliability Engineer (SRE)',
@@ -265,9 +287,11 @@ const seedDatabase = async () => {
         department: 'IT',
         minExperience: 4,
         maxExperience: 9,
+        vacancies: 1,
+        requiredHeadcount: 3,
         status: 'open' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 6, 2) // Jul
+        createdAt: new Date(now.getFullYear(), 6, 2)
       },
       {
         title: 'React Native Mobile Developer',
@@ -277,9 +301,11 @@ const seedDatabase = async () => {
         department: 'Engineering',
         minExperience: 3,
         maxExperience: 6,
+        vacancies: 0,
+        requiredHeadcount: 4,
         status: 'closed' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 1, 15) // Feb
+        createdAt: new Date(now.getFullYear(), 1, 15)
       },
       {
         title: 'Content Strategy Specialist',
@@ -289,9 +315,11 @@ const seedDatabase = async () => {
         department: 'Marketing',
         minExperience: 2,
         maxExperience: 5,
+        vacancies: 0,
+        requiredHeadcount: 2,
         status: 'closed' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 2, 10) // Mar
+        createdAt: new Date(now.getFullYear(), 2, 10)
       },
       {
         title: 'Operations & Facilities Manager',
@@ -301,17 +329,19 @@ const seedDatabase = async () => {
         department: 'Operations',
         minExperience: 4,
         maxExperience: 7,
+        vacancies: 0,
+        requiredHeadcount: 2,
         status: 'closed' as const,
         createdBy: admin._id,
-        createdAt: new Date(now.getFullYear(), 3, 1) // Apr
+        createdAt: new Date(now.getFullYear(), 3, 1)
       }
     ];
 
     const jobs = await Job.create(jobsData);
     console.log(`Seeded ${jobs.length} jobs.`);
 
-    // ── 5. SEED 50 CANDIDATE USERS & APPLICATIONS ────────────────────────────
-    console.log('Seeding 50 candidates and applications...');
+    // ── 5. SEED USERS & APPLICATIONS (INCLUDING ~36 HIRED EMPLOYEES) ─────────────
+    console.log('Seeding candidate applications and hired employee records...');
 
     const candidateNames = [
       'Alex Morgan', 'Alice Smith', 'Bob Jones', 'John Doe', 'Emily Wilson',
@@ -323,29 +353,88 @@ const seedDatabase = async () => {
       'Manish Hegde', 'Divya Menon', 'Rahul Bose', 'Sneha Pillai', 'Tarun Chawla',
       'Deepika Das', 'Gautam Singhal', 'Swati Roy', 'Nikhil Bhat', 'Bhavna Kulkarni',
       'Amitabh Tripathi', 'Krutika Shah', 'Harshwardhan Patil', 'Simran Gill', 'Sameer Quadri',
-      'Sonali Thakur', 'Abhinav Sen', 'Ritu Mukherji', 'Kunal Merchant', 'Nisha Fernandez'
+      'Sonali Thakur', 'Abhinav Sen', 'Ritu Mukherji', 'Kunal Merchant', 'Nisha Fernandez',
+      'Tushar Joshi', 'Kavita Das', 'Manav Sharma', 'Sonia Rao', 'Karthik HR'
     ];
 
     const sources = ['linkedin', 'careers_page', 'referral', 'indeed', 'naukri'];
 
+    // Specific stage assignment to reach realistic staffing targets across jobs:
+    // Job 0 (Full-Stack): 6 hired (Required 8) -> Need Resourcing
+    // Job 1 (Senior Backend): 5 hired (Required 5) -> Fully Staffed
+    // Job 2 (DevOps): 3 hired (Required 2) -> Overstaffed
+    // Job 3 (Lead Designer): 3 hired (Required 4) -> Need Resourcing
+    // Job 4 (APM): 2 hired (Required 3) -> Need Resourcing
+    // Job 5 (Sales AE): 4 hired (Required 6) -> Need Resourcing
+    // Job 6 (Growth Mkt): 2 hired (Required 3)
+    // Job 7 (FP&A Lead): 1 hired (Required 2)
+    // Job 8 (Recruiter): 2 hired (Required 3)
+    // Job 9 (Data Engineer): 3 hired (Required 4)
+    // Job 10 (CSM): 3 hired (Required 5)
+    // Job 11 (SRE): 2 hired (Required 3)
+    // Job 12 (Mobile Closed): 4 hired (Required 4)
+    // Job 13 (Content Closed): 2 hired (Required 2)
+    // Job 14 (Operations Closed): 2 hired (Required 2)
+    // Total Hired Employees = 6+5+3+3+2+4+2+1+2+3+3+2+4+2+2 = 45 Hired Employees!
+
     const stages: Array<'applied' | 'resume_screening' | 'technical_interview_scheduled' | 'technical_interview_completed' | 'hr_interview_scheduled' | 'hr_interview_completed' | 'offer' | 'hired' | 'rejected'> = [
-      'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', 'applied', // 15
-      'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', 'resume_screening', // 10
-      'technical_interview_scheduled', 'technical_interview_scheduled', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', 'technical_interview_completed', // 10
-      'hr_interview_scheduled', 'hr_interview_scheduled', 'hr_interview_completed', 'hr_interview_completed', 'hr_interview_completed', 'hr_interview_completed', // 6
-      'offer', 'offer', 'offer', 'offer', // 4
-      'hired', 'hired', 'hired', // 3
-      'rejected', 'rejected' // 2
+      // Hired applications for Job 0 (Full-Stack) - 6 hired
+      'hired', 'hired', 'hired', 'hired', 'hired', 'hired',
+      // Hired applications for Job 1 (Senior Backend) - 5 hired
+      'hired', 'hired', 'hired', 'hired', 'hired',
+      // Hired applications for Job 2 (DevOps) - 3 hired
+      'hired', 'hired', 'hired',
+      // Hired applications for Job 3 (Design) - 3 hired
+      'hired', 'hired', 'hired',
+      // Hired applications for Job 4 (APM) - 2 hired
+      'hired', 'hired',
+      // Hired applications for Job 5 (Sales) - 4 hired
+      'hired', 'hired', 'hired', 'hired',
+      // Hired applications for Job 6 (Growth) - 2 hired
+      'hired', 'hired',
+      // Hired applications for Job 7 (Finance) - 1 hired
+      'hired',
+      // Hired applications for Job 8 (HR) - 2 hired
+      'hired', 'hired',
+      // Hired applications for Job 9 (Data Eng) - 3 hired
+      'hired', 'hired', 'hired',
+      // Hired applications for Job 10 (CSM) - 3 hired
+      'hired', 'hired', 'hired',
+      // Hired applications for Job 11 (SRE) - 2 hired
+      'hired', 'hired',
+      // Hired applications for Job 12 (Mobile Closed) - 4 hired
+      'hired', 'hired', 'hired', 'hired',
+      // Hired applications for Job 13 (Content Closed) - 2 hired
+      'hired', 'hired',
+      // Hired applications for Job 14 (Operations Closed) - 2 hired
+      'hired', 'hired',
+      // Active pipeline candidates (Non-hired)
+      'applied', 'applied', 'applied', 'resume_screening', 'technical_interview_scheduled', 'technical_interview_completed', 'hr_interview_scheduled', 'offer', 'rejected', 'rejected'
     ];
 
-    // Distribute creation dates over 6 months (Feb 2026 to Jul 2026)
-    const monthOffsets = [
-      0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
-    ]; // 0=Feb, 1=Mar, 2=Apr, 3=May, 4=Jun, 5=Jul
+    // Job index mapping for explicit headcount matching
+    const jobIndexMapping = [
+      0,0,0,0,0,0, // 6 for Job 0
+      1,1,1,1,1,   // 5 for Job 1
+      2,2,2,       // 3 for Job 2
+      3,3,3,       // 3 for Job 3
+      4,4,         // 2 for Job 4
+      5,5,5,5,     // 4 for Job 5
+      6,6,         // 2 for Job 6
+      7,           // 1 for Job 7
+      8,8,         // 2 for Job 8
+      9,9,9,       // 3 for Job 9
+      10,10,10,    // 3 for Job 10
+      11,11,       // 2 for Job 11
+      12,12,12,12, // 4 for Job 12
+      13,13,       // 2 for Job 13
+      14,14,       // 2 for Job 14
+      0, 1, 3, 5, 0, 1, 2, 4, 0, 1 // Active candidates
+    ];
 
     const resumeAssetUrl = '/assets/sample_resume.pdf';
 
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < stages.length && i < candidateNames.length; i++) {
       const name = candidateNames[i];
       const email = i === 0 ? 'karthikhrvidyanidhi676@gmail.com' : `${name.toLowerCase().replace(/ /g, '.')}@example.com`;
       const candidateUid = i === 0 
@@ -361,12 +450,32 @@ const seedDatabase = async () => {
         isEmailVerified: true
       });
 
-      const job = jobs[i % jobs.length];
+      const targetJobIdx = jobIndexMapping[i] !== undefined ? jobIndexMapping[i] : (i % jobs.length);
+      const job = jobs[targetJobIdx];
       const stage = stages[i];
       const source = sources[i % sources.length];
-      const monthIdx = monthOffsets[i];
       
-      const appDate = new Date(now.getFullYear(), 1 + monthIdx, 5 + (i % 22));
+      const appDate = new Date(now.getFullYear(), (i % 6), 1 + (i % 25));
+
+      // Build embedded employment data for hired applications
+      let employmentData: any = undefined;
+      if (stage === 'hired') {
+        const statuses = ['active', 'active', 'active', 'active', 'onboarding', 'probation', 'resigned'];
+        const empStatus = statuses[i % statuses.length];
+        const empType = i % 8 === 0 ? 'contract' : 'full_time';
+
+        employmentData = {
+          employeeId: `EMP-${1000 + i}`,
+          joiningDate: appDate,
+          managerName: job.createdBy ? 'Hiring Manager' : 'Sarah Jenkins',
+          office: i % 2 === 0 ? 'Bangalore HQ' : 'Mumbai Tech Center',
+          workLocation: job.location || 'Main Office',
+          employmentType: empType,
+          employmentStatus: empStatus,
+          probationEndDate: new Date(appDate.getTime() + 90 * 24 * 60 * 60 * 1000),
+          shift: 'Day (9 AM - 6 PM)'
+        };
+      }
 
       const app = await Application.create({
         candidate: candidateUser._id,
@@ -376,13 +485,14 @@ const seedDatabase = async () => {
         resumeUrl: resumeAssetUrl,
         phone: `+91 98765${10000 + i}`,
         country: 'India',
-        address: 'Bangalore, Karnataka, India',
-        experience: 2 + (i % 6),
+        address: job.location || 'Bangalore, Karnataka, India',
+        experience: 2 + (i % 7),
         linkedinUrl: `https://linkedin.com/in/${name.toLowerCase().replace(/ /g, '-')}`,
         githubUrl: `https://github.com/${name.toLowerCase().replace(/ /g, '-')}`,
         termsAccepted: true,
+        employment: employmentData,
         createdAt: appDate,
-        updatedAt: new Date(appDate.getTime() + (i % 5) * 24 * 60 * 60 * 1000),
+        updatedAt: new Date(appDate.getTime() + 5 * 24 * 60 * 60 * 1000),
         rejectionReason: stage === 'rejected' ? 'skills_mismatch' : null,
         rejectionNote: stage === 'rejected' ? 'Evaluation score below threshold for role seniority requirements.' : null
       });
@@ -438,7 +548,7 @@ const seedDatabase = async () => {
       }
     }
 
-    console.log('Seeded 50 applications successfully!');
+    console.log(`Seeded ${stages.length} applications with employee records successfully!`);
     console.log('Database seeding finished successfully.');
   } catch (error) {
     console.error(`Seeding failed: ${(error as Error).message}`);

@@ -7,6 +7,18 @@ export interface IApplicationNote {
   createdAt: Date;
 }
 
+export interface IEmploymentInfo {
+  employeeId: string;
+  joiningDate?: Date;
+  managerName?: string;
+  office?: string;
+  workLocation?: string;
+  employmentType?: string;
+  employmentStatus?: string;
+  probationEndDate?: Date;
+  shift?: string;
+}
+
 export interface IApplication extends Document {
   candidate: mongoose.Types.ObjectId;
   job: mongoose.Types.ObjectId;
@@ -34,10 +46,31 @@ export interface IApplication extends Document {
   referralNotes?: string;
   rejectionReason?: RejectionReasonType | null;
   rejectionNote?: string | null;
+  employment?: IEmploymentInfo;
   notes: IApplicationNote[];
   createdAt: Date;
   updatedAt: Date;
 }
+
+const EmploymentSchema = new Schema({
+  employeeId: { type: String, trim: true },
+  joiningDate: { type: Date, default: Date.now },
+  managerName: { type: String, trim: true, default: 'Hiring Manager' },
+  office: { type: String, trim: true, default: 'Headquarters' },
+  workLocation: { type: String, trim: true, default: 'Main Office' },
+  employmentType: {
+    type: String,
+    enum: ['full_time', 'part_time', 'contract', 'internship', 'remote'],
+    default: 'full_time'
+  },
+  employmentStatus: {
+    type: String,
+    enum: ['active', 'onboarding', 'probation', 'leave', 'resigned', 'terminated', 'retired'],
+    default: 'active'
+  },
+  probationEndDate: { type: Date },
+  shift: { type: String, default: 'Day (9 AM - 6 PM)' }
+});
 
 const ApplicationNoteSchema = new Schema({
   author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -100,6 +133,7 @@ const ApplicationSchema: Schema = new Schema(
       default: null
     },
     rejectionNote: { type: String, default: null },
+    employment: { type: EmploymentSchema, default: null },
     notes: [ApplicationNoteSchema]
   },
   {

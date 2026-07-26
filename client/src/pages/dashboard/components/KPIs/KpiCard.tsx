@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Briefcase, FileText, Users, Calendar, Send, Award, Clock, CheckCircle2, TrendingUp } from 'lucide-react';
 import { KPIItem } from '../../../../types/dashboard';
 import styles from '../../dashboard.module.css';
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export const KpiCard: React.FC<Props> = ({ kpi }) => {
+  const navigate = useNavigate();
+
   const getIcon = (name: string) => {
     switch (name) {
       case 'Briefcase': return <Briefcase size={18} style={{ color: 'var(--accent)' }} />;
@@ -21,8 +24,25 @@ export const KpiCard: React.FC<Props> = ({ kpi }) => {
     }
   };
 
+  const handleCardClick = () => {
+    const labelLower = kpi.label.toLowerCase();
+    if (labelLower.includes('employee') || labelLower.includes('hire')) {
+      navigate('/recruiter/employees');
+    } else if (labelLower.includes('resourcing')) {
+      navigate('/recruiter/employees?needResourcing=true');
+    } else if (labelLower.includes('job') || labelLower.includes('position')) {
+      navigate('/recruiter/jobs');
+    } else if (labelLower.includes('candidate') || labelLower.includes('application')) {
+      navigate('/recruiter/candidates');
+    }
+  };
+
   return (
-    <div className={styles.kpiCard}>
+    <div
+      className={styles.kpiCard}
+      onClick={handleCardClick}
+      style={{ cursor: 'pointer', transition: 'transform 0.15s ease, box-shadow 0.15s ease' }}
+    >
       <div className={styles.kpiHeader}>
         <span className={styles.kpiLabel}>{kpi.label}</span>
         {getIcon(kpi.iconName)}

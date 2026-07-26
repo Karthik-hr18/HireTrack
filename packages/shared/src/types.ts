@@ -10,6 +10,19 @@ export interface UserSummary {
   isEmailVerified?: boolean;
 }
 
+export interface EmploymentInfo {
+  employeeId: string;
+  joiningDate?: Date | string;
+  managerName?: string;
+  managerId?: string;
+  office?: string;
+  workLocation?: string;
+  employmentType?: 'full_time' | 'part_time' | 'contract' | 'internship' | 'remote';
+  employmentStatus?: 'active' | 'onboarding' | 'probation' | 'leave' | 'resigned' | 'terminated' | 'retired';
+  probationEndDate?: Date | string;
+  shift?: string;
+}
+
 export interface JobEntity {
   _id: string;
   title: string;
@@ -20,6 +33,10 @@ export interface JobEntity {
   minExperience: number;
   maxExperience: number;
   vacancies: number;
+  requiredHeadcount: number;
+  currentEmployees?: number;
+  hiringProgress?: number;
+  staffingStatus?: 'fully_staffed' | 'overstaffed' | 'need_resourcing';
   status: 'open' | 'closed';
   createdBy?: UserSummary | string;
   candidateCount?: number;
@@ -54,6 +71,7 @@ export interface ApplicationEntity {
   referrerName?: string;
   referrerEmail?: string;
   referralNotes?: string;
+  employment?: EmploymentInfo;
   interviews?: InterviewEntity[];
   scorecards?: ScorecardEntity[];
   createdAt: Date | string;

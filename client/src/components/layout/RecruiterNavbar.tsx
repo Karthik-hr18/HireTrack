@@ -178,6 +178,31 @@ export const RecruiterNavbar: React.FC = () => {
             >
               Jobs
             </Link>
+            <Link 
+              to="/recruiter/employees" 
+              style={{
+                height: 34,
+                padding: '0 18px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 13,
+                fontWeight: isActive('/recruiter/employees') ? 700 : 500,
+                color: isActive('/recruiter/employees') ? '#0f172a' : '#64748b',
+                backgroundColor: isActive('/recruiter/employees') ? '#f8fafc' : 'transparent',
+                borderRadius: '8px 8px 0 0',
+                textDecoration: 'none',
+                borderTop: isActive('/recruiter/employees') ? '2px solid #0284c7' : '2px solid transparent',
+                borderLeft: isActive('/recruiter/employees') ? '1px solid #e2e8f0' : '1px solid transparent',
+                borderRight: isActive('/recruiter/employees') ? '1px solid #e2e8f0' : '1px solid transparent',
+                borderBottom: isActive('/recruiter/employees') ? '1px solid #f8fafc' : '1px solid transparent',
+                marginBottom: -1,
+                transition: 'all 0.15s ease',
+                zIndex: isActive('/recruiter/employees') ? 2 : 1
+              }}
+            >
+              👥 Employees
+            </Link>
             {user?.role === 'admin' && (
               <Link 
                 to="/admin/interviews" 

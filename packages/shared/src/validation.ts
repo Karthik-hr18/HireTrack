@@ -46,6 +46,27 @@ export const RejectionReason = z.enum([
 ]);
 export type RejectionReasonType = z.infer<typeof RejectionReason>;
 
+// Employment Status & Type
+export const EmployeeStatus = z.enum([
+  'active',
+  'onboarding',
+  'probation',
+  'leave',
+  'resigned',
+  'terminated',
+  'retired'
+]);
+export type EmployeeStatusType = z.infer<typeof EmployeeStatus>;
+
+export const EmploymentType = z.enum([
+  'full_time',
+  'part_time',
+  'contract',
+  'internship',
+  'remote'
+]);
+export type EmploymentTypeType = z.infer<typeof EmploymentType>;
+
 // Auth Validation
 export const RegisterSchema = z.object({
   name: z.string().trim().min(2, 'Name must be at least 2 characters'),
@@ -92,7 +113,8 @@ export const CreateJobSchema = z.object({
   location: z.string().trim().optional(),
   minExperience: z.number().nonnegative('Minimum experience cannot be negative').default(0),
   maxExperience: z.number().nonnegative('Maximum experience cannot be negative').default(0),
-  vacancies: z.number().int().positive('Vacancies must be at least 1').default(1)
+  vacancies: z.number().int().positive('Vacancies must be at least 1').default(1),
+  requiredHeadcount: z.number().int().positive('Required headcount must be at least 1').default(5)
 });
 export type CreateJobInput = z.infer<typeof CreateJobSchema>;
 
