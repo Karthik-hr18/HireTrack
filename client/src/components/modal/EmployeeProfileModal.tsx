@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { X, FileText } from 'lucide-react';
 import { useEmployeeDetail } from '../../hooks/useEmployees';
+import { updateEmployeeEmployment } from '../../services/employeeService';
 import { PdfViewerModal } from '../ui/PdfViewerModal';
 import './modal.css';
 
@@ -8,6 +9,7 @@ interface EmployeeProfileModalProps {
   applicationId: string | null;
   isOpen: boolean;
   onClose: () => void;
+  onRefresh?: () => void;
 }
 
 type ProfileTab = 'employment' | 'personal' | 'resume' | 'interviews' | 'notes';
@@ -15,11 +17,16 @@ type ProfileTab = 'employment' | 'personal' | 'resume' | 'interviews' | 'notes';
 export const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
   applicationId,
   isOpen,
-  onClose
+  onClose,
+  onRefresh
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<ProfileTab>('employment');
   const [showPdfModal, setShowPdfModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
 
   const { detail, loading, error } = useEmployeeDetail(isOpen ? applicationId : null);
 
@@ -32,6 +39,23 @@ export const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
+
+  const handleSaveEmployment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!applicationId) return;
+    try {
+      setSaving(true);
+      await updateEmployeeEmployment(applicationId, editForm);
+      setSaving(false);
+      setIsEditing(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update employment details');
+      setSaving(false);
+    }
+  };
 
   if (!isOpen || !applicationId) return null;
 
@@ -271,61 +295,216 @@ export const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
               {/* TAB 1: EMPLOYMENT INFORMATION */}
               {activeTab === 'employment' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Employee ID</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{employeeId}</p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Department</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{job?.department || 'Engineering'}</p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Job Title</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{job?.title || 'Employee'}</p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Reporting Manager</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{emp?.managerName || 'Sarah Jenkins'}</p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Employment Type</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0', textTransform: 'capitalize' }}>
-                        {(emp?.employmentType || 'full_time').replace('_', ' ')}
-                      </p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Employment Status</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0', textTransform: 'capitalize' }}>
-                        {emp?.employmentStatus || 'Active'}
-                      </p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Joining Date</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{formatDate(emp?.joiningDate || app.createdAt)}</p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Probation End Date</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{formatDate(emp?.probationEndDate)}</p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Office / Facility</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{emp?.office || 'Bangalore HQ'}</p>
-                    </div>
-
-                    <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Work Shift</span>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{emp?.shift || 'Day (9 AM - 6 PM)'}</p>
-                    </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                      Official Employment Record
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!isEditing) {
+                          setEditForm({
+                            managerName: emp?.managerName || 'Sarah Jenkins',
+                            office: emp?.office || 'Bangalore HQ',
+                            workLocation: emp?.workLocation || job?.location || 'Main Office',
+                            employmentType: emp?.employmentType || 'full_time',
+                            employmentStatus: emp?.employmentStatus || 'active',
+                            shift: emp?.shift || 'Day (9 AM - 6 PM)',
+                            joiningDate: emp?.joiningDate ? new Date(emp.joiningDate).toISOString().split('T')[0] : '',
+                            probationEndDate: emp?.probationEndDate ? new Date(emp.probationEndDate).toISOString().split('T')[0] : '',
+                            employeeId: employeeId
+                          });
+                        }
+                        setIsEditing(!isEditing);
+                      }}
+                      style={{
+                        padding: '6px 14px',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        backgroundColor: isEditing ? '#f1f5f9' : '#0284c7',
+                        color: isEditing ? '#475569' : '#ffffff',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isEditing ? 'Cancel Edit' : 'Edit Employment Details'}
+                    </button>
                   </div>
+
+                  {saveSuccess && (
+                    <div style={{ padding: '10px 14px', backgroundColor: '#dcfce7', color: '#15803d', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
+                      ✓ Employment details updated successfully!
+                    </div>
+                  )}
+
+                  {isEditing ? (
+                    <form onSubmit={handleSaveEmployment} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, backgroundColor: '#f8fafc', padding: 20, borderRadius: 12, border: '1px solid #cbd5e1' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Reporting Manager</label>
+                        <input
+                          type="text"
+                          required
+                          value={editForm.managerName || ''}
+                          onChange={(e) => setEditForm({ ...editForm, managerName: e.target.value })}
+                          style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Office / Facility</label>
+                        <input
+                          type="text"
+                          required
+                          value={editForm.office || ''}
+                          onChange={(e) => setEditForm({ ...editForm, office: e.target.value })}
+                          style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Work Location</label>
+                        <input
+                          type="text"
+                          required
+                          value={editForm.workLocation || ''}
+                          onChange={(e) => setEditForm({ ...editForm, workLocation: e.target.value })}
+                          style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Employment Type</label>
+                        <select
+                          value={editForm.employmentType || 'full_time'}
+                          onChange={(e) => setEditForm({ ...editForm, employmentType: e.target.value })}
+                          style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #cbd5e1', backgroundColor: '#fff' }}
+                        >
+                          <option value="full_time">Full-Time</option>
+                          <option value="contract">Contract</option>
+                          <option value="part_time">Part-Time</option>
+                          <option value="internship">Internship</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Employment Status</label>
+                        <select
+                          value={editForm.employmentStatus || 'active'}
+                          onChange={(e) => setEditForm({ ...editForm, employmentStatus: e.target.value })}
+                          style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #cbd5e1', backgroundColor: '#fff' }}
+                        >
+                          <option value="active">Active</option>
+                          <option value="onboarding">Onboarding</option>
+                          <option value="probation">Probation</option>
+                          <option value="resigned">Resigned</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Work Shift</label>
+                        <input
+                          type="text"
+                          value={editForm.shift || 'Day (9 AM - 6 PM)'}
+                          onChange={(e) => setEditForm({ ...editForm, shift: e.target.value })}
+                          style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Joining Date</label>
+                        <input
+                          type="date"
+                          value={editForm.joiningDate || ''}
+                          onChange={(e) => setEditForm({ ...editForm, joiningDate: e.target.value })}
+                          style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Probation End Date</label>
+                        <input
+                          type="date"
+                          value={editForm.probationEndDate || ''}
+                          onChange={(e) => setEditForm({ ...editForm, probationEndDate: e.target.value })}
+                          style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+
+                      <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => setIsEditing(false)}
+                          style={{ padding: '8px 16px', fontSize: 13, fontWeight: 600, backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer' }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={saving}
+                          style={{ padding: '8px 20px', fontSize: 13, fontWeight: 700, backgroundColor: '#0284c7', color: '#ffffff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+                        >
+                          {saving ? 'Saving...' : 'Save Employment Details'}
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Employee ID (Auto Allotted)</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{employeeId}</p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Department</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{job?.department || 'Engineering'}</p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Job Title</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{job?.title || 'Employee'}</p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Reporting Manager</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{emp?.managerName || 'Sarah Jenkins'}</p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Employment Type</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0', textTransform: 'capitalize' }}>
+                          {(emp?.employmentType || 'full_time').replace('_', ' ')}
+                        </p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Employment Status</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0', textTransform: 'capitalize' }}>
+                          {emp?.employmentStatus || 'Active'}
+                        </p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Joining Date</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{formatDate(emp?.joiningDate || app.createdAt)}</p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Probation End Date</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{formatDate(emp?.probationEndDate)}</p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Office / Facility</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{emp?.office || 'Bangalore HQ'}</p>
+                      </div>
+
+                      <div style={{ padding: 16, backgroundColor: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Work Shift</span>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '4px 0 0 0' }}>{emp?.shift || 'Day (9 AM - 6 PM)'}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

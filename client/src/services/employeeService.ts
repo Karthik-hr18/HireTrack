@@ -10,6 +10,7 @@ export interface EmployeeStatsSummary {
   resigned: number;
   openPositions: number;
   needResourcingCount: number;
+  managers?: string[];
 }
 
 export interface JobTeamCardItem {
@@ -28,6 +29,7 @@ export interface JobTeamCardItem {
 export interface EmployeesQueryOptions {
   search?: string;
   department?: string;
+  managerName?: string;
   jobId?: string;
   employmentType?: string;
   employmentStatus?: string;
@@ -72,6 +74,7 @@ export const fetchEmployees = async (options: EmployeesQueryOptions = {}): Promi
   const params = new URLSearchParams();
   if (options.search) params.append('search', options.search);
   if (options.department && options.department !== 'all') params.append('department', options.department);
+  if (options.managerName && options.managerName !== 'all') params.append('managerName', options.managerName);
   if (options.jobId && options.jobId !== 'all') params.append('jobId', options.jobId);
   if (options.employmentType && options.employmentType !== 'all') params.append('employmentType', options.employmentType);
   if (options.employmentStatus && options.employmentStatus !== 'all') params.append('employmentStatus', options.employmentStatus);
@@ -90,6 +93,21 @@ export const fetchEmployees = async (options: EmployeesQueryOptions = {}): Promi
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
     throw new Error(err.message || 'Failed to fetch employees list');
+  }
+
+  return response.json();
+};
+
+export const updateEmployeeEmployment = async (id: string, data: any): Promise<any> => {
+  const response = await fetch(`${API_URL}/api/employees/${id}/employment`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to update employment details');
   }
 
   return response.json();

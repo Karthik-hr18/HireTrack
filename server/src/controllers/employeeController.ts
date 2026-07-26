@@ -58,6 +58,7 @@ export const getEmployees = async (req: Request, res: Response, next: NextFuncti
       query.$or = [
         { candidate: { $in: userIds } },
         { 'employment.employeeId': { $regex: searchStr, $options: 'i' } },
+        { 'employment.managerName': { $regex: searchStr, $options: 'i' } },
         { currentTitle: { $regex: searchStr, $options: 'i' } },
         { currentCompany: { $regex: searchStr, $options: 'i' } }
       ];
@@ -69,8 +70,17 @@ export const getEmployees = async (req: Request, res: Response, next: NextFuncti
       .populate('job', 'title department location requiredHeadcount status minExperience maxExperience')
       .exec();
 
+    // Manager filter
+    if (req.query.managerName && req.query.managerName !== 'all') {
+      const mgr = (req.query.managerName as string).toLowerCase();
+      hiredApps = hiredApps.filter((app: any) => {
+        const manager = (app.employment?.managerName || '').toLowerCase();
+        return manager.includes(mgr);
+      });
+    }
+
     // Department filter (post-populate or via job IDs)
-    if (req.query.department) {
+    if (req.query.department && req.query.department !== 'all') {
       const dept = (req.query.department as string).toLowerCase();
       hiredApps = hiredApps.filter((app: any) => {
         const jobDept = (app.job?.department || 'General').toLowerCase();
@@ -168,11 +178,16 @@ export const getEmployeeStatsAndTeams = async (req: Request, res: Response, next
     let onboardingCount = 0;
     let probationCount = 0;
     let resignedCount = 0;
+    const reportingManagersSet = new Set<string>();
 
     hiredApps.forEach((app: any) => {
       const jobId = app.job?._id?.toString() || app.job?.toString();
       if (jobId) {
         hiredByJobMap.set(jobId, (hiredByJobMap.get(jobId) || 0) + 1);
+      }
+
+      if (app.employment?.managerName) {
+        reportingManagersSet.add(app.employment.managerName);
       }
 
       const status = app.employment?.employmentStatus || 'active';
@@ -226,10 +241,72 @@ export const getEmployeeStatsAndTeams = async (req: Request, res: Response, next
         probation: probationCount,
         resigned: resignedCount,
         openPositions,
-        needResourcingCount
+        needResourcingCount,
+        managers: Array.from(reportingManagersSet).sort()
       },
       jobTeams
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const autoGenerateEmployeeId = async (jobId: string | mongoose.Types.ObjectId): Promise<string> => {
+  const job = await Job.findById(jobId);
+  const jobTitle = job?.title || 'Engineer';
+  
+  const cleanTitle = jobTitle.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+  const words = cleanTitle.split(/\s+/).filter(Boolean);
+  let code = 'EMP';
+  if (words.length >= 2) {
+    code = (words[0][0] + words[1][0]).toUpperCase();
+  } else if (words.length === 1 && words[0].length >= 2) {
+    code = words[0].substring(0, 2).toUpperCase();
+  }
+
+  const count = await Application.countDocuments({ job: jobId, stage: 'hired' });
+  const seq = 1000 + count + 1;
+  return `EMP-${code}-${seq}`;
+};
+
+export const updateEmployeeEmployment = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid Application ID', code: 'BAD_REQUEST' });
+    }
+
+    const app = await Application.findById(id);
+    if (!app) {
+      return res.status(404).json({ message: 'Application profile not found', code: 'NOT_FOUND' });
+    }
+
+    const { managerName, office, workLocation, employmentType, employmentStatus, probationEndDate, shift, joiningDate, employeeId } = req.body;
+
+    let finalEmpId = employeeId || app.employment?.employeeId;
+    if (!finalEmpId && app.job) {
+      finalEmpId = await autoGenerateEmployeeId(app.job);
+    }
+
+    app.employment = {
+      employeeId: finalEmpId || `EMP-${Date.now().toString().slice(-4)}`,
+      managerName: managerName !== undefined ? managerName : app.employment?.managerName || 'Sarah Jenkins',
+      office: office !== undefined ? office : app.employment?.office || 'Bangalore HQ',
+      workLocation: workLocation !== undefined ? workLocation : app.employment?.workLocation || 'Main Office',
+      employmentType: employmentType || app.employment?.employmentType || 'full_time',
+      employmentStatus: employmentStatus || app.employment?.employmentStatus || 'active',
+      probationEndDate: probationEndDate ? new Date(probationEndDate) : app.employment?.probationEndDate,
+      shift: shift || app.employment?.shift || 'Day (9 AM - 6 PM)',
+      joiningDate: joiningDate ? new Date(joiningDate) : app.employment?.joiningDate || app.createdAt
+    };
+
+    await app.save();
+
+    const updated = await Application.findById(id)
+      .populate('candidate', 'name email role')
+      .populate('job', 'title department location');
+
+    return res.status(200).json({ message: 'Employment details updated successfully', employee: updated });
   } catch (error) {
     return next(error);
   }
