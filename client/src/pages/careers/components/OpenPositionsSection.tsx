@@ -132,20 +132,20 @@ export const OpenPositionsSection: React.FC<OpenPositionsSectionProps> = ({ jobs
   }, [jobs, filters]);
 
   return (
-    <section id="open-positions" style={{ padding: '80px 0', borderTop: '1px solid var(--gray-border)' }}>
+    <section id="open-positions" style={{ padding: '90px 0', backgroundColor: '#0b0f19', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
       <div className="careers-container">
         <ScrollReveal>
           {/* Section Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 24, marginBottom: 40 }}>
             <div>
-              <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)', marginBottom: 10 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#818cf8', marginBottom: 10 }}>
                 Available Opportunities
               </p>
-              <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
+              <h2 style={{ fontSize: 36, fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
                 Open Positions ({filteredJobs.length})
               </h2>
             </div>
-            <p style={{ fontSize: 15, color: 'var(--gray-text-muted)', maxWidth: 460, margin: 0 }}>
+            <p style={{ fontSize: 15, color: '#94a3b8', maxWidth: 460, margin: 0 }}>
               Explore opportunities across engineering, design, and operations. All roles include remote flexibility.
             </p>
           </div>

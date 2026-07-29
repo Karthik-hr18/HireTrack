@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Shield, Zap, Globe } from 'lucide-react';
 
-const VIDEO_SOURCES = [
-  '/assets/istockphoto-1723914138-640_adpp_is.mp4',
-  '/assets/istockphoto-2151261126-640_adpp_is.mp4'
-];
+const HERO_VIDEO = '/assets/istockphoto-2151261126-640_adpp_is.mp4';
 
 export const CareersHero: React.FC = () => {
-  const [activeVideoIdx, setActiveVideoIdx] = useState<number>(0);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [isEntered, setIsEntered] = useState<boolean>(false);
+  const [typedWords, setTypedWords] = useState<number>(0);
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(false);
 
-  const videoRef0 = useRef<HTMLVideoElement | null>(null);
-  const videoRef1 = useRef<HTMLVideoElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // 1. Accessibility: Check prefers-reduced-motion
   useEffect(() => {
@@ -26,54 +22,50 @@ export const CareersHero: React.FC = () => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // 2. Randomize initial video selection on mount & set entrance state
+  // 2. Entrance Animation & Text Word-by-Word Generation
   useEffect(() => {
-    const randomInitial = Math.floor(Math.random() * VIDEO_SOURCES.length);
-    setActiveVideoIdx(randomInitial);
-
-    // Trigger hero entry animation after mount
-    const timer = setTimeout(() => {
+    const entranceTimer = setTimeout(() => {
       setIsEntered(true);
     }, 50);
-    return () => clearTimeout(timer);
+
+    // Stagger word typing effect on opening
+    const wordsInterval = setInterval(() => {
+      setTypedWords((prev) => {
+        if (prev >= 4) {
+          clearInterval(wordsInterval);
+          return 4;
+        }
+        return prev + 1;
+      });
+    }, 180);
+
+    return () => {
+      clearTimeout(entranceTimer);
+      clearInterval(wordsInterval);
+    };
   }, []);
 
-  // 3. Cycle video cross-fade every 22 seconds
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-
-    const interval = setInterval(() => {
-      setActiveVideoIdx((prevIdx) => (prevIdx + 1) % VIDEO_SOURCES.length);
-    }, 22000);
-
-    return () => clearInterval(interval);
-  }, [prefersReducedMotion]);
-
-  // 4. Tab Visibility API: Pause videos when tab is inactive to preserve performance
+  // 3. Tab Visibility API: Pause video when tab is inactive to preserve battery & performance
   useEffect(() => {
     const handleVisibilityChange = () => {
-      const isHidden = document.hidden;
-      [videoRef0.current, videoRef1.current].forEach((v) => {
-        if (!v) return;
-        if (isHidden) {
-          v.pause();
-        } else {
-          v.play().catch(() => {});
-        }
-      });
+      if (!videoRef.current) return;
+      if (document.hidden) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play().catch(() => {});
+      }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  // 5. Scroll Effect: Hero content gradually fades & translates upward as user scrolls
+  // 4. Scroll Parallax Fade Effect
   useEffect(() => {
     if (prefersReducedMotion) return;
 
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      setScrollProgress(scrollY);
+      setScrollProgress(window.scrollY);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -81,12 +73,12 @@ export const CareersHero: React.FC = () => {
   }, [prefersReducedMotion]);
 
   // Calculate dynamic scroll opacity & translation for hero content
-  const heroOpacity = prefersReducedMotion ? 1 : Math.max(0, 1 - scrollProgress / 380);
-  const heroTranslateY = prefersReducedMotion ? 0 : Math.min(40, (scrollProgress / 380) * 40);
+  const heroOpacity = prefersReducedMotion ? 1 : Math.max(0, 1 - scrollProgress / 400);
+  const heroTranslateY = prefersReducedMotion ? 0 : Math.min(40, (scrollProgress / 400) * 40);
 
   return (
-    <section className="careers-hero" style={{ position: 'relative', overflow: 'hidden', minHeight: '80vh', display: 'flex', alignItems: 'center', backgroundColor: '#0f172a' }}>
-      {/* ── FULL-SCREEN BACKGROUND VIDEO LAYER ── */}
+    <section className="careers-hero" style={{ position: 'relative', overflow: 'hidden', minHeight: '85vh', display: 'flex', alignItems: 'center', backgroundColor: '#090d16' }}>
+      {/* ── FULL-SCREEN BACKGROUND VIDEO (VIDEO 1) ── */}
       <div
         style={{
           position: 'absolute',
@@ -97,7 +89,7 @@ export const CareersHero: React.FC = () => {
           overflow: 'hidden',
           zIndex: 1,
           pointerEvents: 'none',
-          transform: prefersReducedMotion ? 'scale(1)' : isEntered ? 'scale(1.0)' : 'scale(1.05)',
+          transform: prefersReducedMotion ? 'scale(1)' : isEntered ? 'scale(1.0)' : 'scale(1.06)',
           transition: prefersReducedMotion ? 'none' : 'transform 2.5s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       >
@@ -118,33 +110,10 @@ export const CareersHero: React.FC = () => {
           }}
         />
 
-        {/* Video 0 */}
-        <video
-          ref={videoRef0}
-          src={VIDEO_SOURCES[0]}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          onLoadedData={() => setIsLoaded(true)}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            opacity: activeVideoIdx === 0 ? 1 : 0,
-            transition: 'opacity 1.5s ease-in-out',
-            zIndex: 2
-          }}
-        />
-
         {/* Video 1 */}
         <video
-          ref={videoRef1}
-          src={VIDEO_SOURCES[1]}
+          ref={videoRef}
+          src={HERO_VIDEO}
           autoPlay
           muted
           loop
@@ -158,14 +127,14 @@ export const CareersHero: React.FC = () => {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            opacity: activeVideoIdx === 1 ? 1 : 0,
-            transition: 'opacity 1.5s ease-in-out',
+            opacity: isLoaded ? 1 : 0,
+            transition: 'opacity 1s ease-in-out',
             zIndex: 2
           }}
         />
       </div>
 
-      {/* ── VIDEO OVERLAY (Semi-transparent dark gradient) ── */}
+      {/* ── UNIFIED DARK GRADIENT OVERLAY ── */}
       <div
         style={{
           position: 'absolute',
@@ -175,9 +144,36 @@ export const CareersHero: React.FC = () => {
           bottom: 0,
           zIndex: 2,
           pointerEvents: 'none',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.65) 50%, rgba(0, 0, 0, 0.72) 100%)'
+          background: 'linear-gradient(180deg, rgba(9, 13, 22, 0.70) 0%, rgba(9, 13, 22, 0.82) 60%, rgba(9, 13, 22, 0.96) 100%)'
         }}
       />
+
+      {/* ── FLOATING ASSEMBLING DECORATIVE PILLS ("Parts Come and Join") ── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '20%',
+          right: '8%',
+          zIndex: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          pointerEvents: 'none',
+          opacity: prefersReducedMotion || isEntered ? 1 : 0,
+          transform: prefersReducedMotion || isEntered ? 'translate(0, 0)' : 'translate(60px, -30px)',
+          transition: prefersReducedMotion ? 'none' : 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1) 400ms'
+        }}
+      >
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', backgroundColor: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(99, 102, 241, 0.3)', borderRadius: 99, color: '#e2e8f0', fontSize: 12, fontWeight: 600, backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+          <Zap size={14} style={{ color: '#fbbf24' }} /> High Impact Projects
+        </div>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', backgroundColor: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: 99, color: '#e2e8f0', fontSize: 12, fontWeight: 600, backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', marginLeft: 30 }}>
+          <Globe size={14} style={{ color: '#38bdf8' }} /> 100% Async Remote
+        </div>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', backgroundColor: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(52, 211, 153, 0.3)', borderRadius: 99, color: '#e2e8f0', fontSize: 12, fontWeight: 600, backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+          <Shield size={14} style={{ color: '#34d399' }} /> Top Tier Equity & Perks
+        </div>
+      </div>
 
       {/* ── HERO TEXT & BUTTONS CONTENT LAYER ── */}
       <div
@@ -186,7 +182,7 @@ export const CareersHero: React.FC = () => {
           position: 'relative',
           zIndex: 3,
           width: '100%',
-          paddingTop: 100,
+          paddingTop: 110,
           paddingBottom: 100,
           opacity: heroOpacity,
           transform: `translateY(${heroTranslateY}px)`,
@@ -194,25 +190,25 @@ export const CareersHero: React.FC = () => {
         }}
       >
         <div style={{ maxWidth: 680 }}>
-          {/* Badge (Fade-in 600ms, Delay 0ms) */}
+          {/* Badge (Fade-in 600ms) */}
           <div
             className="careers-hero__badge"
             style={{
               opacity: prefersReducedMotion || isEntered ? 1 : 0,
               transform: prefersReducedMotion || isEntered ? 'translateY(0)' : 'translateY(20px)',
               transition: prefersReducedMotion ? 'none' : 'opacity 600ms ease-out, transform 600ms ease-out',
-              backgroundColor: 'rgba(255, 255, 255, 0.12)',
-              borderColor: 'rgba(255, 255, 255, 0.25)',
-              color: '#ffffff',
-              backdropFilter: 'blur(8px)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+              backgroundColor: 'rgba(99, 102, 241, 0.15)',
+              borderColor: 'rgba(129, 140, 248, 0.35)',
+              color: '#c7d2fe',
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 4px 20px rgba(99, 102, 241, 0.2)'
             }}
           >
             <Sparkles size={14} style={{ color: '#a5b4fc' }} />
             <span>We Are Hiring · Global Remote Team</span>
           </div>
 
-          {/* Heading (Fade-in 600ms, Delay 150ms) */}
+          {/* Heading with Word-by-Word Generation / Shimmer Effect */}
           <h1
             className="careers-hero__title"
             style={{
@@ -221,14 +217,27 @@ export const CareersHero: React.FC = () => {
               transition: prefersReducedMotion ? 'none' : 'opacity 600ms ease-out 150ms, transform 600ms ease-out 150ms',
               color: '#ffffff',
               fontWeight: 800,
-              textShadow: '0 2px 14px rgba(0, 0, 0, 0.5)',
+              textShadow: '0 2px 16px rgba(0, 0, 0, 0.6)',
               letterSpacing: '-0.03em',
               lineHeight: 1.1,
               marginBottom: 20
             }}
           >
-            Build Products <br />
-            <span style={{ color: '#a5b4fc', textShadow: '0 2px 14px rgba(0, 0, 0, 0.5)' }}>That Matter.</span>
+            <span style={{ opacity: typedWords >= 1 ? 1 : 0.2, transition: 'opacity 250ms ease-in' }}>Build </span>
+            <span style={{ opacity: typedWords >= 2 ? 1 : 0.2, transition: 'opacity 250ms ease-in' }}>Products </span>
+            <br />
+            <span
+              style={{
+                opacity: typedWords >= 3 ? 1 : 0.2,
+                transition: 'opacity 250ms ease-in',
+                background: 'linear-gradient(135deg, #a5b4fc 0%, #c084fc 50%, #e879f9 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                display: 'inline-block'
+              }}
+            >
+              That Matter.
+            </span>
           </h1>
 
           {/* Subtitle (Fade-in 600ms, Delay 300ms) */}
@@ -238,8 +247,8 @@ export const CareersHero: React.FC = () => {
               opacity: prefersReducedMotion || isEntered ? 1 : 0,
               transform: prefersReducedMotion || isEntered ? 'translateY(0)' : 'translateY(24px)',
               transition: prefersReducedMotion ? 'none' : 'opacity 600ms ease-out 300ms, transform 600ms ease-out 300ms',
-              color: 'rgba(255, 255, 255, 0.90)',
-              textShadow: '0 1px 6px rgba(0, 0, 0, 0.5)',
+              color: '#cbd5e1',
+              textShadow: '0 1px 8px rgba(0, 0, 0, 0.5)',
               fontSize: 18,
               lineHeight: 1.6,
               marginBottom: 36,
@@ -258,17 +267,17 @@ export const CareersHero: React.FC = () => {
               transition: prefersReducedMotion ? 'none' : 'opacity 600ms ease-out 450ms, transform 600ms ease-out 450ms'
             }}
           >
-            <a href="#open-positions" className="btn-primary-lg">
+            <a href="#open-positions" className="btn-primary-lg" style={{ backgroundColor: '#6366f1', color: '#ffffff', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)' }}>
               Explore Open Roles <ArrowRight size={18} />
             </a>
             <a
               href="#company-story"
               className="btn-secondary-lg"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                backgroundColor: 'rgba(255, 255, 255, 0.10)',
                 color: '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                backdropFilter: 'blur(12px)',
                 textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)'
               }}
             >

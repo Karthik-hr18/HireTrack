@@ -49,7 +49,7 @@ export const CareersPage: React.FC = () => {
   }, [loading]);
 
   return (
-    <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <SEOMeta 
         title="Careers at HireTrack — Build Products That Matter"
         description="Explore open software engineering, product design, and talent management roles at HireTrack. Apply online in under 60 seconds."

@@ -2879,10 +2879,18 @@ input:focus, select:focus, textarea:focus {
   padding: 0 24px;
 }
 
+.careers-nav {
+  background-color: rgba(9, 13, 22, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 250ms ease;
+}
+
 .careers-nav--scrolled {
-  background-color: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
-  border-bottom-color: rgba(226, 232, 240, 0.9);
+  background-color: rgba(9, 13, 22, 0.92);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  border-bottom-color: rgba(255, 255, 255, 0.15);
 }
 
 .careers-nav__inner {
@@ -2895,7 +2903,7 @@ input:focus, select:focus, textarea:focus {
 .careers-nav__logo {
   font-size: 20px;
   font-weight: 800;
-  color: var(--gray-text-primary);
+  color: #ffffff;
   text-decoration: none;
   letter-spacing: -0.03em;
   display: inline-flex;
@@ -3039,7 +3047,7 @@ input:focus, select:focus, textarea:focus {
 .careers-nav__link {
   font-size: 14px;
   font-weight: 500;
-  color: var(--gray-text-muted);
+  color: #cbd5e1;
   text-decoration: none;
   position: relative;
   display: inline-flex;
@@ -3057,13 +3065,13 @@ input:focus, select:focus, textarea:focus {
   left: 0;
   width: 0;
   height: 2px;
-  background-color: var(--accent);
+  background-color: #818cf8;
   border-radius: 99px;
   transition: width 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .careers-nav__link:hover {
-  color: var(--gray-text-primary);
+  color: #ffffff;
 }
 
 .careers-nav__link:hover::after {
