@@ -310,34 +310,47 @@ export const JobDetailPage: React.FC = () => {
                 </div>
               ) : !user ? (
                 /* SIGNED-OUT VISITOR EXPERIENCE */
-                <div style={{ backgroundColor: 'var(--gray-bg)', padding: 32, borderRadius: 20, border: '1px solid var(--gray-border)' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(79, 70, 229, 0.1)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                <div 
+                  style={{ 
+                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%)', 
+                    padding: 24, 
+                    borderRadius: 18, 
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(99, 102, 241, 0.18)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
                     <ShieldCheck size={22} />
                   </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
+                  <h3 style={{ fontSize: 19, fontWeight: 800, color: '#ffffff', marginBottom: 8 }}>
                     Sign in to apply for this position
                   </h3>
-                  <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
+                  <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.6, marginBottom: 24 }}>
                     Create a free candidate profile or log in to submit your resume, specify experience details, and track your application status in real-time.
                   </p>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Instant PDF resume evaluation
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 26 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#f8fafc' }}>
+                      <CheckCircle2 size={16} style={{ color: '#818cf8', flexShrink: 0 }} /> Instant PDF resume evaluation
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Real-time pipeline stage updates
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#f8fafc' }}>
+                      <CheckCircle2 size={16} style={{ color: '#818cf8', flexShrink: 0 }} /> Real-time pipeline stage updates
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Direct interview scheduling triggers
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#f8fafc' }}>
+                      <CheckCircle2 size={16} style={{ color: '#818cf8', flexShrink: 0 }} /> Direct interview scheduling triggers
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <Link to="/login" className="btn-primary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, width: '100%', boxSizing: 'border-box' }}>
+                    <Link to="/login" className="btn-primary-lg" style={{ flex: 1, minWidth: 120, padding: '12px 14px', fontSize: 13.5, justifyContent: 'center', textDecoration: 'none', boxSizing: 'border-box' }}>
                       <LogIn size={16} /> Sign In
                     </Link>
-                    <Link to="/register" className="btn-secondary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
+                    <Link to="/register" className="btn-secondary-lg" style={{ flex: 1, minWidth: 140, padding: '12px 14px', fontSize: 13.5, justifyContent: 'center', textDecoration: 'none', boxSizing: 'border-box' }}>
                       <UserPlus size={16} /> Create Account
                     </Link>
                   </div>
@@ -655,11 +668,24 @@ export const JobDetailPage: React.FC = () => {
               )}
 
               {/* What We Offer */}
-              <div className="careers-card" style={{ padding: 28, backgroundColor: 'rgba(79, 70, 229, 0.03)', border: '1px solid rgba(79, 70, 229, 0.12)' }}>
-                <h4 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Sparkles size={18} style={{ color: 'var(--accent)' }} /> What We Offer
+              <div 
+                style={{ 
+                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%)', 
+                  padding: 24, 
+                  borderRadius: 18, 
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  overflow: 'hidden'
+                }}
+              >
+                <h4 style={{ fontSize: 17, fontWeight: 800, color: '#ffffff', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Sparkles size={18} style={{ color: '#818cf8' }} /> What We Offer
                 </h4>
-                <ul style={{ paddingLeft: 20, margin: 0, fontSize: 14.5, color: '#1e293b', fontWeight: 600, lineHeight: 1.8 }}>
+                <ul style={{ paddingLeft: 20, margin: 0, fontSize: 14.5, color: '#f8fafc', fontWeight: 600, lineHeight: 1.8 }}>
                   <li>Remote-first flexibility with global async collaboration</li>
                   <li>$2,500 annual personal learning and conference budget</li>
                   <li>Latest hardware setup (MacBook Pro / Linux workstation)</li>
