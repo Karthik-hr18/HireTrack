@@ -3041,6 +3041,35 @@ input:focus, select:focus, textarea:focus {
   padding: 0 24px;
 }
 
+/* Job Detail Page 2-Column Responsive Grid Layout */
+.job-detail-overlap-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.25) !important;
+  border-radius: 20px !important;
+  padding: 36px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+  color: #f8fafc !important;
+  margin-top: -40px;
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.job-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 991px) {
+  .job-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
 /* Job Cards Responsive Grid Container */
 .careers-job-grid {
   display: grid !important;
