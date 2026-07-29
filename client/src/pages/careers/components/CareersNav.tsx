@@ -211,7 +211,7 @@ export const CareersNav: React.FC = () => {
             aria-label={isMobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
             aria-expanded={isMobileMenuOpen}
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <Menu size={24} />
           </button>
         </div>
       </div>

@@ -656,10 +656,10 @@ export const JobDetailPage: React.FC = () => {
 
               {/* What We Offer */}
               <div className="careers-card" style={{ padding: 28, backgroundColor: 'rgba(79, 70, 229, 0.03)', border: '1px solid rgba(79, 70, 229, 0.12)' }}>
-                <h4 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h4 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Sparkles size={18} style={{ color: 'var(--accent)' }} /> What We Offer
                 </h4>
-                <ul style={{ paddingLeft: 20, margin: 0, fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.8 }}>
+                <ul style={{ paddingLeft: 20, margin: 0, fontSize: 14.5, color: '#1e293b', fontWeight: 600, lineHeight: 1.8 }}>
                   <li>Remote-first flexibility with global async collaboration</li>
                   <li>$2,500 annual personal learning and conference budget</li>
                   <li>Latest hardware setup (MacBook Pro / Linux workstation)</li>
