@@ -105,14 +105,16 @@ export const CareersNav: React.FC = () => {
               width: 32, 
               height: 32, 
               borderRadius: 8, 
-              backgroundColor: 'var(--accent)', 
-              color: '#fff', 
+              backgroundColor: '#6366f1', 
+              color: '#ffffff', 
               fontWeight: 800, 
               fontSize: 16 
             }}>
               H
             </span>
-            Hire<span style={{ color: 'var(--accent)' }}>Track</span>
+            <span className="careers-nav__logo-text">
+              Hire<span style={{ color: '#818cf8' }}>Track</span>
+            </span>
             <span
               className="careers-nav__mobile-badge"
               onClick={(e: React.MouseEvent<HTMLSpanElement>) => {

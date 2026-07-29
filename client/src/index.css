@@ -2708,6 +2708,14 @@ input:focus, select:focus, textarea:focus {
   color: #0f172a !important;
 }
 
+.careers-nav--scrolled .careers-nav__logo-text {
+  color: #0f172a !important;
+}
+
+.careers-nav--scrolled .careers-nav__logo-text span {
+  color: #4f46e5 !important;
+}
+
 .careers-nav--scrolled .careers-nav__link {
   color: #0f172a !important;
   font-weight: 700 !important;
@@ -2752,7 +2760,7 @@ input:focus, select:focus, textarea:focus {
 .careers-nav__logo {
   font-size: 20px;
   font-weight: 800;
-  color: var(--gray-text-primary);
+  color: #ffffff !important;
   text-decoration: none;
   letter-spacing: -0.03em;
   display: inline-flex;
@@ -2760,6 +2768,10 @@ input:focus, select:focus, textarea:focus {
   gap: 8px;
   line-height: 1;
   transition: transform 200ms ease;
+}
+
+.careers-nav__logo-text {
+  color: #ffffff !important;
 }
 
 .careers-nav__logo:hover {
