@@ -120,7 +120,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <CareersNav />
 
       <main className="auth-page-wrapper" style={{ flex: 1 }}>
@@ -147,18 +147,18 @@ export const LoginPage: React.FC = () => {
 
               <div className="auth-social-btn" title="Sign in with GitHub">
                 <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path fill="#333" d="M12 .5C5.6.5.6 5.4.6 11.8c0 4.9 3.1 9 7.4 10.4.5.1.7-.2.7-.5v-1.8c-3 .6-3.6-1.4-3.6-1.4-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1 1.7.7 2.1 1.2.1-.9.4-1.6.8-2-2.4-.3-4.9-1.2-4.9-5.3 0-1.2.4-2.2 1-3-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.6 1 .8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 1.7-1.3 2.6-1 2.6-1 .5 1.4.2 2.4.1 2.7.6.8 1 1.8 1 3 0 4.1-2.5 5-4.9 5.3.4.4.8 1 .8 2v3c0 .3.2.6.7.5 4.3-1.4 7.4-5.5 7.4-10.4C23.4 5.4 18.4.5 12 .5z"/>
+                  <path fill="#ffffff" d="M12 .5C5.6.5.6 5.4.6 11.8c0 4.9 3.1 9 7.4 10.4.5.1.7-.2.7-.5v-1.8c-3 .6-3.6-1.4-3.6-1.4-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1 1.7.7 2.1 1.2.1-.9.4-1.6.8-2-2.4-.3-4.9-1.2-4.9-5.3 0-1.2.4-2.2 1-3-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.6 1 .8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 1.7-1.3 2.6-1 2.6-1 .5 1.4.2 2.4.1 2.7.6.8 1 1.8 1 3 0 4.1-2.5 5-4.9 5.3.4.4.8 1 .8 2v3c0 .3.2.6.7.5 4.3-1.4 7.4-5.5 7.4-10.4C23.4 5.4 18.4.5 12 .5z"/>
                 </svg>
               </div>
             </div>
           </div>
 
-          {/* Right White Form Container */}
+          {/* Right Form Container */}
           <div className="auth-form-container">
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 6 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: '#ffffff', marginBottom: 6 }}>
               Welcome Back!
             </h2>
-            <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 24 }}>
+            <p style={{ fontSize: 14, color: '#cbd5e1', marginBottom: 24 }}>
               Sign in to access your HireTrack workspace
             </p>
 
@@ -344,18 +344,18 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 13,
   fontWeight: 600,
-  color: 'var(--gray-text-primary)',
+  color: '#e2e8f0',
   marginBottom: 6,
 };
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '12px 14px',
-  borderRadius: 'var(--radius-default)',
-  border: '1px solid var(--gray-border)',
-  backgroundColor: 'var(--gray-bg)',
+  borderRadius: 10,
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+  backgroundColor: 'rgba(9, 13, 22, 0.85)',
   fontSize: 14,
-  color: 'var(--gray-text-primary)',
+  color: '#ffffff',
   fontFamily: 'var(--font-sans)',
   boxSizing: 'border-box',
 };
@@ -364,10 +364,10 @@ const demoBtnStyle: React.CSSProperties = {
   padding: '6px 12px',
   fontSize: 12,
   fontWeight: 600,
-  borderRadius: 'var(--radius-pill)',
-  border: '1px solid var(--gray-border)',
-  backgroundColor: 'var(--gray-bg)',
-  color: 'var(--gray-text-primary)',
+  borderRadius: 99,
+  border: '1px solid rgba(255, 255, 255, 0.25)',
+  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  color: '#ffffff',
   cursor: 'pointer',
   fontFamily: 'inherit',
   transition: 'all 0.15s ease',
