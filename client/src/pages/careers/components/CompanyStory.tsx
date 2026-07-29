@@ -24,7 +24,7 @@ export const CompanyStory: React.FC = () => {
               style={{ position: 'relative', overflow: 'hidden', height: 440, borderRadius: 'var(--radius-card-large)' }}
             >
               <video
-                src="/assets/istockphoto-2151261126-640_adpp_is.mp4"
+                src="/assets/istockphoto-1723914138-640_adpp_is.mp4"
                 autoPlay
                 muted
                 loop
