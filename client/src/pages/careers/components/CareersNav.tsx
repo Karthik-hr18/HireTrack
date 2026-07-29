@@ -219,12 +219,41 @@ export const CareersNav: React.FC = () => {
         <div 
           className="careers-nav__mobile-backdrop"
           onClick={() => setIsMobileMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(9, 13, 22, 0.8)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            zIndex: 99999
+          }}
         >
           <div 
             className="careers-nav__mobile-drawer"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'fixed',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: 320,
+              maxWidth: '85vw',
+              height: '100vh',
+              backgroundColor: '#0f172a',
+              color: '#ffffff',
+              borderLeft: '1px solid rgba(99, 102, 241, 0.3)',
+              padding: 24,
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '-10px 0 40px rgba(0, 0, 0, 0.7)',
+              zIndex: 100000,
+              overflowY: 'auto'
+            }}
           >
-            <div className="careers-nav__mobile-drawer-header">
+            <div className="careers-nav__mobile-drawer-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginBottom: 20, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{
                   width: 28,
@@ -238,15 +267,14 @@ export const CareersNav: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>H</span>
-                <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--gray-text-primary)' }}>
-                  Hire<span style={{ color: 'var(--accent)' }}>Track</span> Navigation
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#ffffff' }}>
+                  Hire<span style={{ color: '#818cf8' }}>Track</span> Navigation
                 </span>
               </div>
               <button
                 type="button"
-                className="btn-ghost"
                 onClick={() => setIsMobileMenuOpen(false)}
-                style={{ padding: 6, cursor: 'pointer' }}
+                style={{ padding: 6, cursor: 'pointer', background: 'none', border: 'none', color: '#ffffff' }}
               >
                 <X size={22} />
               </button>
