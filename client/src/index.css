@@ -3014,6 +3014,21 @@ input:focus, select:focus, textarea:focus {
   padding: 0 24px;
 }
 
+/* Job Cards Responsive Grid Container */
+.careers-job-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
+  gap: 28px !important;
+  align-items: stretch !important;
+}
+
+@media (max-width: 768px) {
+  .careers-job-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
 /* Modern Dark Glassmorphic Card Component System */
 .careers-card {
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.70) 100%) !important;

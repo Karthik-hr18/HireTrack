@@ -111,9 +111,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          padding: 28,
-          height: '100%',
+          padding: 24,
+          minHeight: 380,
           position: 'relative',
+          boxSizing: 'border-box'
         }}
       >
         <div>
@@ -196,8 +197,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         </div>
 
         {/* Footer & Actions */}
-        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: 16, marginTop: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: 16, marginTop: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <span style={{ fontSize: 12, color: '#94a3b8', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <Clock size={12} />
               {formatTimeAgo(typeof job.createdAt === 'string' ? job.createdAt : job.createdAt?.toISOString())}
@@ -207,33 +208,47 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <Link
               to={`/jobs/${job._id}`}
-              className="btn-secondary-lg"
               style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 padding: '10px 14px',
                 fontSize: 13,
-                justifyContent: 'center',
+                fontWeight: 700,
                 borderRadius: 10,
-                backgroundColor: 'rgba(255, 255, 255, 0.10)',
+                backgroundColor: 'rgba(255, 255, 255, 0.12)',
                 color: '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                textDecoration: 'none',
+                transition: 'all 150ms ease',
+                boxSizing: 'border-box',
+                width: '100%'
               }}
             >
               Details
             </Link>
             <Link
               to={`/jobs/${job._id}`}
-              className="btn-primary-lg"
               style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
                 padding: '10px 14px',
                 fontSize: 13,
-                justifyContent: 'center',
+                fontWeight: 700,
                 borderRadius: 10,
                 backgroundColor: '#6366f1',
                 color: '#ffffff',
-                boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4)',
+                border: 'none',
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)',
+                transition: 'all 150ms ease',
+                boxSizing: 'border-box',
+                width: '100%'
               }}
             >
               Apply <ArrowUpRight size={15} />
