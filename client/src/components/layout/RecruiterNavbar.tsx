@@ -201,7 +201,7 @@ export const RecruiterNavbar: React.FC = () => {
                 zIndex: isActive('/recruiter/employees') ? 2 : 1
               }}
             >
-              👥 Employees
+               Employees
             </Link>
             {user?.role === 'admin' && (
               <Link 

@@ -168,7 +168,7 @@ export const EmployeesPage: React.FC = () => {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
-                👥 Employees & Talent Roster
+                 Employees & Talent Roster
               </h1>
               {selectedJobObj && (
                 <span className="badge badge-success" style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 99, backgroundColor: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd' }}>

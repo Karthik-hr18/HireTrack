@@ -157,20 +157,33 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
       const offCount = await Application.countDocuments({ job: j._id, stage: { $in: ['offer', 'hired'] } });
       const hirCount = await Application.countDocuments({ job: j._id, stage: 'hired' });
 
-      const status: 'healthy' | 'needs_sourcing' | 'critical' = 
-        appCount >= 5 ? 'healthy' : appCount >= 2 ? 'needs_sourcing' : 'critical';
+      const requiredHeadcount = j.requiredHeadcount || 5;
+
+      let status: 'healthy' | 'fully_staffed' | 'overstaffed' | 'needs_sourcing' | 'critical' = 'needs_sourcing';
+      if (hirCount === requiredHeadcount) {
+        status = 'fully_staffed';
+      } else if (hirCount > requiredHeadcount) {
+        status = 'overstaffed';
+      } else if (appCount >= 5) {
+        status = 'healthy';
+      } else if (appCount >= 2) {
+        status = 'needs_sourcing';
+      } else {
+        status = 'critical';
+      }
 
       return {
         id: j._id.toString(),
         title: j.title,
         department: j.department || 'Engineering',
         location: j.location || 'Remote',
+        requiredHeadcount,
         applicantsCount: appCount,
         interviewsCount: intCount,
         offersCount: offCount,
         hiresCount: hirCount,
         status,
-        rating: status === 'healthy' ? 5 : status === 'needs_sourcing' ? 3 : 1,
+        rating: status === 'fully_staffed' || status === 'healthy' ? 5 : status === 'overstaffed' ? 4 : status === 'needs_sourcing' ? 3 : 1,
         daysWithoutApplicant: status === 'critical' ? 5 : 1
       };
     }));

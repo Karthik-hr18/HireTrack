@@ -49,11 +49,12 @@ export interface JobHealthItem {
   title: string;
   department: string;
   location: string;
+  requiredHeadcount: number;
   applicantsCount: number;
   interviewsCount: number;
   offersCount: number;
   hiresCount: number;
-  status: 'healthy' | 'needs_sourcing' | 'critical';
+  status: 'healthy' | 'fully_staffed' | 'overstaffed' | 'needs_sourcing' | 'critical';
   rating: number; // 1 to 5 stars
   daysWithoutApplicant: number;
 }
