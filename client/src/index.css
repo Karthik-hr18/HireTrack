@@ -2783,18 +2783,19 @@ input:focus, select:focus, textarea:focus {
 }
 
 .careers-nav__link {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--gray-text-muted);
+  font-size: 14.5px;
+  font-weight: 700 !important;
+  color: #ffffff !important;
   text-decoration: none;
   position: relative;
   display: inline-flex;
   align-items: center;
   height: 38px;
   line-height: 1;
-  padding: 0 4px;
+  padding: 0 6px;
   white-space: nowrap;
-  transition: color 200ms ease;
+  transition: color 200ms ease, transform 200ms ease;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .careers-nav__link::after {
@@ -2804,13 +2805,13 @@ input:focus, select:focus, textarea:focus {
   left: 0;
   width: 0;
   height: 2px;
-  background-color: var(--accent);
+  background-color: #818cf8;
   border-radius: 99px;
   transition: width 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .careers-nav__link:hover {
-  color: var(--gray-text-primary);
+  color: #a5b4fc !important;
 }
 
 .careers-nav__link:hover::after {
@@ -2824,22 +2825,22 @@ input:focus, select:focus, textarea:focus {
   height: 38px;
   padding: 0 16px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--gray-border);
-  background-color: var(--gray-surface);
-  color: var(--gray-text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff !important;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
   transition: all 200ms ease;
-  box-shadow: var(--shadow-card-subtle);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
   box-sizing: border-box;
 }
 
 .careers-nav__btn-secondary:hover {
-  background-color: var(--gray-bg);
-  border-color: rgba(79, 70, 229, 0.3);
-  color: var(--accent);
+  background-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #ffffff !important;
   transform: translateY(-1px);
 }
 

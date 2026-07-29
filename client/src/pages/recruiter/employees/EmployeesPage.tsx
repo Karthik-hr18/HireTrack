@@ -474,7 +474,36 @@ export const EmployeesPage: React.FC = () => {
             <Users size={40} style={{ color: '#94a3b8', marginBottom: 12 }} />
             <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', margin: 0 }}>No Employees Found</h3>
             <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 16px 0' }}>No hired staff match your current search, job selection, or manager filter.</p>
-            <button type="button" onClick={handleResetFilters} className="btn-primary-sm">Reset All Filters</button>
+            <button 
+              type="button" 
+              onClick={handleResetFilters} 
+              style={{
+                height: 36,
+                padding: '0 18px',
+                fontSize: 13,
+                fontWeight: 700,
+                color: '#ef4444',
+                backgroundColor: '#fef2f2',
+                border: '1px solid #fca5a5',
+                borderRadius: 8,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                transition: 'all 150ms ease',
+                boxShadow: '0 2px 6px rgba(239, 68, 68, 0.12)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#fee2e2';
+                e.currentTarget.style.borderColor = '#f87171';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#fef2f2';
+                e.currentTarget.style.borderColor = '#fca5a5';
+              }}
+            >
+              <RotateCcw size={14} /> Reset All Filters
+            </button>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: 16, marginBottom: 28 }}>

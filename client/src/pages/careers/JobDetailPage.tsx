@@ -230,7 +230,7 @@ export const JobDetailPage: React.FC = () => {
   const salaryEstimate = `$${(job.minExperience || 0) * 20 + 80}k – $${(job.minExperience || 0) * 20 + 120}k`;
 
   return (
-    <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <SEOMeta 
         title={`${job.title} — HireTrack Careers`}
         description={job.description.slice(0, 155)}
@@ -655,11 +655,20 @@ export const JobDetailPage: React.FC = () => {
               )}
 
               {/* What We Offer */}
-              <div className="careers-card" style={{ padding: 28, backgroundColor: 'rgba(79, 70, 229, 0.03)', border: '1px solid rgba(79, 70, 229, 0.12)' }}>
-                <h4 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Sparkles size={18} style={{ color: 'var(--accent)' }} /> What We Offer
+              <div 
+                style={{ 
+                  padding: 28, 
+                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.70) 100%)', 
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  borderRadius: 18,
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
+                  backdropFilter: 'blur(16px)'
+                }}
+              >
+                <h4 style={{ fontSize: 16, fontWeight: 700, color: '#ffffff', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Sparkles size={18} style={{ color: '#818cf8' }} /> What We Offer
                 </h4>
-                <ul style={{ paddingLeft: 20, margin: 0, fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.8 }}>
+                <ul style={{ paddingLeft: 20, margin: 0, fontSize: 14, color: '#cbd5e1', lineHeight: 1.8 }}>
                   <li>Remote-first flexibility with global async collaboration</li>
                   <li>$2,500 annual personal learning and conference budget</li>
                   <li>Latest hardware setup (MacBook Pro / Linux workstation)</li>
