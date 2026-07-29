@@ -2947,6 +2947,14 @@ input:focus, select:focus, textarea:focus {
   color: #0f172a !important;
 }
 
+.careers-nav__mobile-toggle--open,
+.careers-nav--scrolled .careers-nav__mobile-toggle--open {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  z-index: 100005 !important;
+}
+
 @media (max-width: 768px) {
   .careers-nav__links--desktop {
     display: none !important;
