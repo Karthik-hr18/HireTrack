@@ -17,13 +17,26 @@ export const CompanyStory: React.FC = () => {
             </h2>
           </div>
 
-          {/* Grid Block 1: Story & Photo */}
+          {/* Grid Block 1: Story & Culture Video */}
           <div className="company-story-grid">
-            <div className="careers-hero__image-wrapper animate-hero-image">
-              <img 
-                src="/assets/careers_culture.png" 
-                alt="Engineering team collaboration" 
-                className="company-story-img"
+            <div
+              className="careers-hero__image-wrapper animate-hero-image"
+              style={{ position: 'relative', overflow: 'hidden', height: 440, borderRadius: 'var(--radius-card-large)' }}
+            >
+              <video
+                src="/assets/istockphoto-2151261126-640_adpp_is.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster="/assets/careers_culture.png"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
               />
             </div>
 
