@@ -80,13 +80,13 @@ export const ApplicationsTracker: React.FC = () => {
   const getStageBadgeStyle = (stage: string) => {
     switch (stage.toLowerCase()) {
       case 'offer':
-        return { backgroundColor: 'rgba(79, 70, 229, 0.1)', color: 'var(--accent)', border: '1px solid rgba(79, 70, 229, 0.25)' };
+        return { backgroundColor: '#e0e7ff', color: '#3730a3', border: '1px solid #a5b4fc' };
       case 'hired':
-        return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#047857', border: '1px solid rgba(16, 185, 129, 0.25)' };
+        return { backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' };
       case 'rejected':
-        return { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: '1px solid rgba(239, 68, 68, 0.2)' };
+        return { backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5' };
       default:
-        return { backgroundColor: 'var(--gray-bg)', color: 'var(--gray-text-muted)', border: '1px solid var(--gray-border)' };
+        return { backgroundColor: '#f1f5f9', color: '#1e293b', border: '1px solid #94a3b8' };
     }
   };
 
@@ -95,7 +95,7 @@ export const ApplicationsTracker: React.FC = () => {
   const offerCount = applications.filter(a => a.stage === 'offer' || a.stage === 'hired').length;
 
   return (
-    <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: '#f8fafc', color: '#0f172a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
       {/* STICKY CAREERS & CANDIDATE NAVBAR WITH MOBILE DRAWER */}
       <CareersNav />
@@ -105,30 +105,30 @@ export const ApplicationsTracker: React.FC = () => {
         
         {/* Header Title */}
         <div style={{ marginBottom: 36 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 'var(--radius-pill)', backgroundColor: 'rgba(79, 70, 229, 0.08)', border: '1px solid rgba(79, 70, 229, 0.15)', fontSize: 12, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
-            <Sparkles size={13} /> Candidate Portal
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 'var(--radius-pill)', backgroundColor: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(79, 70, 229, 0.25)', fontSize: 12.5, fontWeight: 800, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
+            <Sparkles size={14} /> Candidate Portal
           </div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: 'var(--gray-text-primary)', letterSpacing: '-0.02em', margin: '0 0 8px 0' }}>
-            Application <span style={{ color: 'var(--accent)' }}>Tracker</span>
+          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', margin: '0 0 8px 0' }}>
+            Application <span style={{ color: '#4f46e5' }}>Tracker</span>
           </h1>
-          <p style={{ fontSize: 16, color: 'var(--gray-text-muted)', margin: 0 }}>
+          <p style={{ fontSize: 16, fontWeight: 500, color: '#475569', margin: 0 }}>
             Monitor your active pipelines, interview schedules, and evaluation status in real-time.
           </p>
         </div>
 
         {/* Pipeline Summary Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginBottom: 36 }}>
-          <div className="careers-card" style={{ padding: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--gray-text-muted)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={16} style={{ color: 'var(--accent)' }} /> Total Submissions
+          <div className="careers-card" style={{ padding: 24, backgroundColor: '#ffffff', border: '1px solid #cbd5e1', boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)' }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <FileText size={16} style={{ color: '#4f46e5' }} /> Total Submissions
             </div>
-            <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--gray-text-primary)' }}>
+            <div style={{ fontSize: 32, fontWeight: 800, color: '#0f172a' }}>
               {applications.length}
             </div>
           </div>
 
-          <div className="careers-card" style={{ padding: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--gray-text-muted)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div className="careers-card" style={{ padding: 24, backgroundColor: '#ffffff', border: '1px solid #cbd5e1', boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)' }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={16} style={{ color: '#b45309' }} /> In Active Review
             </div>
             <div style={{ fontSize: 32, fontWeight: 800, color: '#b45309' }}>
@@ -136,8 +136,8 @@ export const ApplicationsTracker: React.FC = () => {
             </div>
           </div>
 
-          <div className="careers-card" style={{ padding: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--gray-text-muted)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div className="careers-card" style={{ padding: 24, backgroundColor: '#ffffff', border: '1px solid #cbd5e1', boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)' }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <CheckCircle2 size={16} style={{ color: '#047857' }} /> Offers & Hires
             </div>
             <div style={{ fontSize: 32, fontWeight: 800, color: '#047857' }}>
@@ -148,30 +148,30 @@ export const ApplicationsTracker: React.FC = () => {
 
         {/* Loading State */}
         {loading ? (
-          <div className="careers-card" style={{ padding: 48, textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
-            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--gray-text-muted)', marginBottom: 16 }}>
+          <div className="careers-card" style={{ padding: 48, textAlign: 'center', maxWidth: 480, margin: '0 auto', backgroundColor: '#ffffff', border: '1px solid #cbd5e1' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>
               Syncing application records...
             </div>
-            <div style={{ width: 36, height: 36, border: '3px solid var(--gray-border)', borderTop: '3px solid var(--accent)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
+            <div style={{ width: 36, height: 36, border: '3px solid #cbd5e1', borderTop: '3px solid #4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
           </div>
         ) : error ? (
-          <div className="careers-card" style={{ padding: 48, textAlign: 'center', maxWidth: 480, margin: '0 auto', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--error)', marginBottom: 12 }}>Sync Failed</h3>
-            <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 20 }}>{error}</p>
-            <button type="button" className="btn-primary-lg" onClick={() => window.location.reload()} style={{ backgroundColor: 'var(--error)', margin: '0 auto', fontSize: 14, padding: '10px 20px' }}>
+          <div className="careers-card" style={{ padding: 48, textAlign: 'center', maxWidth: 480, margin: '0 auto', border: '1px solid rgba(239, 68, 68, 0.3)', backgroundColor: '#ffffff' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#dc2626', marginBottom: 12 }}>Sync Failed</h3>
+            <p style={{ fontSize: 14, color: '#475569', marginBottom: 20 }}>{error}</p>
+            <button type="button" className="btn-primary-lg" onClick={() => window.location.reload()} style={{ backgroundColor: '#dc2626', margin: '0 auto', fontSize: 14, padding: '10px 20px' }}>
               Retry Sync
             </button>
           </div>
         ) : applications.length === 0 ? (
           /* Empty Submissions Card */
-          <div className="careers-card" style={{ padding: '60px 24px', textAlign: 'center', maxWidth: 520, margin: '0 auto' }}>
-            <div style={{ width: 52, height: 52, borderRadius: 16, backgroundColor: 'rgba(79, 70, 229, 0.08)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+          <div className="careers-card" style={{ padding: '60px 24px', textAlign: 'center', maxWidth: 520, margin: '0 auto', backgroundColor: '#ffffff', border: '1px solid #cbd5e1' }}>
+            <div style={{ width: 52, height: 52, borderRadius: 16, backgroundColor: 'rgba(79, 70, 229, 0.1)', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <Briefcase size={26} />
             </div>
-            <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 10 }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>
               No Applications Submitted Yet
             </h3>
-            <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
+            <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 24 }}>
               You haven't submitted any applications to HireTrack yet. Explore open roles on our careers portal to start your candidate journey!
             </p>
             <Link to="/" className="btn-primary-lg" style={{ textDecoration: 'none', display: 'inline-flex', margin: '0 auto' }}>
@@ -180,9 +180,9 @@ export const ApplicationsTracker: React.FC = () => {
           </div>
         ) : (
           /* Applications Table Card */
-          <div className="careers-card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--gray-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--gray-text-primary)', margin: 0 }}>
+          <div className="careers-card" style={{ padding: 0, overflow: 'hidden', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#ffffff' }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 Submitted Applications ({applications.length})
               </h2>
             </div>
@@ -190,7 +190,7 @@ export const ApplicationsTracker: React.FC = () => {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontFamily: 'var(--font-sans)' }}>
                 <thead>
-                  <tr style={{ backgroundColor: 'var(--gray-bg)', borderBottom: '1px solid var(--gray-border)' }}>
+                  <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
                     <th style={thStyle}>Position Title</th>
                     <th style={thStyle}>Location</th>
                     <th style={thStyle}>Applied Date</th>
@@ -200,23 +200,23 @@ export const ApplicationsTracker: React.FC = () => {
                 </thead>
                 <tbody>
                   {applications.map((app) => (
-                    <tr key={app._id} style={{ borderBottom: '1px solid var(--gray-border)', transition: 'background-color 0.15s' }}>
-                      <td style={{ ...tdStyle, fontWeight: 700, color: 'var(--gray-text-primary)' }}>
-                        <Link to={`/jobs/${app.job?._id}`} style={{ color: 'var(--gray-text-primary)', textDecoration: 'none' }}>
+                    <tr key={app._id} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#ffffff', transition: 'background-color 0.15s' }}>
+                      <td style={{ ...tdStyle, fontWeight: 800, color: '#0f172a' }}>
+                        <Link to={`/jobs/${app.job?._id}`} style={{ color: '#0f172a', textDecoration: 'none' }}>
                           {app.job?.title || 'Unknown Role'}
                         </Link>
                       </td>
 
                       <td style={tdStyle}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--gray-text-muted)', fontSize: 13 }}>
-                          <MapPin size={13} style={{ color: 'var(--accent)' }} />
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#334155', fontWeight: 600, fontSize: 13.5 }}>
+                          <MapPin size={14} style={{ color: '#4f46e5' }} />
                           {app.job?.location || 'Remote'}
                         </span>
                       </td>
 
                       <td style={tdStyle}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--gray-text-muted)', fontSize: 13 }}>
-                          <Calendar size={13} />
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#334155', fontWeight: 600, fontSize: 13.5 }}>
+                          <Calendar size={14} />
                           {new Date(app.createdAt).toLocaleDateString(undefined, {
                             year: 'numeric',
                             month: 'short',
@@ -229,10 +229,10 @@ export const ApplicationsTracker: React.FC = () => {
                         <span 
                           style={{
                             fontSize: 12,
-                            fontWeight: 700,
+                            fontWeight: 800,
                             textTransform: 'uppercase',
                             letterSpacing: '0.04em',
-                            padding: '4px 12px',
+                            padding: '5px 14px',
                             borderRadius: 'var(--radius-pill)',
                             display: 'inline-block',
                             ...getStageBadgeStyle(app.stage)
@@ -253,16 +253,16 @@ export const ApplicationsTracker: React.FC = () => {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: 6,
-                            color: 'var(--accent)',
-                            fontSize: 13,
-                            fontWeight: 600,
+                            color: '#4f46e5',
+                            fontSize: 13.5,
+                            fontWeight: 700,
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
                             padding: 0
                           }}
                         >
-                          <FileText size={14} /> View PDF Resume <ExternalLink size={12} />
+                          <FileText size={15} /> View PDF Resume <ExternalLink size={13} />
                         </button>
                       </td>
                     </tr>
@@ -291,15 +291,15 @@ export const ApplicationsTracker: React.FC = () => {
 
 const thStyle: React.CSSProperties = {
   padding: '14px 20px',
-  fontSize: 12,
-  fontWeight: 700,
+  fontSize: 12.5,
+  fontWeight: 800,
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
-  color: 'var(--gray-text-muted)'
+  color: '#334155'
 };
 
 const tdStyle: React.CSSProperties = {
-  padding: '16px 20px',
+  padding: '18px 20px',
   fontSize: 14,
   verticalAlign: 'middle'
 };
