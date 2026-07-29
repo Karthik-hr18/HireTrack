@@ -98,7 +98,7 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div style={{ backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <CareersNav />
 
       <main className="auth-page-wrapper" style={{ flex: 1 }}>
@@ -125,18 +125,18 @@ export const RegisterPage: React.FC = () => {
 
               <div className="auth-social-btn" title="Sign up with GitHub">
                 <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path fill="#ffffff" d="M12 .5C5.6.5.6 5.4.6 11.8c0 4.9 3.1 9 7.4 10.4.5.1.7-.2.7-.5v-1.8c-3 .6-3.6-1.4-3.6-1.4-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1 1.7.7 2.1 1.2.1-.9.4-1.6.8-2-2.4-.3-4.9-1.2-4.9-5.3 0-1.2.4-2.2 1-3-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.6 1 .8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 1.7-1.3 2.6-1 2.6-1 .5 1.4.2 2.4.1 2.7.6.8 1 1.8 1 3 0 4.1-2.5 5-4.9 5.3.4.4.8 1 .8 2v3c0 .3.2.6.7.5 4.3-1.4 7.4-5.5 7.4-10.4C23.4 5.4 18.4.5 12 .5z"/>
+                  <path fill="#333" d="M12 .5C5.6.5.6 5.4.6 11.8c0 4.9 3.1 9 7.4 10.4.5.1.7-.2.7-.5v-1.8c-3 .6-3.6-1.4-3.6-1.4-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1 1.7.7 2.1 1.2.1-.9.4-1.6.8-2-2.4-.3-4.9-1.2-4.9-5.3 0-1.2.4-2.2 1-3-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.6 1 .8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 1.7-1.3 2.6-1 2.6-1 .5 1.4.2 2.4.1 2.7.6.8 1 1.8 1 3 0 4.1-2.5 5-4.9 5.3.4.4.8 1 .8 2v3c0 .3.2.6.7.5 4.3-1.4 7.4-5.5 7.4-10.4C23.4 5.4 18.4.5 12 .5z"/>
                 </svg>
               </div>
             </div>
           </div>
 
-          {/* Form Container */}
+          {/* Left White Form Container (in active state) */}
           <div className="auth-form-container">
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: '#ffffff', marginBottom: 6 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--gray-text-primary)', marginBottom: 6 }}>
               Create an Account
             </h2>
-            <p style={{ fontSize: 14, color: '#cbd5e1', marginBottom: 20 }}>
+            <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', marginBottom: 20 }}>
               Get started by creating a candidate account
             </p>
 
@@ -245,18 +245,18 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 13,
   fontWeight: 600,
-  color: '#e2e8f0',
+  color: 'var(--gray-text-primary)',
   marginBottom: 4,
 };
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '10px 14px',
-  borderRadius: 10,
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  backgroundColor: 'rgba(9, 13, 22, 0.85)',
+  borderRadius: 'var(--radius-default)',
+  border: '1px solid var(--gray-border)',
+  backgroundColor: 'var(--gray-bg)',
   fontSize: 14,
-  color: '#ffffff',
+  color: 'var(--gray-text-primary)',
   fontFamily: 'var(--font-sans)',
   boxSizing: 'border-box',
 };

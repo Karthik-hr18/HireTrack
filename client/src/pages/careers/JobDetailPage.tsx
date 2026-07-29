@@ -310,95 +310,45 @@ export const JobDetailPage: React.FC = () => {
                 </div>
               ) : !user ? (
                 /* SIGNED-OUT VISITOR EXPERIENCE */
-                <div 
-                  style={{ 
-                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.70) 100%)',
-                    padding: 28, 
-                    borderRadius: 18, 
-                    border: '1px solid rgba(99, 102, 241, 0.3)',
-                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
-                    backdropFilter: 'blur(16px)'
-                  }}
-                >
-                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(99, 102, 241, 0.18)', color: '#818cf8', border: '1px solid rgba(129, 140, 248, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                <div style={{ backgroundColor: 'var(--gray-bg)', padding: 32, borderRadius: 20, border: '1px solid var(--gray-border)' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(79, 70, 229, 0.1)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
                     <ShieldCheck size={22} />
                   </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 700, color: '#ffffff', marginBottom: 8 }}>
+                  <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
                     Sign in to apply for this position
                   </h3>
-                  <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.6, marginBottom: 24 }}>
+                  <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
                     Create a free candidate profile or log in to submit your resume, specify experience details, and track your application status in real-time.
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#f8fafc' }}>
-                      <CheckCircle2 size={16} style={{ color: '#818cf8' }} /> Instant PDF resume evaluation
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
+                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Instant PDF resume evaluation
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#f8fafc' }}>
-                      <CheckCircle2 size={16} style={{ color: '#818cf8' }} /> Real-time pipeline stage updates
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
+                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Real-time pipeline stage updates
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#f8fafc' }}>
-                      <CheckCircle2 size={16} style={{ color: '#818cf8' }} /> Direct interview scheduling triggers
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
+                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Direct interview scheduling triggers
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <Link 
-                      to="/login" 
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                        padding: '12px',
-                        fontSize: 14,
-                        fontWeight: 700,
-                        borderRadius: 10,
-                        backgroundColor: '#6366f1',
-                        color: '#ffffff',
-                        textDecoration: 'none',
-                        boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4)'
-                      }}
-                    >
+                    <Link to="/login" className="btn-primary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
                       <LogIn size={16} /> Sign In
                     </Link>
-                    <Link 
-                      to="/register" 
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                        padding: '12px',
-                        fontSize: 14,
-                        fontWeight: 700,
-                        borderRadius: 10,
-                        backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                        color: '#ffffff',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        textDecoration: 'none'
-                      }}
-                    >
+                    <Link to="/register" className="btn-secondary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
                       <UserPlus size={16} /> Create Account
                     </Link>
                   </div>
                 </div>
               ) : user.role !== 'candidate' ? (
                 /* RECRUITER / ADMIN USER */
-                <div 
-                  style={{ 
-                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.70) 100%)',
-                    padding: 28, 
-                    borderRadius: 18, 
-                    border: '1px solid rgba(99, 102, 241, 0.3)',
-                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
-                    backdropFilter: 'blur(16px)'
-                  }}
-                >
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#ffffff', marginBottom: 8 }}>
+                <div style={{ backgroundColor: 'var(--gray-bg)', padding: 32, borderRadius: 20, border: '1px solid var(--gray-border)' }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
                     Application Form Locked
                   </h3>
-                  <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.6 }}>
                     You are currently logged in as a <strong>{user.role}</strong>. Job applications are reserved for candidate accounts.
                   </p>
                 </div>
