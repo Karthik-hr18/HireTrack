@@ -56,8 +56,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   };
 
   return (
-    <div className="careers-job-card-wrapper">
-      {/* MOBILE COLLAPSIBLE RECTANGLE BAR */}
+    <div className="careers-job-card-wrapper" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+      {/* MOBILE COLLAPSIBLE RECTANGLE BAR WITH CHEVRON DROPDOWN */}
       <div 
         className="careers-job-card-mobile-bar"
         onClick={() => setIsExpandedMobile(!isExpandedMobile)}
@@ -66,7 +66,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           <span style={{
             fontSize: 15,
             fontWeight: 700,
-            color: 'var(--gray-text-primary)',
+            color: '#ffffff',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis'
@@ -77,9 +77,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
             fontSize: 11,
             fontWeight: 600,
             padding: '2px 8px',
-            borderRadius: 'var(--radius-pill)',
-            backgroundColor: 'rgba(79, 70, 229, 0.08)',
-            color: 'var(--accent)',
+            borderRadius: 99,
+            backgroundColor: 'rgba(99, 102, 241, 0.18)',
+            color: '#a5b4fc',
+            border: '1px solid rgba(129, 140, 248, 0.3)',
             whiteSpace: 'nowrap',
             flexShrink: 0
           }}>
@@ -91,7 +92,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           style={{
             background: 'none',
             border: 'none',
-            color: 'var(--accent)',
+            color: '#818cf8',
             cursor: 'pointer',
             padding: 4,
             display: 'flex',
@@ -99,7 +100,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           }}
           aria-label={isExpandedMobile ? 'Collapse job details' : 'Expand job details'}
         >
-          {isExpandedMobile ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          {isExpandedMobile ? <ChevronUp size={22} /> : <ChevronDown size={22} />}
         </button>
       </div>
 
