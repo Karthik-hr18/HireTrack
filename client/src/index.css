@@ -2690,10 +2690,55 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
+.careers-nav {
+  background-color: rgba(9, 13, 22, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 250ms ease;
+}
+
 .careers-nav--scrolled {
-  background-color: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
-  border-bottom-color: rgba(226, 232, 240, 0.9);
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.1) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+}
+
+.careers-nav--scrolled .careers-nav__logo {
+  color: #0f172a !important;
+}
+
+.careers-nav--scrolled .careers-nav__link {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
+}
+
+.careers-nav--scrolled .careers-nav__link:hover {
+  color: #4f46e5 !important;
+}
+
+.careers-nav--scrolled .careers-nav__btn-secondary {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.careers-nav--scrolled .careers-nav__btn-secondary:hover {
+  background-color: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+.careers-nav--scrolled .careers-nav__btn-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  color: #ffffff !important;
+}
+
+.careers-nav--scrolled .careers-nav__mobile-toggle {
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
 }
 
 .careers-nav__inner {
