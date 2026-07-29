@@ -313,26 +313,28 @@ export const JobDetailPage: React.FC = () => {
                 <div 
                   style={{ 
                     background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%)', 
-                    padding: 28, 
+                    padding: 24, 
                     borderRadius: 18, 
                     border: '1px solid rgba(99, 102, 241, 0.3)',
                     width: '100%',
                     boxSizing: 'border-box',
                     boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
-                    backdropFilter: 'blur(16px)'
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    overflow: 'hidden'
                   }}
                 >
                   <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(99, 102, 241, 0.18)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
                     <ShieldCheck size={22} />
                   </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#ffffff', marginBottom: 8 }}>
+                  <h3 style={{ fontSize: 19, fontWeight: 800, color: '#ffffff', marginBottom: 8 }}>
                     Sign in to apply for this position
                   </h3>
                   <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.6, marginBottom: 24 }}>
                     Create a free candidate profile or log in to submit your resume, specify experience details, and track your application status in real-time.
                   </p>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 26 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#f8fafc' }}>
                       <CheckCircle2 size={16} style={{ color: '#818cf8', flexShrink: 0 }} /> Instant PDF resume evaluation
                     </div>
@@ -344,11 +346,11 @@ export const JobDetailPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <Link to="/login" className="btn-primary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, width: '100%', boxSizing: 'border-box' }}>
+                    <Link to="/login" className="btn-primary-lg" style={{ flex: 1, minWidth: 120, padding: '12px 14px', fontSize: 13.5, justifyContent: 'center', textDecoration: 'none', boxSizing: 'border-box' }}>
                       <LogIn size={16} /> Sign In
                     </Link>
-                    <Link to="/register" className="btn-secondary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
+                    <Link to="/register" className="btn-secondary-lg" style={{ flex: 1, minWidth: 140, padding: '12px 14px', fontSize: 13.5, justifyContent: 'center', textDecoration: 'none', boxSizing: 'border-box' }}>
                       <UserPlus size={16} /> Create Account
                     </Link>
                   </div>
@@ -668,12 +670,16 @@ export const JobDetailPage: React.FC = () => {
               {/* What We Offer */}
               <div 
                 style={{ 
-                  padding: 28, 
-                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.70) 100%)', 
+                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%)', 
+                  padding: 24, 
+                  borderRadius: 18, 
                   border: '1px solid rgba(99, 102, 241, 0.3)',
-                  borderRadius: 18,
+                  width: '100%',
+                  boxSizing: 'border-box',
                   boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
-                  backdropFilter: 'blur(16px)'
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  overflow: 'hidden'
                 }}
               >
                 <h4 style={{ fontSize: 16, fontWeight: 700, color: '#ffffff', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
