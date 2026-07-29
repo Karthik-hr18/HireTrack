@@ -310,35 +310,47 @@ export const JobDetailPage: React.FC = () => {
                 </div>
               ) : !user ? (
                 /* SIGNED-OUT VISITOR EXPERIENCE */
-                <div style={{ backgroundColor: 'var(--gray-bg)', padding: 32, borderRadius: 20, border: '1px solid var(--gray-border)' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(79, 70, 229, 0.1)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                    <ShieldCheck size={22} />
+                <div 
+                  style={{ 
+                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%)', 
+                    padding: '24px 22px', 
+                    borderRadius: 18, 
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    maxWidth: 420,
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(99, 102, 241, 0.18)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+                    <ShieldCheck size={20} />
                   </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 8 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, color: '#ffffff', marginBottom: 6 }}>
                     Sign in to apply for this position
                   </h3>
-                  <p style={{ fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
-                    Create a free candidate profile or log in to submit your resume, specify experience details, and track your application status in real-time.
+                  <p style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.5, marginBottom: 20 }}>
+                    Create a free candidate profile or log in to submit your resume and track application status.
                   </p>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Instant PDF resume evaluation
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 22 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#f8fafc' }}>
+                      <CheckCircle2 size={15} style={{ color: '#818cf8', flexShrink: 0 }} /> Instant PDF resume evaluation
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Real-time pipeline stage updates
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#f8fafc' }}>
+                      <CheckCircle2 size={15} style={{ color: '#818cf8', flexShrink: 0 }} /> Real-time pipeline stage updates
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--gray-text-primary)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--accent)' }} /> Direct interview scheduling triggers
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#f8fafc' }}>
+                      <CheckCircle2 size={15} style={{ color: '#818cf8', flexShrink: 0 }} /> Direct interview scheduling triggers
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <Link to="/login" className="btn-primary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
-                      <LogIn size={16} /> Sign In
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <Link to="/login" className="btn-primary-lg" style={{ padding: '10px 12px', fontSize: 13, justifyContent: 'center', textDecoration: 'none' }}>
+                      <LogIn size={15} /> Sign In
                     </Link>
-                    <Link to="/register" className="btn-secondary-lg" style={{ padding: '12px', fontSize: 14, justifyContent: 'center', textDecoration: 'none' }}>
-                      <UserPlus size={16} /> Create Account
+                    <Link to="/register" className="btn-secondary-lg" style={{ padding: '10px 12px', fontSize: 13, justifyContent: 'center', textDecoration: 'none' }}>
+                      <UserPlus size={15} /> Create Account
                     </Link>
                   </div>
                 </div>

@@ -98,11 +98,11 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--gray-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <CareersNav />
 
-      <main className="auth-page-wrapper" style={{ flex: 1 }}>
-        <div className="auth-card-wrapper active">
+      <main className="auth-page-wrapper" style={{ flex: 1, paddingTop: 130, paddingBottom: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
+        <div className="auth-card-wrapper active" style={{ maxWidth: 760, width: '100%', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
           
           {/* Right Blue/Indigo Toggle Panel (in active state) */}
           <div className="auth-toggle-container">

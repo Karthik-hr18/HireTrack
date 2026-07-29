@@ -2979,27 +2979,54 @@ input:focus, select:focus, textarea:focus {
 }
 
 .careers-nav__btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 38px;
-  padding: 0 20px;
-  border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 38px !important;
+  padding: 0 20px !important;
+  border-radius: var(--radius-pill) !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
   color: #ffffff !important;
-  font-size: 13.5px;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: all 200ms ease;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
-  box-sizing: border-box;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: all 200ms ease !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25) !important;
+  box-sizing: border-box !important;
 }
 
 .careers-nav__btn-primary:hover {
-  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
-  transform: translateY(-1.5px) scale(1.02);
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%) !important;
+  transform: translateY(-1.5px) scale(1.02) !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4) !important;
+}
+
+.careers-nav__btn-secondary {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: var(--radius-pill) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: all 200ms ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+.careers-nav__btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  color: #ffffff !important;
+  transform: translateY(-1.5px) !important;
 }
 
 .stagger-child-1 { transition-delay: 50ms; }
