@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, Sparkles, Shield, Zap, Globe } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 const HERO_VIDEO = '/assets/istockphoto-2151261126-640_adpp_is.mp4';
 
@@ -147,33 +147,6 @@ export const CareersHero: React.FC = () => {
           background: 'linear-gradient(180deg, rgba(9, 13, 22, 0.70) 0%, rgba(9, 13, 22, 0.82) 60%, rgba(9, 13, 22, 0.96) 100%)'
         }}
       />
-
-      {/* ── FLOATING ASSEMBLING DECORATIVE PILLS ("Parts Come and Join") ── */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '20%',
-          right: '8%',
-          zIndex: 3,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-          pointerEvents: 'none',
-          opacity: prefersReducedMotion || isEntered ? 1 : 0,
-          transform: prefersReducedMotion || isEntered ? 'translate(0, 0)' : 'translate(60px, -30px)',
-          transition: prefersReducedMotion ? 'none' : 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1) 400ms'
-        }}
-      >
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', backgroundColor: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(99, 102, 241, 0.3)', borderRadius: 99, color: '#e2e8f0', fontSize: 12, fontWeight: 600, backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-          <Zap size={14} style={{ color: '#fbbf24' }} /> High Impact Projects
-        </div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', backgroundColor: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: 99, color: '#e2e8f0', fontSize: 12, fontWeight: 600, backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', marginLeft: 30 }}>
-          <Globe size={14} style={{ color: '#38bdf8' }} /> 100% Async Remote
-        </div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', backgroundColor: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(52, 211, 153, 0.3)', borderRadius: 99, color: '#e2e8f0', fontSize: 12, fontWeight: 600, backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-          <Shield size={14} style={{ color: '#34d399' }} /> Top Tier Equity & Perks
-        </div>
-      </div>
 
       {/* ── HERO TEXT & BUTTONS CONTENT LAYER ── */}
       <div

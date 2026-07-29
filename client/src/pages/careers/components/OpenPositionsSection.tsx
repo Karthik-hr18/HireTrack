@@ -5,6 +5,8 @@ import { JobFilters, FilterState } from './JobFilters';
 import { Frown } from 'lucide-react';
 import { ScrollReveal } from '../../../components/ui/ScrollReveal';
 
+import { SectionDivider } from '../../../components/common/SectionDivider';
+
 interface OpenPositionsSectionProps {
   jobs: JobItem[];
 }
@@ -132,7 +134,9 @@ export const OpenPositionsSection: React.FC<OpenPositionsSectionProps> = ({ jobs
   }, [jobs, filters]);
 
   return (
-    <section id="open-positions" style={{ padding: '90px 0', backgroundColor: '#0b0f19', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+    <>
+      <SectionDivider />
+      <section id="open-positions" style={{ padding: '90px 0', backgroundColor: '#0b0f19' }}>
       <div className="careers-container">
         <ScrollReveal>
           {/* Section Header */}
@@ -209,5 +213,6 @@ export const OpenPositionsSection: React.FC<OpenPositionsSectionProps> = ({ jobs
         </ScrollReveal>
       </div>
     </section>
-  );
+  </>
+);
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { ScrollReveal } from '../../../components/ui/ScrollReveal';
+import { SectionDivider } from '../../../components/common/SectionDivider';
 
 const FAQS = [
   {
@@ -43,66 +44,68 @@ export const FAQSection: React.FC = () => {
   };
 
   return (
-    <section id="faq" style={{ padding: '90px 0', backgroundColor: '#0b0f19', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-      <script type="application/ld+json">
-        {JSON.stringify(jsonLdData)}
-      </script>
-      <div className="careers-container">
-        <ScrollReveal>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 40, maxWidth: 840, margin: '0 auto' }}>
-            {/* Section Header at Top */}
-            <div style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#818cf8', marginBottom: 10 }}>
-                Questions & Answers
-              </p>
-              <h2 style={{ fontSize: 36, fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 14 }}>
-                We're glad you asked...
-              </h2>
-              <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: 1.6, maxWidth: 580, margin: '0 auto' }}>
-                Everything you need to know about joining our team, our hiring culture, and what to expect during evaluation.
-              </p>
-            </div>
+    <>
+      <SectionDivider />
+      <section id="faq" style={{ padding: '90px 0', backgroundColor: '#0b0f19' }}>
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLdData)}
+        </script>
+        <div className="careers-container">
+          <ScrollReveal>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 40, maxWidth: 840, margin: '0 auto' }}>
+              {/* Section Header at Top */}
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#818cf8', marginBottom: 10 }}>
+                  Questions & Answers
+                </p>
+                <h2 style={{ fontSize: 36, fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 14 }}>
+                  We're glad you asked...
+                </h2>
+                <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: 1.6, maxWidth: 580, margin: '0 auto' }}>
+                  Everything you need to know about joining our team, our hiring culture, and what to expect during evaluation.
+                </p>
+              </div>
 
-            {/* Questions Below Header */}
-            <div>
-              {FAQS.map((faq, idx) => {
-                const isOpen = openIndex === idx;
-                return (
-                  <div key={idx} className="careers-faq-item" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <button
-                      type="button"
-                      className="careers-faq-trigger"
-                      onClick={() => toggle(idx)}
-                      aria-expanded={isOpen}
-                      style={{ color: '#f8fafc', padding: '20px 0' }}
-                    >
-                      <span style={{ color: '#f8fafc', fontSize: 18, fontWeight: 600 }}>{faq.question}</span>
-                      <ChevronDown
-                        size={20}
-                        style={{
-                          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)',
-                          color: isOpen ? '#818cf8' : '#94a3b8',
-                          flexShrink: 0,
-                          marginLeft: 12,
-                        }}
-                      />
-                    </button>
+              {/* Questions Below Header */}
+              <div>
+                {FAQS.map((faq, idx) => {
+                  const isOpen = openIndex === idx;
+                  return (
+                    <div key={idx} className="careers-faq-item">
+                      <button
+                        type="button"
+                        className="careers-faq-trigger"
+                        onClick={() => toggle(idx)}
+                        aria-expanded={isOpen}
+                      >
+                        <span>{faq.question}</span>
+                        <ChevronDown
+                          size={20}
+                          style={{
+                            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)',
+                            color: isOpen ? '#818cf8' : '#94a3b8',
+                            flexShrink: 0,
+                            marginLeft: 12,
+                          }}
+                        />
+                      </button>
 
-                    <div className={`careers-faq-content-wrapper ${isOpen ? 'is-open' : ''}`}>
-                      <div className="careers-faq-content-inner">
-                        <div className="careers-faq-content" style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.7, paddingBottom: 20 }}>
-                          {faq.answer}
+                      <div className={`careers-faq-content-wrapper ${isOpen ? 'is-open' : ''}`}>
+                        <div className="careers-faq-content-inner">
+                          <div className="careers-faq-content">
+                            {faq.answer}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </ScrollReveal>
-      </div>
-    </section>
+          </ScrollReveal>
+        </div>
+      </section>
+    </>
   );
 };
