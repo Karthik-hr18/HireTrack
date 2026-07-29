@@ -317,23 +317,34 @@ export const EmployeesPage: React.FC = () => {
           <button
             type="button"
             onClick={handleResetFilters}
-            title="Reset Filters"
+            title="Reset all search & toolbar filters"
             style={{
-              height: 28,
-              padding: '0 10px',
+              height: 30,
+              padding: '0 12px',
               fontSize: 12,
               fontWeight: 600,
-              color: '#64748b',
-              backgroundColor: '#f1f5f9',
-              border: '1px solid #cbd5e1',
+              color: '#ef4444',
+              backgroundColor: '#fef2f2',
+              border: '1px solid #fca5a5',
               borderRadius: 6,
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 4
+              gap: 5,
+              whiteSpace: 'nowrap',
+              transition: 'all 150ms ease',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#fee2e2';
+              e.currentTarget.style.borderColor = '#f87171';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#fef2f2';
+              e.currentTarget.style.borderColor = '#fca5a5';
             }}
           >
-            <RotateCcw size={13} /> Reset
+            <RotateCcw size={13} /> Reset All
           </button>
         </div>
 

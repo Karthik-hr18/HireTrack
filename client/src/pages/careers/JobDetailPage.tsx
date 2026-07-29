@@ -18,7 +18,10 @@ import {
   LogIn, 
   UserPlus,
   AlertCircle,
-  Users
+  Users,
+  Upload,
+  FileText,
+  X
 } from 'lucide-react';
 
 export const JobDetailPage: React.FC = () => {
@@ -520,13 +523,60 @@ export const JobDetailPage: React.FC = () => {
 
                     <div>
                       <label style={labelStyle}>Upload Resume PDF *</label>
-                      <input 
-                        type="file" 
-                        accept="application/pdf" 
-                        onChange={handleFileChange}
-                        required
-                        style={{ ...inputStyle, paddingTop: 8 }}
-                      />
+                      <div 
+                        style={{ 
+                          border: resume ? '2px solid #818cf8' : '2px dashed rgba(99, 102, 241, 0.4)', 
+                          padding: '20px', 
+                          borderRadius: 14, 
+                          backgroundColor: resume ? 'rgba(99, 102, 241, 0.12)' : 'rgba(15, 23, 42, 0.75)', 
+                          textAlign: 'center',
+                          transition: 'all 200ms ease'
+                        }}
+                      >
+                        <input 
+                          type="file" 
+                          accept="application/pdf" 
+                          onChange={handleFileChange}
+                          required={!resume}
+                          id="careers-resume-upload-input"
+                          style={{ display: 'none' }}
+                        />
+                        <label htmlFor="careers-resume-upload-input" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                          {resume ? (
+                            <FileText size={28} style={{ color: '#818cf8' }} />
+                          ) : (
+                            <Upload size={28} style={{ color: '#818cf8' }} />
+                          )}
+                          <span style={{ fontSize: 14, fontWeight: 700, color: '#ffffff' }}>
+                            {resume ? resume.name : 'Click to Upload Resume (PDF)'}
+                          </span>
+                          <span style={{ fontSize: 12, color: '#94a3b8' }}>
+                            {resume ? `${(resume.size / (1024 * 1024)).toFixed(2)} MB · Selected` : 'Supports PDF files up to 10MB'}
+                          </span>
+                        </label>
+                        {resume && (
+                          <button
+                            type="button"
+                            onClick={() => setResume(null)}
+                            style={{
+                              marginTop: 10,
+                              background: 'rgba(239, 68, 68, 0.15)',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              color: '#fca5a5',
+                              fontSize: 12,
+                              fontWeight: 600,
+                              padding: '4px 12px',
+                              borderRadius: 6,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4
+                            }}
+                          >
+                            <X size={12} /> Remove File
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 8 }}>
