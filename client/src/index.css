@@ -2949,9 +2949,13 @@ input:focus, select:focus, textarea:focus {
 
 .careers-nav__mobile-toggle--open,
 .careers-nav--scrolled .careers-nav__mobile-toggle--open {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
   color: #ffffff !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 4px !important;
   z-index: 100005 !important;
 }
 

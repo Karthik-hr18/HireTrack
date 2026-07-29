@@ -211,7 +211,7 @@ export const CareersNav: React.FC = () => {
             aria-label={isMobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
             aria-expanded={isMobileMenuOpen}
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
@@ -255,7 +255,7 @@ export const CareersNav: React.FC = () => {
               overflowY: 'auto'
             }}
           >
-            <div className="careers-nav__mobile-drawer-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginBottom: 20, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}>
+            <div className="careers-nav__mobile-drawer-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginBottom: 20, paddingRight: 40, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{
                   width: 28,
@@ -269,8 +269,8 @@ export const CareersNav: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>H</span>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#ffffff' }}>
-                  Hire<span style={{ color: '#818cf8' }}>Track</span> Navigation
+                <span style={{ fontSize: 16, fontWeight: 800, color: '#ffffff' }}>
+                  Hire<span style={{ color: '#818cf8' }}>Track</span>
                 </span>
               </div>
             </div>
