@@ -126,9 +126,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
                 letterSpacing: '0.06em',
                 padding: '4px 10px',
                 borderRadius: 'var(--radius-pill)',
-                backgroundColor: 'rgba(79, 70, 229, 0.08)',
-                color: 'var(--accent)',
-                border: '1px solid rgba(79, 70, 229, 0.15)',
+                backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                color: '#a5b4fc',
+                border: '1px solid rgba(129, 140, 248, 0.3)',
               }}
             >
               {department}
@@ -141,9 +141,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
                     fontWeight: 600,
                     padding: '3px 8px',
                     borderRadius: 'var(--radius-pill)',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    color: 'var(--accent)',
-                    border: '1px solid rgba(79, 70, 229, 0.2)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                    color: '#c7d2fe',
+                    border: '1px solid rgba(129, 140, 248, 0.3)',
                   }}
                 >
                   👥 {job.vacancies} Openings
@@ -155,9 +155,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
                   fontWeight: 600,
                   padding: '3px 8px',
                   borderRadius: 'var(--radius-pill)',
-                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                  color: 'var(--success)',
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                  color: '#34d399',
+                  border: '1px solid rgba(52, 211, 153, 0.3)',
                 }}
               >
                 Open Role
@@ -166,42 +166,42 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           </div>
 
           {/* Job Title */}
-          <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 12, lineHeight: 1.3 }}>
+          <h3 style={{ fontSize: 20, fontWeight: 700, color: '#f8fafc', marginBottom: 12, lineHeight: 1.3 }}>
             {job.title}
           </h3>
 
           {/* Metadata pills */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-            <span style={{ fontSize: 13, color: 'var(--gray-text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <MapPin size={14} style={{ color: 'var(--accent)' }} />
+            <span style={{ fontSize: 13, color: '#cbd5e1', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <MapPin size={14} style={{ color: '#818cf8' }} />
               {job.location || 'Remote'}
             </span>
 
-            <span style={{ fontSize: 13, color: 'var(--gray-text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <Briefcase size={14} style={{ color: 'var(--accent)' }} />
+            <span style={{ fontSize: 13, color: '#cbd5e1', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <Briefcase size={14} style={{ color: '#818cf8' }} />
               {job.minExperience === 0 || job.minExperience === undefined ? 'Freshers Eligible' : `${job.minExperience}+ Yrs Exp`}
             </span>
 
-            <span style={{ fontSize: 13, color: 'var(--gray-text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <DollarSign size={14} style={{ color: 'var(--accent)' }} />
+            <span style={{ fontSize: 13, color: '#cbd5e1', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <DollarSign size={14} style={{ color: '#818cf8' }} />
               {getSalaryBand(job.minExperience)}
             </span>
           </div>
 
           {/* Description snippet */}
-          <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--gray-text-muted)', marginBottom: 20, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p style={{ fontSize: 14, lineHeight: 1.6, color: '#94a3b8', marginBottom: 20, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {job.description}
           </p>
         </div>
 
         {/* Footer & Actions */}
-        <div style={{ borderTop: '1px solid var(--gray-border)', paddingTop: 16, marginTop: 12 }}>
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: 16, marginTop: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <span style={{ fontSize: 12, color: 'var(--gray-text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 12, color: '#94a3b8', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <Clock size={12} />
               {formatTimeAgo(typeof job.createdAt === 'string' ? job.createdAt : job.createdAt?.toISOString())}
             </span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--gray-text-primary)' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#f8fafc' }}>
               Full-time
             </span>
           </div>
@@ -214,7 +214,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
                 padding: '10px 14px',
                 fontSize: 13,
                 justifyContent: 'center',
-                borderRadius: 'var(--radius-default)',
+                borderRadius: 10,
+                backgroundColor: 'rgba(255, 255, 255, 0.10)',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
               }}
             >
               Details
@@ -226,8 +229,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
                 padding: '10px 14px',
                 fontSize: 13,
                 justifyContent: 'center',
-                borderRadius: 'var(--radius-default)',
-                boxShadow: 'none',
+                borderRadius: 10,
+                backgroundColor: '#6366f1',
+                color: '#ffffff',
+                boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4)',
               }}
             >
               Apply <ArrowUpRight size={15} />
