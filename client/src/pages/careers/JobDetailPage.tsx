@@ -655,15 +655,15 @@ export const JobDetailPage: React.FC = () => {
               )}
 
               {/* What We Offer */}
-              <div className="careers-card" style={{ padding: 28, backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 18, boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)' }}>
-                <h4 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Sparkles size={20} style={{ color: '#4f46e5' }} /> What We Offer
+              <div className="careers-card" style={{ padding: 28, backgroundColor: 'rgba(79, 70, 229, 0.03)', border: '1px solid rgba(79, 70, 229, 0.12)' }}>
+                <h4 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Sparkles size={18} style={{ color: 'var(--accent)' }} /> What We Offer
                 </h4>
-                <ul style={{ paddingLeft: 22, margin: 0, fontSize: 14.5, color: '#0f172a', fontWeight: 600, lineHeight: 1.8 }}>
-                  <li style={{ marginBottom: 6 }}><strong style={{ color: '#0f172a' }}>Remote-first flexibility:</strong> Global async collaboration with flexible hours</li>
-                  <li style={{ marginBottom: 6 }}><strong style={{ color: '#0f172a' }}>Learning & Growth:</strong> $2,500 annual personal learning & conference budget</li>
-                  <li style={{ marginBottom: 6 }}><strong style={{ color: '#0f172a' }}>Premium Workstation:</strong> Latest hardware setup (MacBook Pro / Linux workstation)</li>
-                  <li><strong style={{ color: '#0f172a' }}>Full Health Coverage:</strong> Comprehensive medical, dental, and health insurance</li>
+                <ul style={{ paddingLeft: 20, margin: 0, fontSize: 14, color: 'var(--gray-text-muted)', lineHeight: 1.8 }}>
+                  <li>Remote-first flexibility with global async collaboration</li>
+                  <li>$2,500 annual personal learning and conference budget</li>
+                  <li>Latest hardware setup (MacBook Pro / Linux workstation)</li>
+                  <li>Comprehensive medical, dental, and health coverage</li>
                 </ul>
               </div>
             </section>

@@ -204,17 +204,15 @@ export const CareersNav: React.FC = () => {
           </nav>
 
           {/* Mobile Hamburger Button */}
-          {!isMobileMenuOpen && (
-            <button
-              type="button"
-              className="careers-nav__mobile-toggle"
-              onClick={() => setIsMobileMenuOpen(true)}
-              aria-label="Open Navigation Menu"
-              aria-expanded={false}
-            >
-              <Menu size={24} />
-            </button>
-          )}
+          <button
+            type="button"
+            className="careers-nav__mobile-toggle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </div>
 
